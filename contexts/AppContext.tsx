@@ -242,16 +242,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         // If session is active, handle session-based progression
         if (isSessionActive && sessionQueue.length > 0) {
           const newCompletedCount = sessionCompletedCount + 1;
-          
+
           // Update pass/fail counts
-          const newPassCount = result === 'pass' ? sessionPassCount + 1 : sessionPassCount;
-          const newFailCount = result === 'fail' ? sessionFailCount + 1 : sessionFailCount;
+          const newPassCount =
+            result === 'pass' ? sessionPassCount + 1 : sessionPassCount;
+          const newFailCount =
+            result === 'fail' ? sessionFailCount + 1 : sessionFailCount;
 
           // Check if session is complete
           if (newCompletedCount >= sessionQueue.length) {
             // Calculate session duration
-            const duration = sessionStartTime ? Date.now() - sessionStartTime : 0;
-            
+            const duration = sessionStartTime
+              ? Date.now() - sessionStartTime
+              : 0;
+
             // Session complete
             setState((prev) => ({
               ...prev,
@@ -314,9 +318,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const selectProblemSet = useCallback((problemSetId: string) => {
     setState((prev) => {
       // Find the selected problem set to get its problemSetKey
-      const selectedSet = prev.availableProblemSets.find(ps => ps.id === problemSetId);
-      const problemSetKey = selectedSet?.problemSetKey || prev.selectedProblemSetKey;
-      
+      const selectedSet = prev.availableProblemSets.find(
+        (ps) => ps.id === problemSetId
+      );
+      const problemSetKey =
+        selectedSet?.problemSetKey || prev.selectedProblemSetKey;
+
       const newState = {
         ...prev,
         selectedProblemSetId: problemSetId,
@@ -340,7 +347,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-
   const startNewSession = useCallback(async () => {
     try {
       setLoading(true);
@@ -351,7 +357,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Generate session queue based on selected problem set or problemSetKey
       const queue = selectedProblemSetId
         ? await problemService.generateSessionQueue(selectedProblemSetId, true)
-        : await problemService.generateSessionQueue(selectedProblemSetKey, false);
+        : await problemService.generateSessionQueue(
+            selectedProblemSetKey,
+            false
+          );
 
       // If no problems in queue, don't start session
       if (queue.length === 0) {
@@ -401,8 +410,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const { selectedProblemSetId } = stateRef.current;
-      
-      const problems = await databaseService.getStruggledProblems(20, selectedProblemSetId || undefined);
+
+      const problems = await databaseService.getStruggledProblems(
+        20,
+        selectedProblemSetId || undefined
+      );
       setState((prev) => ({ ...prev, struggledProblems: problems }));
     } catch (error) {
       console.error('Failed to load struggled problems:', error);
@@ -420,16 +432,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const { selectedProblemSetId } = stateRef.current;
-      
+
       // Reset statistics only for the currently selected problem set
       if (selectedProblemSetId) {
-        await databaseService.resetStatisticsByProblemSetId(selectedProblemSetId);
+        await databaseService.resetStatisticsByProblemSetId(
+          selectedProblemSetId
+        );
       }
+      // Only clear the struggled problems cache, preserve UI state
       setState((prev) => ({
         ...prev,
         struggledProblems: [],
-        recentProblemIds: [],
-        currentProblem: null,
       }));
     } catch (error) {
       console.error('Failed to reset data:', error);

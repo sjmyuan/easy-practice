@@ -786,7 +786,9 @@ describe('AppContext', () => {
 
       // Verify struggled problems are loaded
       expect(result.current.state.struggledProblems).toHaveLength(1);
-      expect(result.current.state.struggledProblems[0].problemSetKey).toBe('addition-within-20');
+      expect(result.current.state.struggledProblems[0].problemSetKey).toBe(
+        'addition-within-20'
+      );
 
       // Switch type to subtraction
       act(() => {
@@ -834,7 +836,9 @@ describe('AppContext', () => {
 
       // Verify struggled problems are loaded
       expect(result.current.state.struggledProblems).toHaveLength(1);
-      expect(result.current.state.struggledProblems[0].problemSetKey).toBe('subtraction-within-20');
+      expect(result.current.state.struggledProblems[0].problemSetKey).toBe(
+        'subtraction-within-20'
+      );
 
       // Switch type back to addition
       act(() => {
@@ -874,7 +878,9 @@ describe('AppContext', () => {
         },
       ];
 
-      const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
+      const getStruggledProblemsCall = vi.mocked(
+        databaseService.getStruggledProblems
+      );
       getStruggledProblemsCall
         .mockResolvedValueOnce(additionProblems)
         .mockResolvedValueOnce(subtractionProblems);
@@ -906,13 +912,17 @@ describe('AppContext', () => {
       });
 
       // Should now have subtraction problems
-      expect(result.current.state.struggledProblems).toEqual(subtractionProblems);
+      expect(result.current.state.struggledProblems).toEqual(
+        subtractionProblems
+      );
     });
   });
 
   describe('Reset Data by Type', () => {
     it('should reset statistics only for the selected problem type', async () => {
-      const resetStatisticsByProblemSetIdCall = vi.fn().mockResolvedValue(undefined);
+      const resetStatisticsByProblemSetIdCall = vi
+        .fn()
+        .mockResolvedValue(undefined);
       vi.mocked(databaseService).resetStatisticsByProblemSetId =
         resetStatisticsByProblemSetIdCall;
 
@@ -936,14 +946,152 @@ describe('AppContext', () => {
       expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
       expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledTimes(1);
 
-      // Verify state was cleared
+      // Verify only struggledProblems cache was cleared
       expect(result.current.state.struggledProblems).toEqual([]);
-      expect(result.current.state.recentProblemIds).toEqual([]);
-      expect(result.current.state.currentProblem).toBeNull();
+    });
+
+    it('should preserve currentProblem and session state after reset', async () => {
+      const resetStatisticsByProblemSetIdCall = vi
+        .fn()
+        .mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByProblemSetId =
+        resetStatisticsByProblemSetIdCall;
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Select a problem set and start session
+      act(() => {
+        result.current.actions.selectProblemSet('1');
+      });
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      await waitFor(() => {
+        expect(result.current.state.currentProblem).not.toBeNull();
+      });
+
+      const problemBeforeReset = result.current.state.currentProblem;
+      const recentIdsBeforeReset = result.current.state.recentProblemIds;
+      const sessionActiveBeforeReset = result.current.state.isSessionActive;
+      const sessionQueueBeforeReset = result.current.state.sessionQueue;
+      const sessionCompletedCountBeforeReset =
+        result.current.state.sessionCompletedCount;
+
+      // Call resetAllData
+      await act(async () => {
+        await result.current.actions.resetAllData();
+      });
+
+      // Verify statistics were reset
+      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
+      expect(result.current.state.struggledProblems).toEqual([]);
+
+      // Verify UI state was preserved
+      expect(result.current.state.currentProblem).toEqual(problemBeforeReset);
+      expect(result.current.state.recentProblemIds).toEqual(
+        recentIdsBeforeReset
+      );
+      expect(result.current.state.isSessionActive).toBe(
+        sessionActiveBeforeReset
+      );
+      expect(result.current.state.sessionQueue).toEqual(
+        sessionQueueBeforeReset
+      );
+      expect(result.current.state.sessionCompletedCount).toBe(
+        sessionCompletedCountBeforeReset
+      );
+    });
+
+    it('should preserve session completion screen after reset', async () => {
+      const resetStatisticsByProblemSetIdCall = vi
+        .fn()
+        .mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByProblemSetId =
+        resetStatisticsByProblemSetIdCall;
+
+      const mockProblem = {
+        id: '1',
+        problem: '2 + 3',
+        answer: 5,
+        problemSetKey: 'addition-within-10',
+      };
+
+      vi.mocked(db.problems.get).mockResolvedValue(mockProblem);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Select a problem set and start session
+      act(() => {
+        result.current.actions.selectProblemSet('1');
+      });
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      await waitFor(() => {
+        expect(result.current.state.currentProblem).not.toBeNull();
+        expect(result.current.state.sessionQueue.length).toBeGreaterThan(0);
+      });
+
+      // Complete the entire session
+      const totalProblems = result.current.state.sessionQueue.length;
+      for (let i = 0; i < totalProblems; i++) {
+        await act(async () => {
+          await result.current.actions.submitAnswer('pass');
+        });
+      }
+
+      await waitFor(() => {
+        expect(result.current.state.isSessionActive).toBe(false);
+        expect(result.current.state.sessionCompletedCount).toBe(totalProblems);
+      });
+
+      const sessionDurationBeforeReset = result.current.state.sessionDuration;
+      const sessionPassCountBeforeReset = result.current.state.sessionPassCount;
+      const sessionFailCountBeforeReset = result.current.state.sessionFailCount;
+      const sessionCompletedCountBeforeReset =
+        result.current.state.sessionCompletedCount;
+
+      // Call resetAllData
+      await act(async () => {
+        await result.current.actions.resetAllData();
+      });
+
+      // Verify statistics were reset
+      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
+      expect(result.current.state.struggledProblems).toEqual([]);
+
+      // Verify session completion state was preserved
+      expect(result.current.state.isSessionActive).toBe(false);
+      expect(result.current.state.sessionCompletedCount).toBe(
+        sessionCompletedCountBeforeReset
+      );
+      expect(result.current.state.sessionDuration).toBe(
+        sessionDurationBeforeReset
+      );
+      expect(result.current.state.sessionPassCount).toBe(
+        sessionPassCountBeforeReset
+      );
+      expect(result.current.state.sessionFailCount).toBe(
+        sessionFailCountBeforeReset
+      );
     });
 
     it('should use the current selectedProblemSetId when resetting', async () => {
-      const resetStatisticsByProblemSetIdCall = vi.fn().mockResolvedValue(undefined);
+      const resetStatisticsByProblemSetIdCall = vi
+        .fn()
+        .mockResolvedValue(undefined);
       vi.mocked(databaseService).resetStatisticsByProblemSetId =
         resetStatisticsByProblemSetIdCall;
 
@@ -974,7 +1122,9 @@ describe('AppContext', () => {
       vi.mocked(databaseService).resetStatisticsByProblemSetId =
         resetStatisticsByProblemSetIdCall;
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -1006,7 +1156,9 @@ describe('AppContext', () => {
 
   describe('Issue B: loadStruggledProblems passes selectedProblemSetId to database', () => {
     it('should call getStruggledProblems with the selected problem set ID when loading struggled problems', async () => {
-      const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
+      const getStruggledProblemsCall = vi.mocked(
+        databaseService.getStruggledProblems
+      );
       getStruggledProblemsCall.mockResolvedValue([]);
 
       const { result } = renderHook(() => useApp(), { wrapper });
@@ -1030,7 +1182,9 @@ describe('AppContext', () => {
     });
 
     it('should call getStruggledProblems without ID when no problem set is selected', async () => {
-      const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
+      const getStruggledProblemsCall = vi.mocked(
+        databaseService.getStruggledProblems
+      );
       getStruggledProblemsCall.mockResolvedValue([]);
 
       const { result } = renderHook(() => useApp(), { wrapper });
@@ -1087,7 +1241,9 @@ describe('AppContext', () => {
       });
 
       // Verify state was updated with filtered results
-      expect(result.current.state.struggledProblems).toEqual(mockStruggledProblems);
+      expect(result.current.state.struggledProblems).toEqual(
+        mockStruggledProblems
+      );
     });
   });
 
@@ -1124,8 +1280,12 @@ describe('AppContext', () => {
       const afterStart = Date.now();
 
       expect(result.current.state.sessionStartTime).toBeDefined();
-      expect(result.current.state.sessionStartTime).toBeGreaterThanOrEqual(beforeStart);
-      expect(result.current.state.sessionStartTime).toBeLessThanOrEqual(afterStart);
+      expect(result.current.state.sessionStartTime).toBeGreaterThanOrEqual(
+        beforeStart
+      );
+      expect(result.current.state.sessionStartTime).toBeLessThanOrEqual(
+        afterStart
+      );
     });
 
     it('should not set sessionStartTime if session fails to start', async () => {
@@ -1183,7 +1343,7 @@ describe('AppContext', () => {
       expect(sessionStartTime).toBeDefined();
 
       // Wait a bit to ensure duration > 0
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Complete the session
       await act(async () => {
@@ -1234,7 +1394,7 @@ describe('AppContext', () => {
       expect(result.current.state.sessionDuration).toBeGreaterThanOrEqual(0);
 
       // Wait a bit
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Start new session
       await act(async () => {
