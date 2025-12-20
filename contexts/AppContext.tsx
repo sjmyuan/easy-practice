@@ -1,7 +1,7 @@
 // contexts/AppContext.tsx - Global application state management
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { Problem, ProblemSet, StruggledProblemSummary } from '@/types';
 import { databaseService, problemService } from '@/services';
 import { RECENT_PROBLEMS_LIMIT } from '@/lib/constants';
@@ -72,6 +72,12 @@ const initialState: AppState = {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(initialState);
+  const stateRef = useRef<AppState>(state);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   const setLoading = useCallback((isLoading: boolean) => {
     setState((prev) => ({ ...prev, isLoading }));
@@ -89,19 +95,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const problemSets = await databaseService.getProblemSets();
 
-      // Capture the selected type synchronously
-      const currentState = { selectedType: 'addition' };
-      setState((prev) => {
-        currentState.selectedType = prev.selectedType;
-        return {
-          ...prev,
-          availableProblemSets: problemSets,
-          isInitialized: true,
-        };
-      });
+      setState((prev) => ({
+        ...prev,
+        availableProblemSets: problemSets,
+        isInitialized: true,
+      }));
 
-      // Load the first problem after initialization
-      const problem = await problemService.getNextProblem(currentState.selectedType, []);
+      // Load the first problem after initialization using current state from ref
+      const problem = await problemService.getNextProblem(stateRef.current.selectedType, []);
 
       if (problem && problem.id) {
         setState((prev) => ({
@@ -160,18 +161,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       
-      // Capture current state values synchronously
-      const currentState = { selectedType: '', recentProblemIds: [] as string[] };
-      
-      setState((prev) => {
-        currentState.selectedType = prev.selectedType;
-        currentState.recentProblemIds = prev.recentProblemIds;
-        return prev;
-      });
+      // Get current state values from ref
+      const { selectedType, recentProblemIds } = stateRef.current;
       
       const problem = await problemService.getNextProblem(
-        currentState.selectedType,
-        currentState.recentProblemIds
+        selectedType,
+        recentProblemIds
       );
 
       if (problem && problem.id) {
@@ -197,16 +192,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const submitAnswer = useCallback(
     async (result: 'pass' | 'fail') => {
       try {
-        // Capture current problem id synchronously
-        const currentState = { problemId: undefined as string | undefined };
-        setState((prev) => {
-          currentState.problemId = prev.currentProblem?.id;
-          return prev;
-        });
+        // Get current problem id from ref
+        const problemId = stateRef.current.currentProblem?.id;
         
-        if (!currentState.problemId) return;
+        if (!problemId) return;
 
-        await databaseService.recordAttempt(currentState.problemId, result);
+        await databaseService.recordAttempt(problemId, result);
         await loadNextProblem();
       } catch (error) {
         console.error('Failed to submit answer:', error);
