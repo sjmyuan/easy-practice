@@ -146,6 +146,79 @@ export class ProblemService {
     const count = await db.problems.count();
     return count > 0;
   }
+
+  /**
+   * Generate session queue based on success ratios
+   * - Include all problems with success ratio < 90%
+   * - Include problems with success ratio >= 90% with 30% probability
+   * - If no statistics exist, include all problems
+   * - Return shuffled array of problem IDs
+   */
+  async generateSessionQueue(type: string): Promise<string[]> {
+    // Get enabled problem sets of the selected type
+    const problemSets = await db.problemSets
+      .where('type')
+      .equals(type)
+      .and((ps) => ps.enabled)
+      .toArray();
+
+    if (problemSets.length === 0) return [];
+
+    const problemSetIds = problemSets
+      .map((ps) => ps.id)
+      .filter((id): id is string => id !== undefined);
+
+    // Get problems from these sets
+    const problems = await db.problems
+      .where('problemSetId')
+      .anyOf(problemSetIds)
+      .toArray();
+
+    if (problems.length === 0) return [];
+
+    // Get statistics for each problem and determine inclusion
+    const sessionProblems: string[] = [];
+
+    for (const problem of problems) {
+      if (!problem.id) continue;
+
+      const stats = await db.statistics.get(problem.id);
+
+      // If no statistics, include all problems
+      if (!stats || stats.totalAttempts === 0) {
+        sessionProblems.push(problem.id);
+        continue;
+      }
+
+      // Calculate success ratio
+      const successRatio = stats.passCount / stats.totalAttempts;
+
+      // Include if success ratio < 0.9 (90%)
+      if (successRatio < 0.9) {
+        sessionProblems.push(problem.id);
+      } else {
+        // Include with 30% probability if success ratio >= 90%
+        if (Math.random() < 0.3) {
+          sessionProblems.push(problem.id);
+        }
+      }
+    }
+
+    // Shuffle the array to randomize order
+    return this.shuffleArray(sessionProblems);
+  }
+
+  /**
+   * Shuffle array using Fisher-Yates algorithm
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
 }
 
 export const problemService = new ProblemService();

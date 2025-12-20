@@ -1,11 +1,25 @@
 # Software Architecture Design Document
 ## Math Practice App for Parents
 
-**Version:** 1.3.0  
+**Version:** 1.4.0  
 **Date:** December 20, 2025  
-**Status:** In Progress - Epic 1 & Epic 2 Completed
+**Status:** In Progress - Epics 1, 2, & 4 Completed
 
 ## Recent Updates
+
+### Epic 4 Implementation - Session-Based Practice with Progress Tracking (December 20, 2025)
+- **Implemented Session State Management**: Added `isSessionActive`, `sessionQueue`, and `sessionCompletedCount` to AppContext
+- **Implemented Session Queue Generation**: Algorithm that selects problems based on success ratios (<90% always included, ≥90% included with 30% probability)
+- **Implemented StartSessionButton Component**: Explicit button to start practice sessions
+- **Implemented ProgressIndicator Component**: Displays "X / Y" progress near problem display
+- **Updated Main Page Flow**: Changed from continuous problem flow to session-based approach
+  - User must explicitly start a session
+  - Progress indicator shows session progress
+  - Session complete screen with option to start new session
+  - Switching problem types resets the session
+- **Removed Auto-Load Behavior**: App no longer auto-loads first problem on initialization
+- **Added 23 new tests** for session management, queue generation, progress tracking, and type switching
+- All Epic 4 acceptance criteria met and tested
 
 ### Design Refinement - Streamlined User Flow (December 20, 2025)
 - **Removed NextProblemButton from main page**: Pass/Fail buttons now automatically load the next problem
@@ -54,11 +68,24 @@
 - ✅ **Empty State Handling**: Appropriate messages when no struggled problems exist
 - ✅ **Streamlined Workflow**: Pass/Fail action automatically triggers next problem load
 
+#### Epic 4: Session-Based Practice with Progress Tracking ✅
+- ✅ **Session State Management**: Ephemeral session state in AppContext (not persisted to DB)
+- ✅ **Adaptive Queue Generation**: Problems selected based on success ratios with intelligent filtering
+  - Success ratio < 90%: Always included
+  - Success ratio ≥ 90%: 30% probability of inclusion
+  - No historical data: All problems included
+- ✅ **StartSessionButton Component**: Explicit control over when practice begins
+- ✅ **ProgressIndicator Component**: Real-time "X / Y" display showing session progress
+- ✅ **Session Completion UI**: Celebration screen with completion count and option to start new session
+- ✅ **Type Switch Behavior**: Sessions reset when switching between addition/subtraction
+- ✅ **Session-Based Problem Flow**: Problems advance through queue as answers are submitted
+
 ### Test Coverage
-- 60 tests passing across 9 test files
-- Component tests: TypeSelector, ProblemDisplay, NextProblemButton (retained), AnswerButtons, SummaryView, ResetDataButton
-- Integration tests: Main page rendering and interaction with Epic 2 components
-- Unit tests: Priority calculation, database services, utilities
+- 109 tests passing across 13 test files
+- Component tests: TypeSelector, ProblemDisplay, AnswerButtons, SummaryView, ResetDataButton, ProgressIndicator, StartSessionButton
+- Integration tests: Main page with Epic 2 and Epic 4 components
+- Unit tests: Priority calculation, database services, utilities, session queue generation
+- Context tests: Session state, start session action, progress tracking, type switch reset
 - Note: NextProblemButton component tests retained but component not used in main page flow
 
 ---

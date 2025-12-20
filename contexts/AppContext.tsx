@@ -4,12 +4,18 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { Problem, ProblemSet, StruggledProblemSummary } from '@/types';
 import { databaseService, problemService } from '@/services';
+import { db } from '@/lib/db';
 import { RECENT_PROBLEMS_LIMIT } from '@/lib/constants';
 
 export interface AppState {
   // Current Problem State
   currentProblem: Problem | null;
   recentProblemIds: string[];
+
+  // Session State
+  isSessionActive: boolean;
+  sessionQueue: string[]; // Array of problem IDs in the session
+  sessionCompletedCount: number;
 
   // UI State
   selectedType: string;
@@ -34,6 +40,9 @@ export interface AppActions {
   // Problem Actions
   loadNextProblem: () => Promise<void>;
   submitAnswer: (result: 'pass' | 'fail') => Promise<void>;
+
+  // Session Actions
+  startNewSession: () => Promise<void>;
 
   // Type Selection Actions
   setType: (type: string) => void;
@@ -61,6 +70,9 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 const initialState: AppState = {
   currentProblem: null,
   recentProblemIds: [],
+  isSessionActive: false,
+  sessionQueue: [],
+  sessionCompletedCount: 0,
   selectedType: 'addition',
   availableProblemSets: [],
   isLoading: false,
@@ -99,21 +111,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         availableProblemSets: problemSets,
         isInitialized: true,
+        isLoading: false,
       }));
 
-      // Load the first problem after initialization using current state from ref
-      const problem = await problemService.getNextProblem(stateRef.current.selectedType, []);
-
-      if (problem && problem.id) {
-        setState((prev) => ({
-          ...prev,
-          currentProblem: problem,
-          recentProblemIds: [problem.id!, ...prev.recentProblemIds.slice(0, RECENT_PROBLEMS_LIMIT - 1)],
-          isLoading: false,
-        }));
-      } else {
-        setState((prev) => ({ ...prev, currentProblem: null, isLoading: false }));
-      }
+      // No longer auto-load first problem - user must start a session
     } catch (error) {
       console.error('Failed to initialize app:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to initialize application';
@@ -192,13 +193,43 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const submitAnswer = useCallback(
     async (result: 'pass' | 'fail') => {
       try {
-        // Get current problem id from ref
-        const problemId = stateRef.current.currentProblem?.id;
+        // Get current state from ref
+        const { currentProblem, isSessionActive, sessionQueue, sessionCompletedCount } = stateRef.current;
+        const problemId = currentProblem?.id;
         
         if (!problemId) return;
 
+        // Record the attempt
         await databaseService.recordAttempt(problemId, result);
-        await loadNextProblem();
+
+        // If session is active, handle session-based progression
+        if (isSessionActive && sessionQueue.length > 0) {
+          const newCompletedCount = sessionCompletedCount + 1;
+          
+          // Check if session is complete
+          if (newCompletedCount >= sessionQueue.length) {
+            // Session complete
+            setState((prev) => ({
+              ...prev,
+              sessionCompletedCount: newCompletedCount,
+              isSessionActive: false,
+              currentProblem: null,
+            }));
+          } else {
+            // Load next problem from session queue
+            const nextProblemId = sessionQueue[newCompletedCount];
+            const nextProblem = await db.problems.get(nextProblemId);
+            
+            setState((prev) => ({
+              ...prev,
+              sessionCompletedCount: newCompletedCount,
+              currentProblem: nextProblem || null,
+            }));
+          }
+        } else {
+          // No active session, use old behavior
+          await loadNextProblem();
+        }
       } catch (error) {
         console.error('Failed to submit answer:', error);
         throw error;
@@ -213,8 +244,55 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       selectedType: type,
       recentProblemIds: [],
       currentProblem: null,
+      // Reset session when switching types
+      isSessionActive: false,
+      sessionQueue: [],
+      sessionCompletedCount: 0,
     }));
   }, []);
+
+  const startNewSession = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Get current state from ref
+      const { selectedType } = stateRef.current;
+      
+      // Generate session queue
+      const queue = await problemService.generateSessionQueue(selectedType);
+      
+      // If no problems in queue, don't start session
+      if (queue.length === 0) {
+        setState((prev) => ({
+          ...prev,
+          isSessionActive: false,
+          sessionQueue: [],
+          sessionCompletedCount: 0,
+          currentProblem: null,
+        }));
+        return;
+      }
+      
+      // Load first problem from queue
+      const firstProblemId = queue[0];
+      const firstProblem = await db.problems.get(firstProblemId);
+      
+      // Update state with session info and first problem
+      setState((prev) => ({
+        ...prev,
+        isSessionActive: true,
+        sessionQueue: queue,
+        sessionCompletedCount: 0,
+        currentProblem: firstProblem || null,
+        recentProblemIds: firstProblem?.id ? [firstProblem.id] : [],
+      }));
+    } catch (error) {
+      console.error('Failed to start new session:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [setLoading]);
 
   const loadStruggledProblems = useCallback(async () => {
     try {
@@ -300,6 +378,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       loadNextProblem,
       submitAnswer,
       setType,
+      startNewSession,
       loadStruggledProblems,
       toggleSummary,
       resetAllData,
@@ -314,6 +393,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       loadNextProblem,
       submitAnswer,
       setType,
+      startNewSession,
       loadStruggledProblems,
       toggleSummary,
       resetAllData,

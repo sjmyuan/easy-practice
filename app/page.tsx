@@ -6,6 +6,8 @@ import { ProblemDisplay } from '@/components/ProblemDisplay';
 import { AnswerButtons } from '@/components/AnswerButtons';
 import { SummaryView } from '@/components/SummaryView';
 import { ResetDataButton } from '@/components/ResetDataButton';
+import { ProgressIndicator } from '@/components/ProgressIndicator';
+import { StartSessionButton } from '@/components/StartSessionButton';
 
 export default function Home() {
   const { state, actions } = useApp();
@@ -48,14 +50,53 @@ export default function Home() {
           />
         </div>
 
-        <ProblemDisplay problem={state.currentProblem} />
+        {/* Session-based UI */}
+        {state.isSessionActive ? (
+          <>
+            {/* Progress Indicator */}
+            <ProgressIndicator
+              completed={state.sessionCompletedCount}
+              total={state.sessionQueue.length}
+            />
 
-        {state.currentProblem && (
-          <AnswerButtons
-            onPass={() => actions.submitAnswer('pass')}
-            onFail={() => actions.submitAnswer('fail')}
-            disabled={state.isLoading}
-          />
+            <ProblemDisplay problem={state.currentProblem} />
+
+            {state.currentProblem && (
+              <AnswerButtons
+                onPass={() => actions.submitAnswer('pass')}
+                onFail={() => actions.submitAnswer('fail')}
+                disabled={state.isLoading}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            {/* Session Complete or Not Started */}
+            {state.sessionCompletedCount > 0 ? (
+              <div className="text-center space-y-4 py-8">
+                <div className="text-2xl font-bold text-green-600">
+                  🎉 Session Complete!
+                </div>
+                <p className="text-gray-600">
+                  You completed {state.sessionCompletedCount} problem{state.sessionCompletedCount !== 1 ? 's' : ''}
+                </p>
+                <StartSessionButton
+                  onStart={actions.startNewSession}
+                  disabled={state.isLoading}
+                />
+              </div>
+            ) : (
+              <div className="text-center space-y-4 py-8">
+                <p className="text-gray-600">
+                  Start a new practice session to begin
+                </p>
+                <StartSessionButton
+                  onStart={actions.startNewSession}
+                  disabled={state.isLoading}
+                />
+              </div>
+            )}
+          </>
         )}
 
         <div className="flex justify-center gap-4 pt-4 border-t border-gray-200">

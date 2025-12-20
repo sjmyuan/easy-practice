@@ -111,6 +111,45 @@ As a busy parent, I want the design to include engaging visuals (e.g., colors, i
 - Given the app includes visuals, when viewed by the child, then the visuals should not distract from the parent’s ability to interact with the app.
 - Given the app is used repeatedly, when visuals are displayed, then they should remain engaging without becoming repetitive.
 
+### Epic 4: Session-Based Practice with Progress Tracking ✅ COMPLETED
+[Busy Parent] wants to track progress through a defined set of problems so that they know when the practice session is complete and can see how many problems their child has worked through.
+
+#### User Story 1: Start Practice Sessions ✅ COMPLETED
+As a busy parent, I want to explicitly start a new practice session so that I have control over when practice begins.
+##### Acceptance Criteria:
+- ✅ Given the app is initialized, when I view the main screen, then I should see a "Start New Session" button.
+- ✅ Given I tap "Start New Session," when the session starts, then a set of problems should be generated based on my child's performance history.
+- ✅ Given there are no enabled problem sets, when I tap "Start New Session," then the app should display a message indicating no problems are available.
+
+#### User Story 2: Adaptive Problem Selection ✅ COMPLETED
+As a busy parent, I want the session to intelligently select problems based on my child's performance so that we focus on areas needing improvement.
+##### Acceptance Criteria:
+- ✅ Given problems have been attempted before, when generating a session, then all problems with success ratio < 90% should be included.
+- ✅ Given problems have been attempted before, when generating a session, then problems with success ratio ≥ 90% should be included with 30% probability.
+- ✅ Given no historical data exists, when generating a session, then all problems from enabled problem sets should be included.
+- ✅ Given a session is generated, when problems are presented, then they should appear in random order with no duplicates.
+
+#### User Story 3: Track Session Progress ✅ COMPLETED
+As a busy parent, I want to see how many problems have been completed in the current session so that I know how much progress we've made.
+##### Acceptance Criteria:
+- ✅ Given a session is active, when viewing the problem, then I should see a progress indicator showing "X / Y" (e.g., "5 / 20") near the problem display.
+- ✅ Given I mark a problem as pass or fail, when the answer is submitted, then the progress indicator should increment the completed count.
+- ✅ Given the session reaches the last problem, when I submit an answer, then the session should complete.
+
+#### User Story 4: Session Completion Feedback ✅ COMPLETED
+As a busy parent, I want clear feedback when a session is complete so that I know we can take a break or start a new session.
+##### Acceptance Criteria:
+- ✅ Given all problems in a session are completed, when the last answer is submitted, then the app should display a "Session Complete" message.
+- ✅ Given the session is complete, when viewing the completion screen, then I should see how many problems were completed.
+- ✅ Given the session is complete, when I want to continue, then I should be able to tap "Start New Session" to begin a new practice session.
+
+#### User Story 5: Session Reset on Type Switch ✅ COMPLETED
+As a busy parent, I want sessions to reset when I switch between addition and subtraction so that each type has its own practice flow.
+##### Acceptance Criteria:
+- ✅ Given I am in an active session, when I switch from addition to subtraction (or vice versa), then the current session should be cleared.
+- ✅ Given I switch types, when viewing the screen, then I should see the "Start New Session" button to begin a new session for that type.
+- ✅ Given I switch types, when I start a new session, then the problems should be from the newly selected type.
+
 ## Dependencies/Risks
 - Dependency: Local data storage (e.g., browser localStorage or IndexedDB) is required for saving performance data.
 - Risk: Technical debt could arise if features are rushed without proper testing.
