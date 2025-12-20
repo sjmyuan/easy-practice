@@ -337,7 +337,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const resetAllData = useCallback(async () => {
     try {
       setLoading(true);
-      await databaseService.resetStatistics();
+      // Reset statistics only for the currently selected type
+      await databaseService.resetStatisticsByType(stateRef.current.selectedType);
       setState((prev) => ({
         ...prev,
         struggledProblems: [],

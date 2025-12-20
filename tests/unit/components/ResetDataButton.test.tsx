@@ -99,4 +99,65 @@ describe('ResetDataButton Component', () => {
     expect(button).toHaveClass('h-12');
     expect(button).toHaveClass('px-6');
   });
+
+  it('should show type-specific confirmation message when selectedType is provided', async () => {
+    const user = userEvent.setup();
+    const mockOnReset = vi.fn();
+
+    // Mock window.confirm
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    render(
+      <ResetDataButton onReset={mockOnReset} selectedType="addition" />
+    );
+
+    const button = screen.getByRole('button', { name: /reset data/i });
+    await user.click(button);
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Are you sure you want to reset all performance data for addition problems? This action cannot be undone.'
+    );
+
+    confirmSpy.mockRestore();
+  });
+
+  it('should show generic confirmation message when selectedType is not provided', async () => {
+    const user = userEvent.setup();
+    const mockOnReset = vi.fn();
+
+    // Mock window.confirm
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    render(<ResetDataButton onReset={mockOnReset} />);
+
+    const button = screen.getByRole('button', { name: /reset data/i });
+    await user.click(button);
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Are you sure you want to reset all performance data? This action cannot be undone.'
+    );
+
+    confirmSpy.mockRestore();
+  });
+
+  it('should show correct message for different problem types', async () => {
+    const user = userEvent.setup();
+    const mockOnReset = vi.fn();
+
+    // Mock window.confirm
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    render(
+      <ResetDataButton onReset={mockOnReset} selectedType="subtraction" />
+    );
+
+    const button = screen.getByRole('button', { name: /reset data/i });
+    await user.click(button);
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Are you sure you want to reset all performance data for subtraction problems? This action cannot be undone.'
+    );
+
+    confirmSpy.mockRestore();
+  });
 });

@@ -748,4 +748,93 @@ describe('AppContext', () => {
       expect(result.current.state.recentProblemIds).toEqual([]);
     });
   });
+
+  describe('Reset Data by Type', () => {
+    it('should reset statistics only for the selected problem type', async () => {
+      const resetStatisticsByTypeCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByType =
+        resetStatisticsByTypeCall;
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Set type to addition
+      act(() => {
+        result.current.actions.setType('addition');
+      });
+
+      // Call resetAllData (which should now reset by type)
+      await act(async () => {
+        await result.current.actions.resetAllData();
+      });
+
+      // Verify resetStatisticsByType was called with the selected type
+      expect(resetStatisticsByTypeCall).toHaveBeenCalledWith('addition');
+      expect(resetStatisticsByTypeCall).toHaveBeenCalledTimes(1);
+
+      // Verify state was cleared
+      expect(result.current.state.struggledProblems).toEqual([]);
+      expect(result.current.state.recentProblemIds).toEqual([]);
+      expect(result.current.state.currentProblem).toBeNull();
+    });
+
+    it('should use the current selectedType when resetting', async () => {
+      const resetStatisticsByTypeCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByType =
+        resetStatisticsByTypeCall;
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Set type to subtraction
+      act(() => {
+        result.current.actions.setType('subtraction');
+      });
+
+      // Call resetAllData
+      await act(async () => {
+        await result.current.actions.resetAllData();
+      });
+
+      // Verify resetStatisticsByType was called with subtraction
+      expect(resetStatisticsByTypeCall).toHaveBeenCalledWith('subtraction');
+    });
+
+    it('should handle errors during reset gracefully', async () => {
+      const resetStatisticsByTypeCall = vi
+        .fn()
+        .mockRejectedValue(new Error('Reset failed'));
+      vi.mocked(databaseService).resetStatisticsByType =
+        resetStatisticsByTypeCall;
+
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Call resetAllData which should throw
+      await expect(
+        act(async () => {
+          await result.current.actions.resetAllData();
+        })
+      ).rejects.toThrow('Reset failed');
+
+      // Verify error was logged
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to reset data:',
+        expect.any(Error)
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+  });
 });

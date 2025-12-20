@@ -47,10 +47,19 @@
 
 - Implemented **AnswerButtons Component**: Allows parents to mark problems as Pass or Fail
 - Implemented **SummaryView Component**: Displays list of struggled problems with details
-- Implemented **ResetDataButton Component**: Allows clearing all performance data with confirmation
+- Implemented **ResetDataButton Component**: Allows clearing performance data for the currently selected problem type with confirmation
 - Integrated all new components into main page with proper state management
 - Added comprehensive test coverage for all new components (29 additional tests)
 - All Epic 2 acceptance criteria met and tested
+
+### Enhancement - Type-Specific Data Reset (December 20, 2025)
+
+- Enhanced **Reset Data functionality** to only reset the currently selected problem type
+- Added `resetStatisticsByType()` method to DatabaseService for targeted reset operations
+- Updated ResetDataButton to display type-specific confirmation messages (e.g., "reset addition problems")
+- Modified AppContext to use selectedType when resetting data
+- This allows parents to reset one problem type without affecting progress in other types
+- Added comprehensive test coverage for the new reset behavior
 
 ### Bug Fix - Date Storage (December 20, 2025)
 
@@ -83,11 +92,12 @@
 
 - ✅ **AnswerButtons Component**: Pass/Fail buttons that automatically load next problem after marking
 - ✅ **SummaryView Component**: Modal displaying struggled problems with failure rates and details
-- ✅ **ResetDataButton Component**: Confirmation-based data reset functionality
+- ✅ **ResetDataButton Component**: Confirmation-based data reset functionality (type-specific)
 - ✅ **Performance Tracking**: Automatic storage of pass/fail results in IndexedDB
 - ✅ **Problem Details**: Expandable view showing total attempts, pass count, and last attempted date
 - ✅ **Empty State Handling**: Appropriate messages when no struggled problems exist
 - ✅ **Streamlined Workflow**: Pass/Fail action automatically triggers next problem load
+- ✅ **Type-Specific Reset**: Reset data only affects the currently selected problem type
 
 #### Epic 3: Mobile-First Design ✅
 
@@ -928,6 +938,7 @@ async function getStruggledProblems(limit = 20) {
 #### Pattern 5: Reset Performance Data
 
 ```typescript
+// Reset all statistics (used for full reset)
 async function resetStatistics() {
   await db.transaction('rw', db.attempts, db.statistics, async () => {
     await db.attempts.clear();
@@ -938,9 +949,55 @@ async function resetStatistics() {
       lastAttemptedAt: null,
       lastResult: null,
       failureRate: 0,
-      priority: 0,
+      priority: 50,
     });
   });
+}
+
+// Reset statistics for a specific problem type
+async function resetStatisticsByType(type: string) {
+  await db.transaction(
+    'rw',
+    db.problemSets,
+    db.problems,
+    db.attempts,
+    db.statistics,
+    async () => {
+      // Get all problem sets of the specified type
+      const problemSets = await db.problemSets
+        .where('type')
+        .equals(type)
+        .toArray();
+
+      // Get all problem IDs for these problem sets
+      const problemIds: string[] = [];
+      for (const problemSet of problemSets) {
+        const problems = await db.problems
+          .where('problemSetId')
+          .equals(problemSet.id!)
+          .toArray();
+        problemIds.push(...problems.map((p) => p.id!));
+      }
+
+      // Delete attempts for these problems
+      for (const problemId of problemIds) {
+        await db.attempts.where('problemId').equals(problemId).delete();
+      }
+
+      // Reset statistics for these problems
+      for (const problemId of problemIds) {
+        await db.statistics.update(problemId, {
+          totalAttempts: 0,
+          passCount: 0,
+          failCount: 0,
+          lastAttemptedAt: null,
+          lastResult: null,
+          failureRate: 0,
+          priority: 50,
+        });
+      }
+    }
+  );
 }
 ```
 
@@ -989,6 +1046,7 @@ export interface IDatabaseService {
   getAllStatistics(): Promise<ProblemStatistics[]>;
   updateStatistics(problemId: string, result: 'pass' | 'fail'): Promise<void>;
   resetStatistics(): Promise<void>;
+  resetStatisticsByType(type: string): Promise<void>;
 
   // Attempt Operations
   recordAttempt(problemId: string, result: 'pass' | 'fail'): Promise<void>;
@@ -1087,7 +1145,7 @@ export interface AppActions {
   toggleSummary: () => void;
 
   // Data Management Actions
-  resetAllData: () => Promise<void>;
+  resetAllData: () => Promise<void>; // Resets statistics for the currently selected type only
   exportData: () => Promise<void>;
   importData: (file: File) => Promise<void>;
 

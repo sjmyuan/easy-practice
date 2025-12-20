@@ -112,7 +112,10 @@ export default function Home() {
           >
             View Summary
           </button>
-          <ResetDataButton onReset={actions.resetAllData} />
+          <ResetDataButton
+            onReset={actions.resetAllData}
+            selectedType={state.selectedType}
+          />
         </div>
       </div>
 

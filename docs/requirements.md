@@ -113,9 +113,10 @@ As a busy parent, I want to reset or clear performance data periodically so that
 
 ##### Acceptance Criteria:
 
-- ✅ Given performance data exists, when the parent taps "Reset Data," then all stored data should be cleared.
-- ✅ Given performance data is cleared, when the parent views the summary, then the app should display a message like "No data available."
-- ✅ Given the parent resets data, when new problems are generated, then the system should start tracking performance from scratch.
+- ✅ Given performance data exists, when the parent taps "Reset Data," then all stored data for the currently selected problem type should be cleared.
+- ✅ Given performance data is cleared for a problem type, when the parent views the summary, then only problems from other types should remain.
+- ✅ Given the parent resets data for a problem type, when new problems of that type are generated, then the system should start tracking performance from scratch for that type.
+- ✅ Given the parent resets addition data, when they switch to subtraction, then subtraction performance data should remain intact.
 
 ### Epic 3: Mobile-First Design (Parent-Centric) ✅ COMPLETED
 

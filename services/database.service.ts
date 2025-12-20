@@ -317,6 +317,54 @@ export class DatabaseService {
   }
 
   /**
+   * Reset statistics for problems of a specific type
+   */
+  async resetStatisticsByType(type: string): Promise<void> {
+    await db.transaction(
+      'rw',
+      db.problemSets,
+      db.problems,
+      db.attempts,
+      db.statistics,
+      async () => {
+        // Get all problem sets of the specified type
+        const problemSets = await db.problemSets
+          .where('type')
+          .equals(type)
+          .toArray();
+
+        // Get all problem IDs for these problem sets
+        const problemIds: string[] = [];
+        for (const problemSet of problemSets) {
+          const problems = await db.problems
+            .where('problemSetId')
+            .equals(problemSet.id!)
+            .toArray();
+          problemIds.push(...problems.map((p) => p.id!));
+        }
+
+        // Delete attempts for these problems
+        for (const problemId of problemIds) {
+          await db.attempts.where('problemId').equals(problemId).delete();
+        }
+
+        // Reset statistics for these problems
+        for (const problemId of problemIds) {
+          await db.statistics.update(problemId, {
+            totalAttempts: 0,
+            passCount: 0,
+            failCount: 0,
+            lastAttemptedAt: null,
+            lastResult: null,
+            failureRate: 0,
+            priority: 50,
+          });
+        }
+      }
+    );
+  }
+
+  /**
    * Clear all data
    */
   async clearAllData(): Promise<void> {

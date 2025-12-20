@@ -5,13 +5,16 @@ import React from 'react';
 
 interface ResetDataButtonProps {
   onReset: () => void;
+  selectedType?: string;
 }
 
-export function ResetDataButton({ onReset }: ResetDataButtonProps) {
+export function ResetDataButton({ onReset, selectedType }: ResetDataButtonProps) {
   const handleClick = () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to reset all performance data? This action cannot be undone.'
-    );
+    const message = selectedType
+      ? `Are you sure you want to reset all performance data for ${selectedType} problems? This action cannot be undone.`
+      : 'Are you sure you want to reset all performance data? This action cannot be undone.';
+
+    const confirmed = window.confirm(message);
 
     if (confirmed) {
       onReset();

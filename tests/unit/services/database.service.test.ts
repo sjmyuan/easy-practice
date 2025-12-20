@@ -154,4 +154,183 @@ describe('DatabaseService', () => {
       expect(stats!.failureRate).toBeCloseTo(1 / 3, 5);
     });
   });
+
+  describe('resetStatisticsByType', () => {
+    it('should reset statistics only for problems of the specified type', async () => {
+      // Setup: Create problem sets of different types
+      const additionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Addition Set',
+          type: 'addition',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '2 + 2', answer: '4' },
+        ],
+      };
+
+      const subtractionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Subtraction Set',
+          type: 'subtraction',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '5 - 3', answer: '2' },
+          { problem: '10 - 4', answer: '6' },
+        ],
+      };
+
+      await service.importProblemsFromJSON(additionData);
+      await service.importProblemsFromJSON(subtractionData);
+
+      const allProblems = await db.problems.toArray();
+      expect(allProblems.length).toBe(4);
+
+      // Record attempts for all problems
+      for (const problem of allProblems) {
+        await service.recordAttempt(problem.id!, 'pass');
+        await service.recordAttempt(problem.id!, 'fail');
+      }
+
+      // Verify all problems have statistics
+      const allStats = await db.statistics.toArray();
+      expect(allStats.length).toBe(4);
+      allStats.forEach((stat) => {
+        expect(stat.totalAttempts).toBe(2);
+        expect(stat.passCount).toBe(1);
+        expect(stat.failCount).toBe(1);
+      });
+
+      // Reset only addition problems
+      await service.resetStatisticsByType('addition');
+
+      // Get problems and their stats after reset
+      const problemSets = await db.problemSets.toArray();
+      const additionSet = problemSets.find((ps) => ps.type === 'addition');
+      const subtractionSet = problemSets.find((ps) => ps.type === 'subtraction');
+
+      const additionProblems = await db.problems
+        .where('problemSetId')
+        .equals(additionSet!.id!)
+        .toArray();
+      const subtractionProblems = await db.problems
+        .where('problemSetId')
+        .equals(subtractionSet!.id!)
+        .toArray();
+
+      // Check addition statistics are reset
+      for (const problem of additionProblems) {
+        const stat = await db.statistics.get(problem.id!);
+        expect(stat!.totalAttempts).toBe(0);
+        expect(stat!.passCount).toBe(0);
+        expect(stat!.failCount).toBe(0);
+        expect(stat!.lastAttemptedAt).toBeNull();
+        expect(stat!.lastResult).toBeNull();
+        expect(stat!.failureRate).toBe(0);
+        expect(stat!.priority).toBe(50);
+
+        // Check attempts are cleared
+        const attempts = await db.attempts
+          .where('problemId')
+          .equals(problem.id!)
+          .toArray();
+        expect(attempts.length).toBe(0);
+      }
+
+      // Check subtraction statistics are unchanged
+      for (const problem of subtractionProblems) {
+        const stat = await db.statistics.get(problem.id!);
+        expect(stat!.totalAttempts).toBe(2);
+        expect(stat!.passCount).toBe(1);
+        expect(stat!.failCount).toBe(1);
+
+        // Check attempts are still there
+        const attempts = await db.attempts
+          .where('problemId')
+          .equals(problem.id!)
+          .toArray();
+        expect(attempts.length).toBe(2);
+      }
+    });
+
+    it('should handle non-existent problem type gracefully', async () => {
+      // Setup: Create a problem set
+      const problemSetData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Test Set',
+          type: 'addition',
+          difficulty: 'easy',
+        },
+        problems: [{ problem: '1 + 1', answer: '2' }],
+      };
+
+      await service.importProblemsFromJSON(problemSetData);
+      const problems = await db.problems.toArray();
+      await service.recordAttempt(problems[0].id!, 'pass');
+
+      // Reset non-existent type
+      await service.resetStatisticsByType('multiplication');
+
+      // Verify addition statistics are unchanged
+      const stats = await db.statistics.get(problems[0].id!);
+      expect(stats!.totalAttempts).toBe(1);
+      expect(stats!.passCount).toBe(1);
+    });
+
+    it('should reset multiple problem sets of the same type', async () => {
+      // Setup: Create multiple problem sets of the same type
+      const additionSet1: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Addition Set 1',
+          type: 'addition',
+          difficulty: 'easy',
+        },
+        problems: [{ problem: '1 + 1', answer: '2' }],
+      };
+
+      const additionSet2: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Addition Set 2',
+          type: 'addition',
+          difficulty: 'hard',
+        },
+        problems: [{ problem: '50 + 50', answer: '100' }],
+      };
+
+      await service.importProblemsFromJSON(additionSet1);
+      await service.importProblemsFromJSON(additionSet2);
+
+      const allProblems = await db.problems.toArray();
+      expect(allProblems.length).toBe(2);
+
+      // Record attempts for both
+      for (const problem of allProblems) {
+        await service.recordAttempt(problem.id!, 'fail');
+        await service.recordAttempt(problem.id!, 'fail');
+      }
+
+      // Reset all addition problems
+      await service.resetStatisticsByType('addition');
+
+      // Verify both problem sets' statistics are reset
+      for (const problem of allProblems) {
+        const stat = await db.statistics.get(problem.id!);
+        expect(stat!.totalAttempts).toBe(0);
+        expect(stat!.failCount).toBe(0);
+
+        const attempts = await db.attempts
+          .where('problemId')
+          .equals(problem.id!)
+          .toArray();
+        expect(attempts.length).toBe(0);
+      }
+    });
+  });
 });
