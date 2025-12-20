@@ -333,4 +333,176 @@ describe('DatabaseService', () => {
       }
     });
   });
+
+  describe('getStruggledProblems', () => {
+    it('should return all struggled problems when no type is specified', async () => {
+      // Setup: Create problem sets of different types with statistics
+      const additionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Addition Set',
+          type: 'addition',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '2 + 2', answer: '4' },
+        ],
+      };
+
+      const subtractionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Subtraction Set',
+          type: 'subtraction',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '5 - 3', answer: '2' },
+          { problem: '10 - 4', answer: '6' },
+        ],
+      };
+
+      await service.importProblemsFromJSON(additionData);
+      await service.importProblemsFromJSON(subtractionData);
+
+      const allProblems = await db.problems.toArray();
+
+      // Record failures for all problems
+      for (const problem of allProblems) {
+        await service.recordAttempt(problem.id!, 'fail');
+        await service.recordAttempt(problem.id!, 'pass');
+      }
+
+      // Get struggled problems without type filter
+      const struggledProblems = await service.getStruggledProblems();
+
+      expect(struggledProblems.length).toBe(4);
+      const categories = struggledProblems.map((p) => p.category);
+      expect(categories).toContain('addition');
+      expect(categories).toContain('subtraction');
+    });
+
+    it('should return only addition problems when type is "addition"', async () => {
+      // Setup: Create problem sets of different types
+      const additionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Addition Set',
+          type: 'addition',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '2 + 2', answer: '4' },
+        ],
+      };
+
+      const subtractionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Subtraction Set',
+          type: 'subtraction',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '5 - 3', answer: '2' },
+          { problem: '10 - 4', answer: '6' },
+        ],
+      };
+
+      await service.importProblemsFromJSON(additionData);
+      await service.importProblemsFromJSON(subtractionData);
+
+      const allProblems = await db.problems.toArray();
+
+      // Record failures for all problems
+      for (const problem of allProblems) {
+        await service.recordAttempt(problem.id!, 'fail');
+        await service.recordAttempt(problem.id!, 'pass');
+      }
+
+      // Get struggled problems filtered by addition type
+      const struggledProblems = await service.getStruggledProblems(20, 'addition');
+
+      expect(struggledProblems.length).toBe(2);
+      struggledProblems.forEach((problem) => {
+        expect(problem.category).toBe('addition');
+        expect(problem.problem).toMatch(/\+/);
+      });
+    });
+
+    it('should return only subtraction problems when type is "subtraction"', async () => {
+      // Setup: Create problem sets of different types
+      const additionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Addition Set',
+          type: 'addition',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '2 + 2', answer: '4' },
+        ],
+      };
+
+      const subtractionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Subtraction Set',
+          type: 'subtraction',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '5 - 3', answer: '2' },
+          { problem: '10 - 4', answer: '6' },
+        ],
+      };
+
+      await service.importProblemsFromJSON(additionData);
+      await service.importProblemsFromJSON(subtractionData);
+
+      const allProblems = await db.problems.toArray();
+
+      // Record failures for all problems
+      for (const problem of allProblems) {
+        await service.recordAttempt(problem.id!, 'fail');
+        await service.recordAttempt(problem.id!, 'pass');
+      }
+
+      // Get struggled problems filtered by subtraction type
+      const struggledProblems = await service.getStruggledProblems(20, 'subtraction');
+
+      expect(struggledProblems.length).toBe(2);
+      struggledProblems.forEach((problem) => {
+        expect(problem.category).toBe('subtraction');
+        expect(problem.problem).toMatch(/-/);
+      });
+    });
+
+    it('should return empty array when type has no struggled problems', async () => {
+      // Setup: Create only addition problems
+      const additionData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Addition Set',
+          type: 'addition',
+          difficulty: 'easy',
+        },
+        problems: [{ problem: '1 + 1', answer: '2' }],
+      };
+
+      await service.importProblemsFromJSON(additionData);
+      const problems = await db.problems.toArray();
+
+      // Record failure for addition problem
+      await service.recordAttempt(problems[0].id!, 'fail');
+
+      // Try to get subtraction struggled problems
+      const struggledProblems = await service.getStruggledProblems(20, 'subtraction');
+
+      expect(struggledProblems.length).toBe(0);
+    });
+  });
 });

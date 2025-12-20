@@ -749,6 +749,163 @@ describe('AppContext', () => {
     });
   });
 
+  describe('Issue C: Clear struggled problems cache on type switch', () => {
+    it('should clear struggledProblems array when switching types', async () => {
+      const mockStruggledProblems = [
+        {
+          problemId: '1',
+          problem: '1 + 1',
+          answer: '2',
+          category: 'addition',
+          failCount: 2,
+          totalAttempts: 5,
+          failureRate: 0.4,
+          lastAttemptedAt: Date.now(),
+          priority: 60,
+        },
+      ];
+
+      vi.mocked(databaseService.getStruggledProblems).mockResolvedValue(
+        mockStruggledProblems
+      );
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Load struggled problems for addition
+      await act(async () => {
+        await result.current.actions.loadStruggledProblems();
+      });
+
+      // Verify struggled problems are loaded
+      expect(result.current.state.struggledProblems).toHaveLength(1);
+      expect(result.current.state.struggledProblems[0].category).toBe('addition');
+
+      // Switch type to subtraction
+      act(() => {
+        result.current.actions.setType('subtraction');
+      });
+
+      // Struggled problems should be cleared
+      expect(result.current.state.struggledProblems).toEqual([]);
+    });
+
+    it('should clear struggledProblems when switching from subtraction to addition', async () => {
+      const mockStruggledProblems = [
+        {
+          problemId: '2',
+          problem: '10 - 5',
+          answer: '5',
+          category: 'subtraction',
+          failCount: 3,
+          totalAttempts: 7,
+          failureRate: 0.43,
+          lastAttemptedAt: Date.now(),
+          priority: 70,
+        },
+      ];
+
+      vi.mocked(databaseService.getStruggledProblems).mockResolvedValue(
+        mockStruggledProblems
+      );
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Switch to subtraction first
+      act(() => {
+        result.current.actions.setType('subtraction');
+      });
+
+      // Load struggled problems for subtraction
+      await act(async () => {
+        await result.current.actions.loadStruggledProblems();
+      });
+
+      // Verify struggled problems are loaded
+      expect(result.current.state.struggledProblems).toHaveLength(1);
+      expect(result.current.state.struggledProblems[0].category).toBe('subtraction');
+
+      // Switch type back to addition
+      act(() => {
+        result.current.actions.setType('addition');
+      });
+
+      // Struggled problems should be cleared
+      expect(result.current.state.struggledProblems).toEqual([]);
+    });
+
+    it('should require loading struggled problems after switching types', async () => {
+      const additionProblems = [
+        {
+          problemId: '1',
+          problem: '1 + 1',
+          answer: '2',
+          category: 'addition',
+          failCount: 2,
+          totalAttempts: 5,
+          failureRate: 0.4,
+          lastAttemptedAt: Date.now(),
+          priority: 60,
+        },
+      ];
+
+      const subtractionProblems = [
+        {
+          problemId: '2',
+          problem: '10 - 5',
+          answer: '5',
+          category: 'subtraction',
+          failCount: 3,
+          totalAttempts: 7,
+          failureRate: 0.43,
+          lastAttemptedAt: Date.now(),
+          priority: 70,
+        },
+      ];
+
+      const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
+      getStruggledProblemsCall
+        .mockResolvedValueOnce(additionProblems)
+        .mockResolvedValueOnce(subtractionProblems);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Load addition struggled problems
+      await act(async () => {
+        await result.current.actions.loadStruggledProblems();
+      });
+
+      expect(result.current.state.struggledProblems).toEqual(additionProblems);
+
+      // Switch to subtraction
+      act(() => {
+        result.current.actions.setType('subtraction');
+      });
+
+      // Struggled problems should be cleared
+      expect(result.current.state.struggledProblems).toEqual([]);
+
+      // Load subtraction struggled problems
+      await act(async () => {
+        await result.current.actions.loadStruggledProblems();
+      });
+
+      // Should now have subtraction problems
+      expect(result.current.state.struggledProblems).toEqual(subtractionProblems);
+    });
+  });
+
   describe('Reset Data by Type', () => {
     it('should reset statistics only for the selected problem type', async () => {
       const resetStatisticsByTypeCall = vi.fn().mockResolvedValue(undefined);
@@ -835,6 +992,93 @@ describe('AppContext', () => {
       );
 
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Issue B: loadStruggledProblems passes selectedType to database', () => {
+    it('should call getStruggledProblems with the selected type when loading struggled problems', async () => {
+      const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
+      getStruggledProblemsCall.mockResolvedValue([]);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Set type to subtraction
+      act(() => {
+        result.current.actions.setType('subtraction');
+      });
+
+      // Load struggled problems
+      await act(async () => {
+        await result.current.actions.loadStruggledProblems();
+      });
+
+      // Verify getStruggledProblems was called with 'subtraction' type
+      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, 'subtraction');
+    });
+
+    it('should call getStruggledProblems with addition type when addition is selected', async () => {
+      const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
+      getStruggledProblemsCall.mockResolvedValue([]);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Default type is 'addition'
+      expect(result.current.state.selectedType).toBe('addition');
+
+      // Load struggled problems
+      await act(async () => {
+        await result.current.actions.loadStruggledProblems();
+      });
+
+      // Verify getStruggledProblems was called with 'addition' type
+      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, 'addition');
+    });
+
+    it('should update struggledProblems state with filtered results', async () => {
+      const mockStruggledProblems = [
+        {
+          problemId: '1',
+          problem: '5 - 3',
+          answer: '2',
+          category: 'subtraction',
+          failCount: 2,
+          totalAttempts: 5,
+          failureRate: 0.4,
+          lastAttemptedAt: Date.now(),
+          priority: 60,
+        },
+      ];
+
+      vi.mocked(databaseService.getStruggledProblems).mockResolvedValue(
+        mockStruggledProblems
+      );
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Set type to subtraction
+      act(() => {
+        result.current.actions.setType('subtraction');
+      });
+
+      // Load struggled problems
+      await act(async () => {
+        await result.current.actions.loadStruggledProblems();
+      });
+
+      // Verify state was updated with filtered results
+      expect(result.current.state.struggledProblems).toEqual(mockStruggledProblems);
     });
   });
 });

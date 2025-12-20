@@ -271,6 +271,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       isSessionActive: false,
       sessionQueue: [],
       sessionCompletedCount: 0,
+      // Clear struggled problems cache when switching types
+      struggledProblems: [],
     }));
   }, []);
 
@@ -320,7 +322,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadStruggledProblems = useCallback(async () => {
     try {
       setLoading(true);
-      const problems = await databaseService.getStruggledProblems(20);
+      const { selectedType } = stateRef.current;
+      const problems = await databaseService.getStruggledProblems(20, selectedType);
       setState((prev) => ({ ...prev, struggledProblems: problems }));
     } catch (error) {
       console.error('Failed to load struggled problems:', error);

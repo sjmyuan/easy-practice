@@ -266,21 +266,28 @@ export class DatabaseService {
   /**
    * Get struggled problems summary
    */
-  async getStruggledProblems(limit = 20): Promise<StruggledProblemSummary[]> {
+  async getStruggledProblems(
+    limit = 20,
+    type?: string
+  ): Promise<StruggledProblemSummary[]> {
     const stats = await db.statistics
       .where('failureRate')
       .above(0)
       .reverse()
       .sortBy('priority');
 
-    const topStats = stats.slice(0, limit);
-
     const summaries: StruggledProblemSummary[] = [];
 
-    for (const stat of topStats) {
+    for (const stat of stats) {
       const problem = await db.problems.get(stat.problemId);
       if (problem) {
         const problemSet = await db.problemSets.get(problem.problemSetId);
+        
+        // Filter by type if specified
+        if (type && problemSet?.type !== type) {
+          continue;
+        }
+
         summaries.push({
           problemId: stat.problemId,
           problem: problem.problem,
@@ -292,6 +299,11 @@ export class DatabaseService {
           lastAttemptedAt: stat.lastAttemptedAt,
           priority: stat.priority,
         });
+
+        // Stop if we've reached the limit
+        if (summaries.length >= limit) {
+          break;
+        }
       }
     }
 
