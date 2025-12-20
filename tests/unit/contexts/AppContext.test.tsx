@@ -47,7 +47,7 @@ describe('AppContext', () => {
       {
         id: '1',
         name: 'Addition within 20',
-        type: 'addition',
+        problemSetKey: 'addition-within-20',
         enabled: true,
         createdAt: Date.now(),
       },
@@ -68,7 +68,7 @@ describe('AppContext', () => {
 
       // Trigger state updates that should NOT recreate actions object
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Actions reference should remain the same
@@ -208,7 +208,7 @@ describe('AppContext', () => {
 
       // Trigger state changes
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       act(() => {
@@ -418,7 +418,7 @@ describe('AppContext', () => {
 
       // Change type to subtraction
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Start session
@@ -701,7 +701,7 @@ describe('AppContext', () => {
 
       // Switch type
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Session should be reset
@@ -745,7 +745,7 @@ describe('AppContext', () => {
 
       // Switch type
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       expect(result.current.state.recentProblemIds).toEqual([]);
@@ -759,7 +759,7 @@ describe('AppContext', () => {
           problemId: '1',
           problem: '1 + 1',
           answer: '2',
-          category: 'addition',
+          problemSetKey: 'addition-within-20',
           failCount: 2,
           totalAttempts: 5,
           failureRate: 0.4,
@@ -785,11 +785,11 @@ describe('AppContext', () => {
 
       // Verify struggled problems are loaded
       expect(result.current.state.struggledProblems).toHaveLength(1);
-      expect(result.current.state.struggledProblems[0].category).toBe('addition');
+      expect(result.current.state.struggledProblems[0].problemSetKey).toBe('addition-within-20');
 
       // Switch type to subtraction
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Struggled problems should be cleared
@@ -802,7 +802,7 @@ describe('AppContext', () => {
           problemId: '2',
           problem: '10 - 5',
           answer: '5',
-          category: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           failCount: 3,
           totalAttempts: 7,
           failureRate: 0.43,
@@ -823,7 +823,7 @@ describe('AppContext', () => {
 
       // Switch to subtraction first
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Load struggled problems for subtraction
@@ -833,11 +833,11 @@ describe('AppContext', () => {
 
       // Verify struggled problems are loaded
       expect(result.current.state.struggledProblems).toHaveLength(1);
-      expect(result.current.state.struggledProblems[0].category).toBe('subtraction');
+      expect(result.current.state.struggledProblems[0].problemSetKey).toBe('subtraction-within-20');
 
       // Switch type back to addition
       act(() => {
-        result.current.actions.setType('addition');
+        result.current.actions.setProblemSetKey('addition');
       });
 
       // Struggled problems should be cleared
@@ -850,7 +850,7 @@ describe('AppContext', () => {
           problemId: '1',
           problem: '1 + 1',
           answer: '2',
-          category: 'addition',
+          problemSetKey: 'addition-within-20',
           failCount: 2,
           totalAttempts: 5,
           failureRate: 0.4,
@@ -864,7 +864,7 @@ describe('AppContext', () => {
           problemId: '2',
           problem: '10 - 5',
           answer: '5',
-          category: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           failCount: 3,
           totalAttempts: 7,
           failureRate: 0.43,
@@ -893,7 +893,7 @@ describe('AppContext', () => {
 
       // Switch to subtraction
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Struggled problems should be cleared
@@ -911,9 +911,9 @@ describe('AppContext', () => {
 
   describe('Reset Data by Type', () => {
     it('should reset statistics only for the selected problem type', async () => {
-      const resetStatisticsByTypeCall = vi.fn().mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByType =
-        resetStatisticsByTypeCall;
+      const resetStatisticsByProblemSetKeyCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByProblemSetKey =
+        resetStatisticsByProblemSetKeyCall;
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -923,7 +923,7 @@ describe('AppContext', () => {
 
       // Set type to addition
       act(() => {
-        result.current.actions.setType('addition');
+        result.current.actions.setProblemSetKey('addition');
       });
 
       // Call resetAllData (which should now reset by type)
@@ -931,9 +931,9 @@ describe('AppContext', () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify resetStatisticsByType was called with the selected type
-      expect(resetStatisticsByTypeCall).toHaveBeenCalledWith('addition');
-      expect(resetStatisticsByTypeCall).toHaveBeenCalledTimes(1);
+      // Verify resetStatisticsByProblemSetKey was called with the selected type
+      expect(resetStatisticsByProblemSetKeyCall).toHaveBeenCalledWith('addition');
+      expect(resetStatisticsByProblemSetKeyCall).toHaveBeenCalledTimes(1);
 
       // Verify state was cleared
       expect(result.current.state.struggledProblems).toEqual([]);
@@ -941,10 +941,10 @@ describe('AppContext', () => {
       expect(result.current.state.currentProblem).toBeNull();
     });
 
-    it('should use the current selectedType when resetting', async () => {
-      const resetStatisticsByTypeCall = vi.fn().mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByType =
-        resetStatisticsByTypeCall;
+    it('should use the current selectedProblemSetKey when resetting', async () => {
+      const resetStatisticsByProblemSetKeyCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByProblemSetKey =
+        resetStatisticsByProblemSetKeyCall;
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -954,7 +954,7 @@ describe('AppContext', () => {
 
       // Set type to subtraction
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Call resetAllData
@@ -962,16 +962,16 @@ describe('AppContext', () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify resetStatisticsByType was called with subtraction
-      expect(resetStatisticsByTypeCall).toHaveBeenCalledWith('subtraction');
+      // Verify resetStatisticsByProblemSetKey was called with subtraction
+      expect(resetStatisticsByProblemSetKeyCall).toHaveBeenCalledWith('subtraction');
     });
 
     it('should handle errors during reset gracefully', async () => {
-      const resetStatisticsByTypeCall = vi
+      const resetStatisticsByProblemSetKeyCall = vi
         .fn()
         .mockRejectedValue(new Error('Reset failed'));
-      vi.mocked(databaseService).resetStatisticsByType =
-        resetStatisticsByTypeCall;
+      vi.mocked(databaseService).resetStatisticsByProblemSetKey =
+        resetStatisticsByProblemSetKeyCall;
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -998,7 +998,7 @@ describe('AppContext', () => {
     });
   });
 
-  describe('Issue B: loadStruggledProblems passes selectedType to database', () => {
+  describe('Issue B: loadStruggledProblems passes selectedProblemSetKey to database', () => {
     it('should call getStruggledProblems with the selected type when loading struggled problems', async () => {
       const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
       getStruggledProblemsCall.mockResolvedValue([]);
@@ -1011,7 +1011,7 @@ describe('AppContext', () => {
 
       // Set type to subtraction
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Load struggled problems
@@ -1034,7 +1034,7 @@ describe('AppContext', () => {
       });
 
       // Default type is 'addition'
-      expect(result.current.state.selectedType).toBe('addition');
+      expect(result.current.state.selectedProblemSetKey).toBe('addition-within-20');
 
       // Load struggled problems
       await act(async () => {
@@ -1042,7 +1042,7 @@ describe('AppContext', () => {
       });
 
       // Verify getStruggledProblems was called with 'addition' type
-      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, 'addition');
+      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, 'addition-within-20');
     });
 
     it('should update struggledProblems state with filtered results', async () => {
@@ -1051,7 +1051,7 @@ describe('AppContext', () => {
           problemId: '1',
           problem: '5 - 3',
           answer: '2',
-          category: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           failCount: 2,
           totalAttempts: 5,
           failureRate: 0.4,
@@ -1072,7 +1072,7 @@ describe('AppContext', () => {
 
       // Set type to subtraction
       act(() => {
-        result.current.actions.setType('subtraction');
+        result.current.actions.setProblemSetKey('subtraction');
       });
 
       // Load struggled problems

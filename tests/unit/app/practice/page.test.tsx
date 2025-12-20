@@ -18,9 +18,9 @@ let mockState: {
   currentProblem: {
     problem: string;
     answer: number | string;
-    problemType: string;
+    problemSetKey: string;
   } | null;
-  selectedType: string;
+  selectedProblemSetKey: string;
   isLoading: boolean;
   isInitialized: boolean;
   initializationError: string | null;
@@ -36,7 +36,7 @@ let mockState: {
   sessionQueue: Array<{
     problem: string;
     answer: number | string;
-    problemType: string;
+    problemSetKey: string;
   }>;
   sessionCompletedCount: number;
   selectedProblemSetId: string | null;
@@ -53,7 +53,7 @@ let mockState: {
   sessionFailCount: number;
 } = {
   currentProblem: null,
-  selectedType: 'addition',
+  selectedProblemSetKey: 'addition',
   isLoading: false,
   isInitialized: true,
   initializationError: null,
@@ -77,7 +77,7 @@ vi.mock('@/contexts', () => ({
     actions: {
       initializeApp: mockInitializeApp,
       loadNextProblem: mockLoadNextProblem,
-      setType: mockSetType,
+      setProblemSetKey: mockSetType,
       submitAnswer: mockSubmitAnswer,
       loadStruggledProblems: mockLoadStruggledProblems,
       toggleSummary: mockToggleSummary,
@@ -104,7 +104,7 @@ describe('Practice Page', () => {
     vi.clearAllMocks();
     mockState = {
       currentProblem: null,
-      selectedType: 'addition',
+      selectedProblemSetKey: 'addition',
       isLoading: false,
       isInitialized: true,
       initializationError: null,

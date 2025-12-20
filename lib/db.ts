@@ -17,7 +17,7 @@ export class MathPracticeDB extends Dexie {
     super('MathPracticeDB');
 
     this.version(1).stores({
-      problemSets: 'id, type, enabled, createdAt',
+      problemSets: 'id, problemSetKey, enabled, createdAt',
       problems: 'id, problemSetId, createdAt',
       attempts: 'id, problemId, attemptedAt, result',
       statistics: 'problemId, priority, failureRate, lastAttemptedAt',

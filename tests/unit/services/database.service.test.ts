@@ -43,7 +43,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Test Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [{ problem: '1 + 1', answer: '2' }],
@@ -87,7 +87,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Test Set',
-          type: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           difficulty: 'easy',
         },
         problems: [{ problem: '5 - 3', answer: '2' }],
@@ -123,7 +123,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Test Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [{ problem: '2 + 2', answer: '4' }],
@@ -155,14 +155,14 @@ describe('DatabaseService', () => {
     });
   });
 
-  describe('resetStatisticsByType', () => {
+  describe('resetStatisticsByProblemSetKey', () => {
     it('should reset statistics only for problems of the specified type', async () => {
       // Setup: Create problem sets of different types
       const additionData: ProblemSetJSON = {
         version: '1.0',
         problemSet: {
           name: 'Addition Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -175,7 +175,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Subtraction Set',
-          type: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -206,12 +206,12 @@ describe('DatabaseService', () => {
       });
 
       // Reset only addition problems
-      await service.resetStatisticsByType('addition');
+      await service.resetStatisticsByProblemSetKey('addition-within-20');
 
       // Get problems and their stats after reset
       const problemSets = await db.problemSets.toArray();
-      const additionSet = problemSets.find((ps) => ps.type === 'addition');
-      const subtractionSet = problemSets.find((ps) => ps.type === 'subtraction');
+      const additionSet = problemSets.find((ps) => ps.problemSetKey === 'addition-within-20');
+      const subtractionSet = problemSets.find((ps) => ps.problemSetKey === 'subtraction-within-20');
 
       const additionProblems = await db.problems
         .where('problemSetId')
@@ -263,7 +263,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Test Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [{ problem: '1 + 1', answer: '2' }],
@@ -274,7 +274,7 @@ describe('DatabaseService', () => {
       await service.recordAttempt(problems[0].id!, 'pass');
 
       // Reset non-existent type
-      await service.resetStatisticsByType('multiplication');
+      await service.resetStatisticsByProblemSetKey('multiplication');
 
       // Verify addition statistics are unchanged
       const stats = await db.statistics.get(problems[0].id!);
@@ -288,7 +288,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Addition Set 1',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [{ problem: '1 + 1', answer: '2' }],
@@ -298,7 +298,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Addition Set 2',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'hard',
         },
         problems: [{ problem: '50 + 50', answer: '100' }],
@@ -317,7 +317,7 @@ describe('DatabaseService', () => {
       }
 
       // Reset all addition problems
-      await service.resetStatisticsByType('addition');
+      await service.resetStatisticsByProblemSetKey('addition-within-20');
 
       // Verify both problem sets' statistics are reset
       for (const problem of allProblems) {
@@ -341,7 +341,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Addition Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -354,7 +354,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Subtraction Set',
-          type: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -378,9 +378,9 @@ describe('DatabaseService', () => {
       const struggledProblems = await service.getStruggledProblems();
 
       expect(struggledProblems.length).toBe(4);
-      const categories = struggledProblems.map((p) => p.category);
-      expect(categories).toContain('addition');
-      expect(categories).toContain('subtraction');
+      const categories = struggledProblems.map((p) => p.problemSetKey);
+      expect(categories).toContain('addition-within-20');
+      expect(categories).toContain('subtraction-within-20');
     });
 
     it('should return only addition problems when type is "addition"', async () => {
@@ -389,7 +389,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Addition Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -402,7 +402,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Subtraction Set',
-          type: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -423,11 +423,11 @@ describe('DatabaseService', () => {
       }
 
       // Get struggled problems filtered by addition type
-      const struggledProblems = await service.getStruggledProblems(20, 'addition');
+      const struggledProblems = await service.getStruggledProblems(20, 'addition-within-20');
 
       expect(struggledProblems.length).toBe(2);
       struggledProblems.forEach((problem) => {
-        expect(problem.category).toBe('addition');
+        expect(problem.problemSetKey).toBe('addition-within-20');
         expect(problem.problem).toMatch(/\+/);
       });
     });
@@ -438,7 +438,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Addition Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -451,7 +451,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Subtraction Set',
-          type: 'subtraction',
+          problemSetKey: 'subtraction-within-20',
           difficulty: 'easy',
         },
         problems: [
@@ -472,11 +472,11 @@ describe('DatabaseService', () => {
       }
 
       // Get struggled problems filtered by subtraction type
-      const struggledProblems = await service.getStruggledProblems(20, 'subtraction');
+      const struggledProblems = await service.getStruggledProblems(20, 'subtraction-within-20');
 
       expect(struggledProblems.length).toBe(2);
       struggledProblems.forEach((problem) => {
-        expect(problem.category).toBe('subtraction');
+        expect(problem.problemSetKey).toBe('subtraction-within-20');
         expect(problem.problem).toMatch(/-/);
       });
     });
@@ -487,7 +487,7 @@ describe('DatabaseService', () => {
         version: '1.0',
         problemSet: {
           name: 'Addition Set',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
         problems: [{ problem: '1 + 1', answer: '2' }],
@@ -500,7 +500,7 @@ describe('DatabaseService', () => {
       await service.recordAttempt(problems[0].id!, 'fail');
 
       // Try to get subtraction struggled problems
-      const struggledProblems = await service.getStruggledProblems(20, 'subtraction');
+      const struggledProblems = await service.getStruggledProblems(20, 'subtraction-within-20');
 
       expect(struggledProblems.length).toBe(0);
     });

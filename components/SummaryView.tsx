@@ -109,9 +109,8 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
                     {problem.totalAttempts - problem.failCount}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Category:</span>{' '}
-                    {problem.category.charAt(0).toUpperCase() +
-                      problem.category.slice(1)}
+                    <span className="font-semibold">Problem Set:</span>{' '}
+                    {problem.problemSetKey}
                   </p>
                   {problem.lastAttemptedAt && (
                     <p className="text-sm text-gray-700">

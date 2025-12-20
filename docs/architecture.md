@@ -82,9 +82,9 @@
 ### Enhancement - Type-Specific Data Reset (December 20, 2025)
 
 - Enhanced **Reset Data functionality** to only reset the currently selected problem type
-- Added `resetStatisticsByType()` method to DatabaseService for targeted reset operations
+- Added `resetStatisticsByProblemSetKey()` method to DatabaseService for targeted reset operations
 - Updated ResetDataButton to display type-specific confirmation messages (e.g., "reset addition problems")
-- Modified AppContext to use selectedType when resetting data
+- Modified AppContext to use selectedProblemSetKey when resetting data
 - This allows parents to reset one problem type without affecting progress in other types
 - Added comprehensive test coverage for the new reset behavior
 
@@ -97,7 +97,7 @@
 
 ### Bug Fix - State Variable Initialization (December 20, 2025)
 
-- Fixed "Invalid key provided" error when `selectedType` was undefined in database queries
+- Fixed "Invalid key provided" error when `selectedProblemSetKey` was undefined in database queries
 - Changed state capture pattern in `loadNextProblem()`, `submitAnswer()`, and `initializeApp()` to use initialized objects
 - Ensures variables always have valid values before being passed to database queries
 - Replaced `let` declarations with object initialization pattern for safer state access
@@ -430,7 +430,7 @@ Represents a single problem with its question and answer.
 | `id`        | string | Unique identifier (UUID)     | Primary Key, auto-generated   |
 | `problem`   | string | Problem text (e.g., "5 + 7") | Required, max 200 chars       |
 | `answer`    | string | Correct answer (e.g., "12")  | Required, max 50 chars        |
-| `category`  | string | Problem type                 | 'addition' or 'subtraction'   |
+| `category`  | string | Problem type                 | 'addition-within-20' or 'subtraction-within-20'   |
 | `createdAt` | number | When problem was created     | Unix timestamp (milliseconds) |
 
 **Sample Data:**
@@ -440,7 +440,7 @@ Represents a single problem with its question and answer.
   "id": "550e8400-e29b-41d4-a716-446655440000",
   "problem": "5 + 7",
   "answer": "12",
-  "category": "addition",
+  "problemSetKey": "addition-within-20",
   "createdAt": 1703069400000
 }
 ```
@@ -659,7 +659,7 @@ export interface ProblemSet {
   id?: string;
   name: string;
   description?: string;
-  type: string;
+  problemSetKey: string;
   difficulty?: string;
   enabled: boolean;
   createdAt: Date;
@@ -725,14 +725,14 @@ interface ProblemSetJSON {
   problemSet?: {
     name: string;
     description?: string;
-    type: string;
+    problemSetKey: string;
     difficulty?: string;
     metadata?: Record<string, any>;
   };
   problemSets?: Array<{
     name: string;
     description?: string;
-    type: string;
+    problemSetKey: string;
     difficulty?: string;
     metadata?: Record<string, any>;
     problems: Array<{
@@ -982,7 +982,7 @@ async function resetStatistics() {
 }
 
 // Reset statistics for a specific problem type
-async function resetStatisticsByType(type: string) {
+async function resetStatisticsByProblemSetKey(type: string) {
   await db.transaction(
     'rw',
     db.problemSets,
@@ -1065,7 +1065,7 @@ export interface IDatabaseService {
 
   // Problem Operations
   getProblems(problemSetId?: string): Promise<Problem[]>;
-  getProblemsByType(type: string): Promise<Problem[]>;
+  getProblemsByProblemSetKey(type: string): Promise<Problem[]>;
   getProblemById(id: string): Promise<Problem | undefined>;
 
   // Statistics Operations
@@ -1073,7 +1073,7 @@ export interface IDatabaseService {
   getAllStatistics(): Promise<ProblemStatistics[]>;
   updateStatistics(problemId: string, result: 'pass' | 'fail'): Promise<void>;
   resetStatistics(): Promise<void>;
-  resetStatisticsByType(type: string): Promise<void>;
+  resetStatisticsByProblemSetKey(type: string): Promise<void>;
 
   // Attempt Operations
   recordAttempt(problemId: string, result: 'pass' | 'fail'): Promise<void>;
@@ -1093,7 +1093,7 @@ export interface StruggledProblemSummary {
   problemId: string;
   problem: string;
   answer: string;
-  category: string;
+  problemSetKey: string;
   failCount: number;
   totalAttempts: number;
   failureRate: number;
@@ -1117,7 +1117,7 @@ export interface IProblemService {
 
   // Problem Queue Management
   getOrderedProblemQueue(
-    category: 'addition' | 'subtraction',
+    problemSetKey: string,
     limit?: number
   ): Promise<Problem[]>;
 
@@ -1147,7 +1147,7 @@ export interface AppState {
   sessionFailCount: number; // Number of fail answers in current session
 
   // UI State
-  selectedType: string; // 'addition', 'subtraction', etc.
+  selectedProblemSetKey: string; // 'addition', 'subtraction', etc.
   availableProblemSets: ProblemSet[];
   isLoading: boolean;
   showSummary: boolean;
@@ -1175,7 +1175,7 @@ export interface AppActions {
   startNewSession: () => Promise<void>;
 
   // Type Selection Actions
-  setType: (type: string) => void;
+  setProblemSetKey: (type: string) => void;
 
   // Summary Actions
   loadStruggledProblems: () => Promise<void>;
@@ -1238,7 +1238,7 @@ export interface ActionButtonsProps {
 }
 
 export interface TypeSelectorProps {
-  selectedType: string;
+  selectedProblemSetKey: string;
   availableTypes: string[];
   onTypeChange: (type: string) => void;
 }

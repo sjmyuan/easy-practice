@@ -4,14 +4,14 @@
 import React from 'react';
 
 interface TypeSelectorProps {
-  selectedType: string;
-  onChange: (type: string) => void;
+  selectedProblemSetKey: string;
+  onChange: (problemSetKey: string) => void;
 }
 
-export function TypeSelector({ selectedType, onChange }: TypeSelectorProps) {
-  const handleClick = (type: string) => {
-    if (type !== selectedType) {
-      onChange(type);
+export function TypeSelector({ selectedProblemSetKey, onChange }: TypeSelectorProps) {
+  const handleClick = (problemSetKey: string) => {
+    if (problemSetKey !== selectedProblemSetKey) {
+      onChange(problemSetKey);
     }
   };
 
@@ -19,9 +19,9 @@ export function TypeSelector({ selectedType, onChange }: TypeSelectorProps) {
     <div className="flex gap-4">
       <button
         type="button"
-        onClick={() => handleClick('addition')}
+        onClick={() => handleClick('addition-within-20')}
         className={`h-12 rounded-lg px-6 font-medium transition-colors ${
-          selectedType === 'addition'
+          selectedProblemSetKey === 'addition-within-20'
             ? 'bg-blue-600 text-white hover:bg-blue-700'
             : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
         }`}
@@ -30,9 +30,9 @@ export function TypeSelector({ selectedType, onChange }: TypeSelectorProps) {
       </button>
       <button
         type="button"
-        onClick={() => handleClick('subtraction')}
+        onClick={() => handleClick('subtraction-within-20')}
         className={`h-12 rounded-lg px-6 font-medium transition-colors ${
-          selectedType === 'subtraction'
+          selectedProblemSetKey === 'subtraction-within-20'
             ? 'bg-blue-600 text-white hover:bg-blue-700'
             : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
         }`}

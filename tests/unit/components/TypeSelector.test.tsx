@@ -7,7 +7,7 @@ import { TypeSelector } from '@/components/TypeSelector';
 describe('TypeSelector Component', () => {
   it('should render Addition and Subtraction buttons', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
+    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
 
     expect(
       screen.getByRole('button', { name: /addition/i })
@@ -17,9 +17,9 @@ describe('TypeSelector Component', () => {
     ).toBeInTheDocument();
   });
 
-  it('should highlight the selected type', () => {
+  it('should highlight the selected problem set', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
+    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
     const subtractionButton = screen.getByRole('button', {
@@ -31,24 +31,24 @@ describe('TypeSelector Component', () => {
     expect(subtractionButton).not.toHaveClass('bg-blue-600');
   });
 
-  it('should call onChange when a different type is selected', async () => {
+  it('should call onChange when a different problem set is selected', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
+    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
 
     const subtractionButton = screen.getByRole('button', {
       name: /subtraction/i,
     });
     await user.click(subtractionButton);
 
-    expect(mockOnChange).toHaveBeenCalledWith('subtraction');
+    expect(mockOnChange).toHaveBeenCalledWith('subtraction-within-20');
     expect(mockOnChange).toHaveBeenCalledTimes(1);
   });
 
-  it('should not call onChange when clicking the already selected type', async () => {
+  it('should not call onChange when clicking the already selected problem set', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
+    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
     await user.click(additionButton);
@@ -58,7 +58,7 @@ describe('TypeSelector Component', () => {
 
   it('should be accessible with proper ARIA labels', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
+    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
     const subtractionButton = screen.getByRole('button', {
@@ -71,7 +71,7 @@ describe('TypeSelector Component', () => {
 
   it('should have large enough touch targets for mobile', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
+    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
 
     const buttons = screen.getAllByRole('button');
 

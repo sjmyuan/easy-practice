@@ -31,7 +31,7 @@ export interface AppState {
   sessionFailCount: number; // Number of fail answers in current session
 
   // UI State
-  selectedType: string;
+  selectedProblemSetKey: string;
   availableProblemSets: ProblemSet[];
   isLoading: boolean;
   showSummary: boolean;
@@ -58,8 +58,8 @@ export interface AppActions {
   // Session Actions
   startNewSession: () => Promise<void>;
 
-  // Type Selection Actions
-  setType: (type: string) => void;
+  // Problem Set Key Selection Actions
+  setProblemSetKey: (problemSetKey: string) => void;
 
   // Summary Actions
   loadStruggledProblems: () => Promise<void>;
@@ -92,7 +92,7 @@ const initialState: AppState = {
   sessionDuration: null,
   sessionPassCount: 0,
   sessionFailCount: 0,
-  selectedType: 'addition',
+  selectedProblemSetKey: 'addition-within-20',
   availableProblemSets: [],
   isLoading: false,
   showSummary: false,
@@ -192,10 +192,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       // Get current state values from ref
-      const { selectedType, recentProblemIds } = stateRef.current;
+      const { selectedProblemSetKey, recentProblemIds } = stateRef.current;
 
       const problem = await problemService.getNextProblem(
-        selectedType,
+        selectedProblemSetKey,
         recentProblemIds
       );
 
@@ -287,13 +287,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [loadNextProblem]
   );
 
-  const setType = useCallback((type: string) => {
+  const setProblemSetKey = useCallback((problemSetKey: string) => {
     setState((prev) => ({
       ...prev,
-      selectedType: type,
+      selectedProblemSetKey: problemSetKey,
       recentProblemIds: [],
       currentProblem: null,
-      // Reset session when switching types
+      // Reset session when switching problem set keys
       isSessionActive: false,
       sessionQueue: [],
       sessionCompletedCount: 0,
@@ -301,7 +301,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       sessionDuration: null,
       sessionPassCount: 0,
       sessionFailCount: 0,
-      // Clear struggled problems cache when switching types
+      // Clear struggled problems cache when switching problem set keys
       struggledProblems: [],
     }));
   }, []);
@@ -331,12 +331,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       // Get current state from ref
-      const { selectedType, selectedProblemSetId } = stateRef.current;
+      const { selectedProblemSetKey, selectedProblemSetId } = stateRef.current;
 
-      // Generate session queue based on selected problem set or type
+      // Generate session queue based on selected problem set or problemSetKey
       const queue = selectedProblemSetId
         ? await problemService.generateSessionQueue(selectedProblemSetId, true)
-        : await problemService.generateSessionQueue(selectedType, false);
+        : await problemService.generateSessionQueue(selectedProblemSetKey, false);
 
       // If no problems in queue, don't start session
       if (queue.length === 0) {
@@ -385,8 +385,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadStruggledProblems = useCallback(async () => {
     try {
       setLoading(true);
-      const { selectedType } = stateRef.current;
-      const problems = await databaseService.getStruggledProblems(20, selectedType);
+      const { selectedProblemSetKey } = stateRef.current;
+      const problems = await databaseService.getStruggledProblems(20, selectedProblemSetKey);
       setState((prev) => ({ ...prev, struggledProblems: problems }));
     } catch (error) {
       console.error('Failed to load struggled problems:', error);
@@ -403,8 +403,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const resetAllData = useCallback(async () => {
     try {
       setLoading(true);
-      // Reset statistics only for the currently selected type
-      await databaseService.resetStatisticsByType(stateRef.current.selectedType);
+      // Reset statistics only for the currently selected problemSetKey
+      await databaseService.resetStatisticsByProblemSetKey(stateRef.current.selectedProblemSetKey);
       setState((prev) => ({
         ...prev,
         struggledProblems: [],
@@ -468,7 +468,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       selectProblemSet,
       loadNextProblem,
       submitAnswer,
-      setType,
+      setProblemSetKey,
       startNewSession,
       loadStruggledProblems,
       toggleSummary,
@@ -484,7 +484,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       selectProblemSet,
       loadNextProblem,
       submitAnswer,
-      setType,
+      setProblemSetKey,
       startNewSession,
       loadStruggledProblems,
       toggleSummary,

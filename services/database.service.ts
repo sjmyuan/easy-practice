@@ -29,7 +29,7 @@ export class DatabaseService {
             id: problemSetId,
             name: jsonData.problemSet.name,
             description: jsonData.problemSet.description,
-            type: jsonData.problemSet.type,
+            problemSetKey: jsonData.problemSet.problemSetKey,
             difficulty: jsonData.problemSet.difficulty,
             enabled: true,
             createdAt: Date.now(),
@@ -68,7 +68,7 @@ export class DatabaseService {
               id: problemSetId,
               name: ps.name,
               description: ps.description,
-              type: ps.type,
+              problemSetKey: ps.problemSetKey,
               difficulty: ps.difficulty,
               enabled: true,
               createdAt: Date.now(),
@@ -105,9 +105,9 @@ export class DatabaseService {
   /**
    * Get all problem sets
    */
-  async getProblemSets(type?: string): Promise<ProblemSet[]> {
-    if (type) {
-      return await db.problemSets.where('type').equals(type).toArray();
+  async getProblemSets(problemSetKey?: string): Promise<ProblemSet[]> {
+    if (problemSetKey) {
+      return await db.problemSets.where('problemSetKey').equals(problemSetKey).toArray();
     }
     return await db.problemSets.toArray();
   }
@@ -169,12 +169,12 @@ export class DatabaseService {
   }
 
   /**
-   * Get problems by type (addition/subtraction)
+   * Get problems by problem set key
    */
-  async getProblemsByType(type: string): Promise<Problem[]> {
+  async getProblemsByProblemSetKey(problemSetKey: string): Promise<Problem[]> {
     const problemSets = await db.problemSets
-      .where('type')
-      .equals(type)
+      .where('problemSetKey')
+      .equals(problemSetKey)
       .and((ps) => ps.enabled)
       .toArray();
 
@@ -268,7 +268,7 @@ export class DatabaseService {
    */
   async getStruggledProblems(
     limit = 20,
-    type?: string
+    problemSetKey?: string
   ): Promise<StruggledProblemSummary[]> {
     const stats = await db.statistics
       .where('failureRate')
@@ -283,8 +283,8 @@ export class DatabaseService {
       if (problem) {
         const problemSet = await db.problemSets.get(problem.problemSetId);
         
-        // Filter by type if specified
-        if (type && problemSet?.type !== type) {
+        // Filter by problemSetKey if specified
+        if (problemSetKey && problemSet?.problemSetKey !== problemSetKey) {
           continue;
         }
 
@@ -292,7 +292,7 @@ export class DatabaseService {
           problemId: stat.problemId,
           problem: problem.problem,
           answer: problem.answer,
-          category: problemSet?.type || 'unknown',
+          problemSetKey: problemSet?.problemSetKey || 'unknown',
           failCount: stat.failCount,
           totalAttempts: stat.totalAttempts,
           failureRate: stat.failureRate,
@@ -329,9 +329,9 @@ export class DatabaseService {
   }
 
   /**
-   * Reset statistics for problems of a specific type
+   * Reset statistics for problems of a specific problem set key
    */
-  async resetStatisticsByType(type: string): Promise<void> {
+  async resetStatisticsByProblemSetKey(problemSetKey: string): Promise<void> {
     await db.transaction(
       'rw',
       db.problemSets,
@@ -339,10 +339,10 @@ export class DatabaseService {
       db.attempts,
       db.statistics,
       async () => {
-        // Get all problem sets of the specified type
+        // Get all problem sets of the specified problemSetKey
         const problemSets = await db.problemSets
-          .where('type')
-          .equals(type)
+          .where('problemSetKey')
+          .equals(problemSetKey)
           .toArray();
 
         // Get all problem IDs for these problem sets

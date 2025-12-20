@@ -33,7 +33,7 @@ describe('ProblemService - Session Queue Generation', () => {
         {
           id: 'ps1',
           name: 'Addition',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           enabled: true,
           createdAt: Date.now(),
         },
@@ -96,7 +96,7 @@ describe('ProblemService - Session Queue Generation', () => {
         {
           id: 'ps1',
           name: 'Addition',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           enabled: true,
           createdAt: Date.now(),
         },
@@ -196,14 +196,14 @@ describe('ProblemService - Session Queue Generation', () => {
         {
           id: 'ps1',
           name: 'Addition Set 1',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           enabled: true,
           createdAt: Date.now(),
         },
         {
           id: 'ps2',
           name: 'Addition Set 2',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           enabled: false,
           createdAt: Date.now(),
         },
@@ -253,7 +253,7 @@ describe('ProblemService - Session Queue Generation', () => {
         {
           id: 'ps1',
           name: 'Addition',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           enabled: true,
           createdAt: Date.now(),
         },
@@ -291,7 +291,7 @@ describe('ProblemService - Session Queue Generation', () => {
       expect(queue).toContain('p1');
 
       // Verify the correct type was queried
-      expect(db.problemSets.where).toHaveBeenCalledWith('type');
+      expect(db.problemSets.where).toHaveBeenCalledWith('problemSetKey');
     });
 
     it('should return unique problem IDs with no duplicates', async () => {
@@ -299,7 +299,7 @@ describe('ProblemService - Session Queue Generation', () => {
         {
           id: 'ps1',
           name: 'Addition',
-          type: 'addition',
+          problemSetKey: 'addition-within-20',
           enabled: true,
           createdAt: Date.now(),
         },

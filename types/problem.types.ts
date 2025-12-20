@@ -3,7 +3,7 @@ export interface ProblemSet {
   id?: string;
   name: string;
   description?: string;
-  type: string;
+  problemSetKey: string;
   difficulty?: string;
   enabled: boolean;
   createdAt: number; // timestamp
@@ -40,7 +40,7 @@ export interface StruggledProblemSummary {
   problemId: string;
   problem: string;
   answer: string;
-  category: string;
+  problemSetKey: string;
   failCount: number;
   totalAttempts: number;
   failureRate: number;
@@ -54,14 +54,14 @@ export interface ProblemSetJSON {
   problemSet?: {
     name: string;
     description?: string;
-    type: string;
+    problemSetKey: string;
     difficulty?: string;
     metadata?: Record<string, unknown>;
   };
   problemSets?: Array<{
     name: string;
     description?: string;
-    type: string;
+    problemSetKey: string;
     difficulty?: string;
     metadata?: Record<string, unknown>;
     problems: Array<{

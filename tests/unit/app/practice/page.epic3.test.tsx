@@ -11,7 +11,7 @@ const mockSelectProblemSet = vi.fn();
 
 interface MockState {
   currentProblem: Problem | null;
-  selectedType: string;
+  selectedProblemSetKey: string;
   isLoading: boolean;
   isInitialized: boolean;
   initializationError: string | null;
@@ -32,7 +32,7 @@ let mockState: MockState = {
     problemSetId: 'set-1',
     createdAt: Date.now(),
   },
-  selectedType: 'addition',
+  selectedProblemSetKey: 'addition',
   isLoading: false,
   isInitialized: true,
   initializationError: null,
@@ -80,7 +80,7 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design - Practi
         problemSetId: 'set-1',
         createdAt: Date.now(),
       },
-      selectedType: 'addition',
+      selectedProblemSetKey: 'addition',
       isLoading: false,
       isInitialized: true,
       initializationError: null,
@@ -178,7 +178,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons - P
         problemSetId: 'set-1',
         createdAt: Date.now(),
       },
-      selectedType: 'addition',
+      selectedProblemSetKey: 'addition',
       isLoading: false,
       isInitialized: true,
       initializationError: null,
@@ -284,7 +284,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
         problemSetId: 'set-1',
         createdAt: Date.now(),
       },
-      selectedType: 'addition',
+      selectedProblemSetKey: 'addition',
       isLoading: false,
       isInitialized: true,
       initializationError: null,

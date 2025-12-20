@@ -3,7 +3,7 @@
   "problemSet": {
     "name": "Addition within 20",
     "description": "Practice addition with sums up to 20",
-    "type": "addition",
+    "problemSetKey": "addition-within-20",
     "difficulty": "easy",
     "metadata": {
       "maxSum": 20,

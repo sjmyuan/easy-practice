@@ -3,7 +3,7 @@
   "problemSet": {
     "name": "Subtraction within 20",
     "description": "Practice subtraction with minuends up to 20 and non-negative results",
-    "type": "subtraction",
+    "problemSetKey": "subtraction-within-20",
     "difficulty": "easy",
     "metadata": {
       "maxMinuend": 20,

@@ -100,7 +100,7 @@ describe('ResetDataButton Component', () => {
     expect(button).toHaveClass('px-6');
   });
 
-  it('should show type-specific confirmation message when selectedType is provided', async () => {
+  it('should show type-specific confirmation message when selectedProblemSetKey is provided', async () => {
     const user = userEvent.setup();
     const mockOnReset = vi.fn();
 
@@ -108,20 +108,20 @@ describe('ResetDataButton Component', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(
-      <ResetDataButton onReset={mockOnReset} selectedType="addition" />
+      <ResetDataButton onReset={mockOnReset} selectedProblemSetKey="addition-within-20" />
     );
 
     const button = screen.getByRole('button', { name: /reset data/i });
     await user.click(button);
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      'Are you sure you want to reset all performance data for addition problems? This action cannot be undone.'
+      'Are you sure you want to reset all performance data for addition-within-20 problems? This action cannot be undone.'
     );
 
     confirmSpy.mockRestore();
   });
 
-  it('should show generic confirmation message when selectedType is not provided', async () => {
+  it('should show generic confirmation message when selectedProblemSetKey is not provided', async () => {
     const user = userEvent.setup();
     const mockOnReset = vi.fn();
 
@@ -140,7 +140,7 @@ describe('ResetDataButton Component', () => {
     confirmSpy.mockRestore();
   });
 
-  it('should show correct message for different problem types', async () => {
+  it('should show correct message for different problem sets', async () => {
     const user = userEvent.setup();
     const mockOnReset = vi.fn();
 
@@ -148,14 +148,14 @@ describe('ResetDataButton Component', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(
-      <ResetDataButton onReset={mockOnReset} selectedType="subtraction" />
+      <ResetDataButton onReset={mockOnReset} selectedProblemSetKey="subtraction-within-20" />
     );
 
     const button = screen.getByRole('button', { name: /reset data/i });
     await user.click(button);
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      'Are you sure you want to reset all performance data for subtraction problems? This action cannot be undone.'
+      'Are you sure you want to reset all performance data for subtraction-within-20 problems? This action cannot be undone.'
     );
 
     confirmSpy.mockRestore();

@@ -40,13 +40,13 @@ export class ProblemService {
    * Get next problem to display based on priority
    */
   async getNextProblem(
-    type: string,
+    problemSetKey: string,
     excludeIds: string[] = []
   ): Promise<Problem | null> {
-    // Get enabled problem sets of the selected type
+    // Get enabled problem sets of the selected problemSetKey
     const problemSets = await db.problemSets
-      .where('type')
-      .equals(type)
+      .where('problemSetKey')
+      .equals(problemSetKey)
       .and((ps) => ps.enabled)
       .toArray();
 
@@ -79,7 +79,7 @@ export class ProblemService {
 
     if (available.length === 0) {
       // If all problems were excluded, clear the exclusion list
-      return this.getNextProblem(type, []);
+      return this.getNextProblem(problemSetKey, []);
     }
 
     // Select from top problems randomly to add variety
@@ -95,10 +95,10 @@ export class ProblemService {
   /**
    * Get ordered problem queue for display
    */
-  async getOrderedProblemQueue(type: string, limit = 10): Promise<Problem[]> {
+  async getOrderedProblemQueue(problemSetKey: string, limit = 10): Promise<Problem[]> {
     const problemSets = await db.problemSets
-      .where('type')
-      .equals(type)
+      .where('problemSetKey')
+      .equals(problemSetKey)
       .and((ps) => ps.enabled)
       .toArray();
 
@@ -163,9 +163,9 @@ export class ProblemService {
         .equals(typeOrProblemSetId)
         .toArray();
     } else {
-      // Filter by type (original behavior for backward compatibility)
+      // Filter by problemSetKey (original behavior for backward compatibility)
       const problemSets = await db.problemSets
-        .where('type')
+        .where('problemSetKey')
         .equals(typeOrProblemSetId)
         .and((ps) => ps.enabled)
         .toArray();
