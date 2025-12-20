@@ -1,6 +1,22 @@
 # Project: Math Practice App for Parents
 A mobile-first web application that helps parents facilitate math practice for their children (ages 3-9) by generating random addition and subtraction problems within 20. The app prioritizes previously failed problems and provides simple performance tracking.
 
+## Design Decisions
+
+### Streamlined Workflow (December 20, 2025)
+**Decision**: Removed the dedicated "Next Problem" button from the main interface.
+
+**Rationale**: 
+- The Pass and Fail buttons in Epic 2 automatically load the next problem after marking, making a separate "Next Problem" button redundant
+- Simplifies the user interface and reduces cognitive load
+- Aligns with the "one-tap actions" usability need from the Busy Parent persona
+- Streamlines the workflow: Display problem → Mark Pass/Fail → Next problem loads automatically
+
+**Impact**:
+- Reduced button count from 4 to 3 in main interface (Type selector buttons + View Summary + Reset Data)
+- More efficient workflow with fewer clicks per problem
+- NextProblemButton component retained in codebase but not used in main page flow
+
 ## Personas
 ### Persona: Busy Parent
 - Description: A parent who wants to help their child improve math skills but has limited time to create practice problems or track progress manually.
@@ -47,29 +63,29 @@ As a busy parent, I want a simple display of the current math problem (e.g., "5 
 - ✅ Given a math problem is displayed, when the parent interacts with the app, then the problem text should remain visible without overlapping other UI elements.
 - ✅ Given a math problem is displayed, when the app is rotated (portrait to landscape), then the problem text should adjust to fit the screen.
 
-### Epic 2: Simple Performance Tracking
-[Busy Parent] wants to track their child’s performance easily so that they can identify weak areas and monitor improvement.
+### Epic 2: Simple Performance Tracking ✅ COMPLETED
+[Busy Parent] wants to track their child's performance easily so that they can identify weak areas and monitor improvement.
 
-#### User Story 1: Mark Problems as Passed or Failed
+#### User Story 1: Mark Problems as Passed or Failed ✅ COMPLETED
 As a busy parent, I want to quickly mark each problem as passed or failed so that I can track my child’s progress.
 ##### Acceptance Criteria:
-- Given a math problem is displayed, when the parent taps "Pass," then the problem is marked as passed and stored locally.
-- Given a math problem is displayed, when the parent taps "Fail," then the problem is marked as failed and stored locally.
-- Given the parent marks a problem, when the next problem is generated, then the previous problem’s status should persist.
+- ✅ Given a math problem is displayed, when the parent taps "Pass," then the problem is marked as passed and stored locally.
+- ✅ Given a math problem is displayed, when the parent taps "Fail," then the problem is marked as failed and stored locally.
+- ✅ Given the parent marks a problem, when the next problem is generated, then the previous problem's status should persist.
 
-#### User Story 2: View Summary of Struggled Problems
+#### User Story 2: View Summary of Struggled Problems ✅ COMPLETED
 As a busy parent, I want to see a summary of which problems my child has struggled with so that I can focus on those areas during future practice sessions.
 ##### Acceptance Criteria:
-- Given the parent marks problems as failed, when viewing the summary, then the list of struggled problems should be displayed.
-- Given there are no failed problems, when viewing the summary, then the app should display a message like "No struggled problems found."
-- Given the parent views the summary, when they tap on a specific problem, then the app should highlight its details (e.g., frequency of failure).
+- ✅ Given the parent marks problems as failed, when viewing the summary, then the list of struggled problems should be displayed.
+- ✅ Given there are no failed problems, when viewing the summary, then the app should display a message like "No struggled problems found."
+- ✅ Given the parent views the summary, when they tap on a specific problem, then the app should highlight its details (e.g., frequency of failure).
 
-#### User Story 3: Reset Performance Data
-As a busy parent, I want to reset or clear performance data periodically so that I can reassess my child’s skills.
+#### User Story 3: Reset Performance Data ✅ COMPLETED
+As a busy parent, I want to reset or clear performance data periodically so that I can reassess my child's skills.
 ##### Acceptance Criteria:
-- Given performance data exists, when the parent taps "Reset Data," then all stored data should be cleared.
-- Given performance data is cleared, when the parent views the summary, then the app should display a message like "No data available."
-- Given the parent resets data, when new problems are generated, then the system should start tracking performance from scratch.
+- ✅ Given performance data exists, when the parent taps "Reset Data," then all stored data should be cleared.
+- ✅ Given performance data is cleared, when the parent views the summary, then the app should display a message like "No data available."
+- ✅ Given the parent resets data, when new problems are generated, then the system should start tracking performance from scratch.
 
 ### Epic 3: Mobile-First Design (Parent-Centric)
 [Busy Parent] wants a mobile-first, distraction-free interface so that they can use the app conveniently during short practice sessions.

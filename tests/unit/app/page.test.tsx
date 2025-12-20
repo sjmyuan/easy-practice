@@ -6,19 +6,27 @@ import Home from '@/app/page';
 const mockInitializeApp = vi.fn();
 const mockLoadNextProblem = vi.fn();
 const mockSetType = vi.fn();
+const mockSubmitAnswer = vi.fn();
+const mockLoadStruggledProblems = vi.fn();
+const mockToggleSummary = vi.fn();
+const mockResetAllData = vi.fn();
 
 let mockState: {
-  currentProblem: null;
+  currentProblem: any;
   selectedType: string;
   isLoading: boolean;
   isInitialized: boolean;
   initializationError: string | null;
+  showSummary: boolean;
+  struggledProblems: any[];
 } = {
   currentProblem: null,
   selectedType: 'addition',
   isLoading: false,
   isInitialized: true,
   initializationError: null,
+  showSummary: false,
+  struggledProblems: [],
 };
 
 // Mock the context
@@ -29,6 +37,10 @@ vi.mock('@/contexts', () => ({
       initializeApp: mockInitializeApp,
       loadNextProblem: mockLoadNextProblem,
       setType: mockSetType,
+      submitAnswer: mockSubmitAnswer,
+      loadStruggledProblems: mockLoadStruggledProblems,
+      toggleSummary: mockToggleSummary,
+      resetAllData: mockResetAllData,
     },
   }),
 }));
@@ -42,6 +54,8 @@ describe('Home Page', () => {
       isLoading: false,
       isInitialized: true,
       initializationError: null,
+      showSummary: false,
+      struggledProblems: [],
     };
   });
 
@@ -56,12 +70,6 @@ describe('Home Page', () => {
 
     expect(screen.getByRole('button', { name: /addition/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /subtraction/i })).toBeInTheDocument();
-  });
-
-  it('should display Next Problem button', () => {
-    render(<Home />);
-
-    expect(screen.getByRole('button', { name: /next problem/i })).toBeInTheDocument();
   });
 
   it('should display problem display area', () => {

@@ -3,7 +3,9 @@
 import { useApp } from '@/contexts';
 import { TypeSelector } from '@/components/TypeSelector';
 import { ProblemDisplay } from '@/components/ProblemDisplay';
-import { NextProblemButton } from '@/components/NextProblemButton';
+import { AnswerButtons } from '@/components/AnswerButtons';
+import { SummaryView } from '@/components/SummaryView';
+import { ResetDataButton } from '@/components/ResetDataButton';
 
 export default function Home() {
   const { state, actions } = useApp();
@@ -48,14 +50,34 @@ export default function Home() {
 
         <ProblemDisplay problem={state.currentProblem} />
 
-        <div className="flex justify-center">
-          <NextProblemButton
-            onClick={actions.loadNextProblem}
+        {state.currentProblem && (
+          <AnswerButtons
+            onPass={() => actions.submitAnswer('pass')}
+            onFail={() => actions.submitAnswer('fail')}
             disabled={state.isLoading}
-            isLoading={state.isLoading}
           />
+        )}
+
+        <div className="flex justify-center gap-4 pt-4 border-t border-gray-200">
+          <button
+            onClick={() => {
+              actions.loadStruggledProblems();
+              actions.toggleSummary();
+            }}
+            className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            View Summary
+          </button>
+          <ResetDataButton onReset={actions.resetAllData} />
         </div>
       </div>
+
+      {state.showSummary && (
+        <SummaryView
+          problems={state.struggledProblems}
+          onClose={actions.toggleSummary}
+        />
+      )}
     </main>
   );
 }

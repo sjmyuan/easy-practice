@@ -1,11 +1,25 @@
 # Software Architecture Design Document
 ## Math Practice App for Parents
 
-**Version:** 1.1.0  
+**Version:** 1.3.0  
 **Date:** December 20, 2025  
-**Status:** In Progress - Epic 1 Completed
+**Status:** In Progress - Epic 1 & Epic 2 Completed
 
 ## Recent Updates
+
+### Design Refinement - Streamlined User Flow (December 20, 2025)
+- **Removed NextProblemButton from main page**: Pass/Fail buttons now automatically load the next problem
+- **Simplified workflow**: Mark answer → Next problem loads automatically → Repeat
+- **Improved UX**: Reduced cognitive load by eliminating redundant button
+- NextProblemButton component retained in codebase for potential future use
+
+### Epic 2 Implementation - Simple Performance Tracking (December 20, 2025)
+- Implemented **AnswerButtons Component**: Allows parents to mark problems as Pass or Fail
+- Implemented **SummaryView Component**: Displays list of struggled problems with details
+- Implemented **ResetDataButton Component**: Allows clearing all performance data with confirmation
+- Integrated all new components into main page with proper state management
+- Added comprehensive test coverage for all new components (29 additional tests)
+- All Epic 2 acceptance criteria met and tested
 
 ### Bug Fix - Date Storage (December 20, 2025)
 - Fixed "Invalid key provided" error in Next Problem button by converting Date objects to Unix timestamps (milliseconds)
@@ -21,20 +35,31 @@
 
 ## Implementation Status
 
-### Completed Features (Epic 1: Parent-Focused Problem Generator)
+### Completed Features
+
+#### Epic 1: Parent-Focused Problem Generator ✅
 - ✅ **TypeSelector Component**: Allows parents to switch between addition and subtraction problems
 - ✅ **ProblemDisplay Component**: Displays math problems with large, readable text (6xl size)
-- ✅ **NextProblemButton Component**: Triggers loading of new problems with loading states
 - ✅ **Main Page (app/page.tsx)**: Integrates all components with AppContext for state management
 - ✅ **Priority Algorithm**: Implements problem prioritization based on failure rates (lib/utils.ts)
 - ✅ **Problem Selection**: Avoids repetition by tracking recently shown problems
 - ✅ **Responsive Design**: Mobile-first layout with proper touch targets (48px minimum height)
 
+#### Epic 2: Simple Performance Tracking ✅
+- ✅ **AnswerButtons Component**: Pass/Fail buttons that automatically load next problem after marking
+- ✅ **SummaryView Component**: Modal displaying struggled problems with failure rates and details
+- ✅ **ResetDataButton Component**: Confirmation-based data reset functionality
+- ✅ **Performance Tracking**: Automatic storage of pass/fail results in IndexedDB
+- ✅ **Problem Details**: Expandable view showing total attempts, pass count, and last attempted date
+- ✅ **Empty State Handling**: Appropriate messages when no struggled problems exist
+- ✅ **Streamlined Workflow**: Pass/Fail action automatically triggers next problem load
+
 ### Test Coverage
-- 34 tests passing across 6 test files
-- Component tests: TypeSelector, ProblemDisplay, NextProblemButton
-- Integration tests: Main page rendering and interaction
+- 60 tests passing across 9 test files
+- Component tests: TypeSelector, ProblemDisplay, NextProblemButton (retained), AnswerButtons, SummaryView, ResetDataButton
+- Integration tests: Main page rendering and interaction with Epic 2 components
 - Unit tests: Priority calculation, database services, utilities
+- Note: NextProblemButton component tests retained but component not used in main page flow
 
 ---
 
