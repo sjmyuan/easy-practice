@@ -207,7 +207,20 @@ As a busy parent, I want sessions to reset when I switch between addition and su
 - ✅ Given I switch types, when viewing the screen, then I should see the "Start New Session" button to begin a new session for that type.
 - ✅ Given I switch types, when I start a new session, then the problems should be from the newly selected type.
 
-### Epic 5: Problem Set Selection and Navigation
+#### User Story 6: Session Completion Statistics ✅ COMPLETED
+
+As a busy parent, I want to see detailed statistics when a session completes so that I can understand how my child performed and how long the session took.
+
+##### Acceptance Criteria:
+
+- ✅ Given all problems in a session are completed, when the completion screen is displayed, then I should see the session duration in HH:MM:SS format.
+- ✅ Given the session is complete, when viewing the completion screen, then I should see the number of problems marked as "Pass".
+- ✅ Given the session is complete, when viewing the completion screen, then I should see the number of problems marked as "Fail".
+- ✅ Given the session is complete, when viewing the completion screen, then I should see the total number of problems completed in the session.
+- ✅ Given a new session starts, when beginning the session, then the timer should start and statistics should reset to zero.
+- ✅ Given a session is active, when problems are being answered, then the statistics should not be displayed until the session completes.
+
+### Epic 5: Problem Set Selection and Navigation ✅ COMPLETED
 
 [Busy Parent] wants to select a specific problem set before starting practice so that they can choose focused practice areas and easily switch between different problem types.
 

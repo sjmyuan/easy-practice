@@ -7,6 +7,7 @@ import { SummaryView } from '@/components/SummaryView';
 import { ResetDataButton } from '@/components/ResetDataButton';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { StartSessionButton } from '@/components/StartSessionButton';
+import { formatDuration } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -118,10 +119,36 @@ export default function PracticePage() {
                 <div className="text-2xl font-bold text-green-600">
                   🎉 Session Complete!
                 </div>
-                <p className="text-gray-600">
-                  You completed {state.sessionCompletedCount} problem
-                  {state.sessionCompletedCount !== 1 ? 's' : ''}
-                </p>
+                
+                {/* Session Duration */}
+                {state.sessionDuration !== null && (
+                  <div className="text-xl font-semibold text-gray-700">
+                    Duration: {formatDuration(state.sessionDuration)}
+                  </div>
+                )}
+                
+                {/* Session Statistics */}
+                <div className="mx-auto grid max-w-md grid-cols-3 gap-4 text-center">
+                  <div className="rounded-lg bg-green-50 p-3">
+                    <div className="text-sm font-medium text-green-600">Pass</div>
+                    <div className="text-2xl font-bold text-green-700">
+                      {state.sessionPassCount}
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-red-50 p-3">
+                    <div className="text-sm font-medium text-red-600">Fail</div>
+                    <div className="text-2xl font-bold text-red-700">
+                      {state.sessionFailCount}
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-blue-50 p-3">
+                    <div className="text-sm font-medium text-blue-600">Total</div>
+                    <div className="text-2xl font-bold text-blue-700">
+                      {state.sessionCompletedCount}
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="flex justify-center">
                   <StartSessionButton
                     onStart={actions.startNewSession}

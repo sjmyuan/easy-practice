@@ -25,6 +25,10 @@ export interface AppState {
   sessionQueue: string[]; // Array of problem IDs in the session
   sessionCompletedCount: number;
   selectedProblemSetId: string | null; // Currently selected problem set
+  sessionStartTime: number | null; // Timestamp when session started
+  sessionDuration: number | null; // Duration in milliseconds when session completed
+  sessionPassCount: number; // Number of pass answers in current session
+  sessionFailCount: number; // Number of fail answers in current session
 
   // UI State
   selectedType: string;
@@ -84,6 +88,10 @@ const initialState: AppState = {
   sessionQueue: [],
   sessionCompletedCount: 0,
   selectedProblemSetId: null,
+  sessionStartTime: null,
+  sessionDuration: null,
+  sessionPassCount: 0,
+  sessionFailCount: 0,
   selectedType: 'addition',
   availableProblemSets: [],
   isLoading: false,
@@ -220,6 +228,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           isSessionActive,
           sessionQueue,
           sessionCompletedCount,
+          sessionStartTime,
+          sessionPassCount,
+          sessionFailCount,
         } = stateRef.current;
         const problemId = currentProblem?.id;
 
@@ -231,15 +242,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         // If session is active, handle session-based progression
         if (isSessionActive && sessionQueue.length > 0) {
           const newCompletedCount = sessionCompletedCount + 1;
+          
+          // Update pass/fail counts
+          const newPassCount = result === 'pass' ? sessionPassCount + 1 : sessionPassCount;
+          const newFailCount = result === 'fail' ? sessionFailCount + 1 : sessionFailCount;
 
           // Check if session is complete
           if (newCompletedCount >= sessionQueue.length) {
+            // Calculate session duration
+            const duration = sessionStartTime ? Date.now() - sessionStartTime : 0;
+            
             // Session complete
             setState((prev) => ({
               ...prev,
               sessionCompletedCount: newCompletedCount,
               isSessionActive: false,
               currentProblem: null,
+              sessionDuration: duration,
+              sessionPassCount: newPassCount,
+              sessionFailCount: newFailCount,
             }));
           } else {
             // Load next problem from session queue
@@ -250,6 +271,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               ...prev,
               sessionCompletedCount: newCompletedCount,
               currentProblem: nextProblem || null,
+              sessionPassCount: newPassCount,
+              sessionFailCount: newFailCount,
             }));
           }
         } else {
@@ -274,6 +297,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       isSessionActive: false,
       sessionQueue: [],
       sessionCompletedCount: 0,
+      sessionStartTime: null,
+      sessionDuration: null,
+      sessionPassCount: 0,
+      sessionFailCount: 0,
       // Clear struggled problems cache when switching types
       struggledProblems: [],
     }));
@@ -289,10 +316,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       isSessionActive: false,
       sessionQueue: [],
       sessionCompletedCount: 0,
+      sessionStartTime: null,
+      sessionDuration: null,
+      sessionPassCount: 0,
+      sessionFailCount: 0,
       // Clear struggled problems cache
       struggledProblems: [],
     }));
   }, []);
+
 
   const startNewSession = useCallback(async () => {
     try {
@@ -314,6 +346,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           sessionQueue: [],
           sessionCompletedCount: 0,
           currentProblem: null,
+          sessionStartTime: null,
+          sessionDuration: null,
+          sessionPassCount: 0,
+          sessionFailCount: 0,
         }));
         return;
       }
@@ -321,6 +357,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Load first problem from queue
       const firstProblemId = queue[0];
       const firstProblem = await db.problems.get(firstProblemId);
+
+      // Capture session start time
+      const startTime = Date.now();
 
       // Update state with session info and first problem
       setState((prev) => ({
@@ -330,6 +369,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionCompletedCount: 0,
         currentProblem: firstProblem || null,
         recentProblemIds: firstProblem?.id ? [firstProblem.id] : [],
+        sessionStartTime: startTime,
+        sessionDuration: null, // Reset duration for new session
+        sessionPassCount: 0, // Reset counts for new session
+        sessionFailCount: 0,
       }));
     } catch (error) {
       console.error('Failed to start new session:', error);

@@ -1084,4 +1084,428 @@ describe('AppContext', () => {
       expect(result.current.state.struggledProblems).toEqual(mockStruggledProblems);
     });
   });
+
+  describe('Session Timer Tracking', () => {
+    it('should set sessionStartTime when starting a new session', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
+      problemsGetCall.mockResolvedValue(problem);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      const beforeStart = Date.now();
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      const afterStart = Date.now();
+
+      expect(result.current.state.sessionStartTime).toBeDefined();
+      expect(result.current.state.sessionStartTime).toBeGreaterThanOrEqual(beforeStart);
+      expect(result.current.state.sessionStartTime).toBeLessThanOrEqual(afterStart);
+    });
+
+    it('should not set sessionStartTime if session fails to start', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+
+      // Empty queue - session won't start
+      generateSessionQueueCall.mockResolvedValue([]);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      expect(result.current.state.sessionStartTime).toBeNull();
+      expect(result.current.state.isSessionActive).toBe(false);
+    });
+
+    it('should calculate session duration when session completes', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+
+      const problem1 = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1']);
+      problemsGetCall.mockResolvedValue(problem1);
+      recordAttemptCall.mockResolvedValue();
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      const sessionStartTime = result.current.state.sessionStartTime;
+      expect(sessionStartTime).toBeDefined();
+
+      // Wait a bit to ensure duration > 0
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Complete the session
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      // Session should be complete
+      expect(result.current.state.isSessionActive).toBe(false);
+      expect(result.current.state.sessionDuration).toBeGreaterThan(0);
+    });
+
+    it('should reset sessionStartTime and sessionDuration when starting a new session', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1']);
+      problemsGetCall.mockResolvedValue(problem);
+      recordAttemptCall.mockResolvedValue();
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Start and complete first session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      const firstSessionStartTime = result.current.state.sessionStartTime;
+
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      expect(result.current.state.sessionDuration).toBeGreaterThanOrEqual(0);
+
+      // Wait a bit
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Start new session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      const secondSessionStartTime = result.current.state.sessionStartTime;
+
+      // New session should have new start time
+      expect(secondSessionStartTime).not.toBe(firstSessionStartTime);
+      expect(secondSessionStartTime).toBeGreaterThan(firstSessionStartTime!);
+      // Duration should be reset (session is active, not complete)
+      expect(result.current.state.sessionDuration).toBeNull();
+    });
+  });
+
+  describe('Session Pass/Fail Statistics Tracking', () => {
+    it('should initialize sessionPassCount and sessionFailCount to zero', async () => {
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      expect(result.current.state.sessionPassCount).toBe(0);
+      expect(result.current.state.sessionFailCount).toBe(0);
+    });
+
+    it('should increment sessionPassCount when answering pass in session', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+
+      const problem1 = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      const problem2 = {
+        id: 'p2',
+        problemSetId: 'ps1',
+        problem: '7 + 2',
+        answer: '9',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
+      problemsGetCall.mockImplementation((id) => {
+        const problems = [problem1, problem2];
+        return Promise.resolve(problems.find((p) => p.id === id) || null);
+      });
+      recordAttemptCall.mockResolvedValue();
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      expect(result.current.state.sessionPassCount).toBe(0);
+      expect(result.current.state.sessionFailCount).toBe(0);
+
+      // Answer pass
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      expect(result.current.state.sessionPassCount).toBe(1);
+      expect(result.current.state.sessionFailCount).toBe(0);
+    });
+
+    it('should increment sessionFailCount when answering fail in session', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+
+      const problem1 = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      const problem2 = {
+        id: 'p2',
+        problemSetId: 'ps1',
+        problem: '7 + 2',
+        answer: '9',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
+      problemsGetCall.mockImplementation((id) => {
+        const problems = [problem1, problem2];
+        return Promise.resolve(problems.find((p) => p.id === id) || null);
+      });
+      recordAttemptCall.mockResolvedValue();
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      // Answer fail
+      await act(async () => {
+        await result.current.actions.submitAnswer('fail');
+      });
+
+      expect(result.current.state.sessionPassCount).toBe(0);
+      expect(result.current.state.sessionFailCount).toBe(1);
+    });
+
+    it('should track both pass and fail counts in same session', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+
+      const problem1 = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      const problem2 = {
+        id: 'p2',
+        problemSetId: 'ps1',
+        problem: '7 + 2',
+        answer: '9',
+        createdAt: Date.now(),
+      };
+
+      const problem3 = {
+        id: 'p3',
+        problemSetId: 'ps1',
+        problem: '4 + 4',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3']);
+      problemsGetCall.mockImplementation((id) => {
+        const problems = [problem1, problem2, problem3];
+        return Promise.resolve(problems.find((p) => p.id === id) || null);
+      });
+      recordAttemptCall.mockResolvedValue();
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      // Answer: pass, fail, pass
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      await act(async () => {
+        await result.current.actions.submitAnswer('fail');
+      });
+
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      // Session complete - check final counts
+      expect(result.current.state.sessionPassCount).toBe(2);
+      expect(result.current.state.sessionFailCount).toBe(1);
+    });
+
+    it('should reset pass/fail counts when starting new session', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1']);
+      problemsGetCall.mockResolvedValue(problem);
+      recordAttemptCall.mockResolvedValue();
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Start and complete first session with some stats
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      await act(async () => {
+        await result.current.actions.submitAnswer('fail');
+      });
+
+      expect(result.current.state.sessionFailCount).toBe(1);
+
+      // Start new session - counts should reset
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      expect(result.current.state.sessionPassCount).toBe(0);
+      expect(result.current.state.sessionFailCount).toBe(0);
+    });
+
+    it('should not increment counts if no active session', async () => {
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+      const getNextProblemCall = vi.mocked(problemService.getNextProblem);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      getNextProblemCall.mockResolvedValue(problem);
+      recordAttemptCall.mockResolvedValue();
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Manually load a problem without starting a session
+      await act(async () => {
+        await result.current.actions.loadNextProblem();
+      });
+
+      const initialPassCount = result.current.state.sessionPassCount;
+      const initialFailCount = result.current.state.sessionFailCount;
+
+      // Submit answer without active session
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      // Counts should not change
+      expect(result.current.state.sessionPassCount).toBe(initialPassCount);
+      expect(result.current.state.sessionFailCount).toBe(initialFailCount);
+    });
+  });
 });

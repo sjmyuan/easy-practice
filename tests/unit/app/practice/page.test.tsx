@@ -47,6 +47,10 @@ let mockState: {
     enabled: boolean;
     createdAt: number;
   }>;
+  sessionStartTime: number | null;
+  sessionDuration: number | null;
+  sessionPassCount: number;
+  sessionFailCount: number;
 } = {
   currentProblem: null,
   selectedType: 'addition',
@@ -60,6 +64,10 @@ let mockState: {
   sessionCompletedCount: 0,
   selectedProblemSetId: 'set-1',
   availableProblemSets: [],
+  sessionStartTime: null,
+  sessionDuration: null,
+  sessionPassCount: 0,
+  sessionFailCount: 0,
 };
 
 // Mock the context
@@ -182,12 +190,14 @@ describe('Practice Page', () => {
       ...mockState,
       isSessionActive: false,
       sessionCompletedCount: 5,
+      sessionDuration: 0,
+      sessionPassCount: 0,
+      sessionFailCount: 0,
     };
 
     render(<PracticePage />);
 
     expect(screen.getByText(/session complete/i)).toBeInTheDocument();
-    expect(screen.getByText(/you completed 5 problems/i)).toBeInTheDocument();
   });
 
   it('should have clickable Math Practice heading that navigates to landing', () => {
@@ -247,5 +257,142 @@ describe('Practice Page', () => {
     render(<PracticePage />);
 
     expect(screen.getByText(/loading\.\.\./i)).toBeInTheDocument();
+  });
+
+  describe('Session Statistics Display', () => {
+    it('should display session duration in HH:MM:SS format when session completes', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 5,
+        sessionDuration: 125000, // 2 minutes 5 seconds in milliseconds
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/session complete/i)).toBeInTheDocument();
+      expect(screen.getByText(/00:02:05/)).toBeInTheDocument();
+    });
+
+    it('should display pass count when session completes', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 5,
+        sessionPassCount: 4,
+        sessionFailCount: 1,
+        sessionDuration: 60000,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/pass/i)).toBeInTheDocument();
+      expect(screen.getByText('4')).toBeInTheDocument();
+    });
+
+    it('should display fail count when session completes', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 5,
+        sessionPassCount: 4,
+        sessionFailCount: 1,
+        sessionDuration: 60000,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/fail/i)).toBeInTheDocument();
+      expect(screen.getByText('1')).toBeInTheDocument();
+    });
+
+    it('should display total problems when session completes', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 10,
+        sessionPassCount: 8,
+        sessionFailCount: 2,
+        sessionDuration: 120000,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/total/i)).toBeInTheDocument();
+      expect(screen.getByText('10')).toBeInTheDocument();
+    });
+
+    it('should display all session statistics together when session completes', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 15,
+        sessionPassCount: 12,
+        sessionFailCount: 3,
+        sessionDuration: 300000, // 5 minutes
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/session complete/i)).toBeInTheDocument();
+      expect(screen.getByText(/00:05:00/)).toBeInTheDocument();
+      expect(screen.getByText(/pass/i)).toBeInTheDocument();
+      expect(screen.getByText('12')).toBeInTheDocument();
+      expect(screen.getByText(/fail/i)).toBeInTheDocument();
+      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(screen.getByText(/total/i)).toBeInTheDocument();
+      expect(screen.getByText('15')).toBeInTheDocument();
+    });
+
+    it('should format duration correctly for hours, minutes, and seconds', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 20,
+        sessionDuration: 3661000, // 1 hour, 1 minute, 1 second
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/01:01:01/)).toBeInTheDocument();
+    });
+
+    it('should handle zero duration gracefully', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 1,
+        sessionDuration: 0,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/00:00:00/)).toBeInTheDocument();
+    });
+
+    it('should not display session statistics when session is still active', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: true,
+        sessionCompletedCount: 3,
+        sessionPassCount: 2,
+        sessionFailCount: 1,
+        sessionDuration: null, // Duration not calculated yet
+        currentProblem: {
+          id: 'p1',
+          problem: '5 + 3',
+          answer: '8',
+          problemSetId: 'set-1',
+          createdAt: Date.now(),
+        },
+        sessionQueue: ['p1', 'p2', 'p3', 'p4', 'p5'],
+      };
+
+      render(<PracticePage />);
+
+      // Should show problem, not statistics
+      expect(screen.getByText('5 + 3')).toBeInTheDocument();
+      expect(screen.queryByText(/duration:/i)).not.toBeInTheDocument();
+    });
   });
 });

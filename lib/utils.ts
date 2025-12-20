@@ -64,3 +64,17 @@ export function formatDate(date: number | null): string {
 export function formatPercentage(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
+
+/**
+ * Format duration in milliseconds to HH:MM:SS format
+ */
+export function formatDuration(milliseconds: number): string {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (num: number) => num.toString().padStart(2, '0');
+  
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}

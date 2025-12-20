@@ -24,16 +24,26 @@
 ### Epic 4 Implementation - Session-Based Practice with Progress Tracking (December 20, 2025)
 
 - **Implemented Session State Management**: Added `isSessionActive`, `sessionQueue`, and `sessionCompletedCount` to AppContext
+- **Implemented Session Statistics Tracking**: Added `sessionStartTime`, `sessionDuration`, `sessionPassCount`, and `sessionFailCount` to AppContext
+  - Timer starts when "Start New Session" is clicked
+  - Duration calculated when session completes (in milliseconds)
+  - Pass/Fail counts track current session only (reset on new session)
+  - Statistics displayed on completion screen with visual formatting
 - **Implemented Session Queue Generation**: Algorithm that selects problems based on success ratios (<90% always included, ≥90% included with 30% probability)
 - **Implemented StartSessionButton Component**: Explicit button to start practice sessions
 - **Implemented ProgressIndicator Component**: Displays "X / Y" progress near problem display
+- **Enhanced Session Completion Screen**: Displays comprehensive statistics including:
+  - Session duration in HH:MM:SS format using `formatDuration()` utility
+  - Pass count (green badge)
+  - Fail count (red badge)
+  - Total problems completed (blue badge)
 - **Updated Main Page Flow**: Changed from continuous problem flow to session-based approach
   - User must explicitly start a session
   - Progress indicator shows session progress
-  - Session complete screen with option to start new session
-  - Switching problem types resets the session
+  - Session complete screen with detailed statistics and option to start new session
+  - Switching problem types resets the session and all statistics
 - **Removed Auto-Load Behavior**: App no longer auto-loads first problem on initialization
-- **Added 23 new tests** for session management, queue generation, progress tracking, and type switching
+- **Added 48 new tests** for session management, queue generation, progress tracking, timer tracking, statistics tracking, and type switching
 - All Epic 4 acceptance criteria met and tested
 
 ### Epic 5 Implementation - Problem Set Selection and Navigation (December 20, 2025) 🚧 IN PROGRESS
@@ -1126,6 +1136,16 @@ export interface AppState {
   currentProblem: Problem | null;
   recentProblemIds: string[];
 
+  // Session State
+  isSessionActive: boolean;
+  sessionQueue: string[]; // Array of problem IDs in the session
+  sessionCompletedCount: number;
+  selectedProblemSetId: string | null; // Currently selected problem set
+  sessionStartTime: number | null; // Timestamp when session started (milliseconds)
+  sessionDuration: number | null; // Duration in milliseconds when session completed
+  sessionPassCount: number; // Number of pass answers in current session
+  sessionFailCount: number; // Number of fail answers in current session
+
   // UI State
   selectedType: string; // 'addition', 'subtraction', etc.
   availableProblemSets: ProblemSet[];
@@ -1138,10 +1158,6 @@ export interface AppState {
   // Initialization
   isInitialized: boolean;
   initializationError: string | null; // Error message if initialization fails
-
-  // Settings
-  problemsPerSession: number;
-  currentSessionCount: number;
 }
 
 export interface AppActions {
@@ -1149,10 +1165,14 @@ export interface AppActions {
   importProblemSet: (file: File) => Promise<void>;
   loadProblemSets: () => Promise<void>;
   toggleProblemSet: (id: string, enabled: boolean) => Promise<void>;
+  selectProblemSet: (problemSetId: string) => void;
 
   // Problem Actions
   loadNextProblem: () => Promise<void>;
   submitAnswer: (result: 'pass' | 'fail') => Promise<void>;
+
+  // Session Actions
+  startNewSession: () => Promise<void>;
 
   // Type Selection Actions
   setType: (type: string) => void;
