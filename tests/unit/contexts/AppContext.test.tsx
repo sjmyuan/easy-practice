@@ -14,6 +14,7 @@ vi.mock('@/services', () => ({
     recordAttempt: vi.fn(),
     getStruggledProblems: vi.fn(),
     resetStatistics: vi.fn(),
+    resetStatisticsByProblemSetId: vi.fn(),
     exportData: vi.fn(),
     importData: vi.fn(),
   },
@@ -911,9 +912,9 @@ describe('AppContext', () => {
 
   describe('Reset Data by Type', () => {
     it('should reset statistics only for the selected problem type', async () => {
-      const resetStatisticsByProblemSetKeyCall = vi.fn().mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByProblemSetKey =
-        resetStatisticsByProblemSetKeyCall;
+      const resetStatisticsByProblemSetIdCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByProblemSetId =
+        resetStatisticsByProblemSetIdCall;
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -921,19 +922,19 @@ describe('AppContext', () => {
         expect(result.current.state.isInitialized).toBe(true);
       });
 
-      // Set type to addition
+      // Select a problem set
       act(() => {
-        result.current.actions.setProblemSetKey('addition');
+        result.current.actions.selectProblemSet('1');
       });
 
-      // Call resetAllData (which should now reset by type)
+      // Call resetAllData (which should now reset by problem set ID)
       await act(async () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify resetStatisticsByProblemSetKey was called with the selected type
-      expect(resetStatisticsByProblemSetKeyCall).toHaveBeenCalledWith('addition');
-      expect(resetStatisticsByProblemSetKeyCall).toHaveBeenCalledTimes(1);
+      // Verify resetStatisticsByProblemSetId was called with the selected ID
+      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
+      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledTimes(1);
 
       // Verify state was cleared
       expect(result.current.state.struggledProblems).toEqual([]);
@@ -941,10 +942,10 @@ describe('AppContext', () => {
       expect(result.current.state.currentProblem).toBeNull();
     });
 
-    it('should use the current selectedProblemSetKey when resetting', async () => {
-      const resetStatisticsByProblemSetKeyCall = vi.fn().mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByProblemSetKey =
-        resetStatisticsByProblemSetKeyCall;
+    it('should use the current selectedProblemSetId when resetting', async () => {
+      const resetStatisticsByProblemSetIdCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatisticsByProblemSetId =
+        resetStatisticsByProblemSetIdCall;
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -952,9 +953,9 @@ describe('AppContext', () => {
         expect(result.current.state.isInitialized).toBe(true);
       });
 
-      // Set type to subtraction
+      // Select a problem set
       act(() => {
-        result.current.actions.setProblemSetKey('subtraction');
+        result.current.actions.selectProblemSet('1');
       });
 
       // Call resetAllData
@@ -962,16 +963,16 @@ describe('AppContext', () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify resetStatisticsByProblemSetKey was called with subtraction
-      expect(resetStatisticsByProblemSetKeyCall).toHaveBeenCalledWith('subtraction');
+      // Verify resetStatisticsByProblemSetId was called with the selected ID
+      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
     });
 
     it('should handle errors during reset gracefully', async () => {
-      const resetStatisticsByProblemSetKeyCall = vi
+      const resetStatisticsByProblemSetIdCall = vi
         .fn()
         .mockRejectedValue(new Error('Reset failed'));
-      vi.mocked(databaseService).resetStatisticsByProblemSetKey =
-        resetStatisticsByProblemSetKeyCall;
+      vi.mocked(databaseService).resetStatisticsByProblemSetId =
+        resetStatisticsByProblemSetIdCall;
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -979,6 +980,11 @@ describe('AppContext', () => {
 
       await waitFor(() => {
         expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Select a problem set
+      act(() => {
+        result.current.actions.selectProblemSet('1');
       });
 
       // Call resetAllData which should throw
@@ -998,8 +1004,8 @@ describe('AppContext', () => {
     });
   });
 
-  describe('Issue B: loadStruggledProblems passes selectedProblemSetKey to database', () => {
-    it('should call getStruggledProblems with the selected type when loading struggled problems', async () => {
+  describe('Issue B: loadStruggledProblems passes selectedProblemSetId to database', () => {
+    it('should call getStruggledProblems with the selected problem set ID when loading struggled problems', async () => {
       const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
       getStruggledProblemsCall.mockResolvedValue([]);
 
@@ -1009,9 +1015,9 @@ describe('AppContext', () => {
         expect(result.current.state.isInitialized).toBe(true);
       });
 
-      // Set type to subtraction
+      // Select a problem set
       act(() => {
-        result.current.actions.setProblemSetKey('subtraction');
+        result.current.actions.selectProblemSet('1');
       });
 
       // Load struggled problems
@@ -1019,11 +1025,11 @@ describe('AppContext', () => {
         await result.current.actions.loadStruggledProblems();
       });
 
-      // Verify getStruggledProblems was called with 'subtraction' type
-      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, 'subtraction');
+      // Verify getStruggledProblems was called with the problem set ID
+      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, '1');
     });
 
-    it('should call getStruggledProblems with addition type when addition is selected', async () => {
+    it('should call getStruggledProblems without ID when no problem set is selected', async () => {
       const getStruggledProblemsCall = vi.mocked(databaseService.getStruggledProblems);
       getStruggledProblemsCall.mockResolvedValue([]);
 
@@ -1033,16 +1039,16 @@ describe('AppContext', () => {
         expect(result.current.state.isInitialized).toBe(true);
       });
 
-      // Default type is 'addition'
-      expect(result.current.state.selectedProblemSetKey).toBe('addition-within-20');
+      // No problem set selected (selectedProblemSetId is null)
+      expect(result.current.state.selectedProblemSetId).toBeNull();
 
       // Load struggled problems
       await act(async () => {
         await result.current.actions.loadStruggledProblems();
       });
 
-      // Verify getStruggledProblems was called with 'addition' type
-      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, 'addition-within-20');
+      // Verify getStruggledProblems was called without a problem set ID (all problems)
+      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, undefined);
     });
 
     it('should update struggledProblems state with filtered results', async () => {
@@ -1070,9 +1076,9 @@ describe('AppContext', () => {
         expect(result.current.state.isInitialized).toBe(true);
       });
 
-      // Set type to subtraction
+      // Select a problem set
       act(() => {
-        result.current.actions.setProblemSetKey('subtraction');
+        result.current.actions.selectProblemSet('1');
       });
 
       // Load struggled problems

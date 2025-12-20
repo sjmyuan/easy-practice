@@ -381,7 +381,7 @@ export class DatabaseService {
    */
   async getStruggledProblems(
     limit = 20,
-    problemSetKey?: string
+    problemSetId?: string
   ): Promise<StruggledProblemSummary[]> {
     const stats = await db.statistics
       .where('failureRate')
@@ -394,12 +394,12 @@ export class DatabaseService {
     for (const stat of stats) {
       const problem = await db.problems.get(stat.problemId);
       if (problem) {
-        const problemSet = await db.problemSets.get(problem.problemSetId);
-        
-        // Filter by problemSetKey if specified
-        if (problemSetKey && problemSet?.problemSetKey !== problemSetKey) {
+        // Filter by problemSetId if specified
+        if (problemSetId && problem.problemSetId !== problemSetId) {
           continue;
         }
+
+        const problemSet = await db.problemSets.get(problem.problemSetId);
 
         summaries.push({
           problemId: stat.problemId,
@@ -442,31 +442,21 @@ export class DatabaseService {
   }
 
   /**
-   * Reset statistics for problems of a specific problem set key
+   * Reset statistics for problems of a specific problem set
    */
-  async resetStatisticsByProblemSetKey(problemSetKey: string): Promise<void> {
+  async resetStatisticsByProblemSetId(problemSetId: string): Promise<void> {
     await db.transaction(
       'rw',
-      db.problemSets,
       db.problems,
       db.attempts,
       db.statistics,
       async () => {
-        // Get all problem sets of the specified problemSetKey
-        const problemSets = await db.problemSets
-          .where('problemSetKey')
-          .equals(problemSetKey)
+        // Get all problem IDs for this problem set
+        const problems = await db.problems
+          .where('problemSetId')
+          .equals(problemSetId)
           .toArray();
-
-        // Get all problem IDs for these problem sets
-        const problemIds: string[] = [];
-        for (const problemSet of problemSets) {
-          const problems = await db.problems
-            .where('problemSetId')
-            .equals(problemSet.id!)
-            .toArray();
-          problemIds.push(...problems.map((p) => p.id!));
-        }
+        const problemIds = problems.map((p) => p.id!);
 
         // Delete attempts for these problems
         for (const problemId of problemIds) {

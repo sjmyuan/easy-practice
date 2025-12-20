@@ -288,41 +288,56 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 
   const setProblemSetKey = useCallback((problemSetKey: string) => {
-    setState((prev) => ({
-      ...prev,
-      selectedProblemSetKey: problemSetKey,
-      recentProblemIds: [],
-      currentProblem: null,
-      // Reset session when switching problem set keys
-      isSessionActive: false,
-      sessionQueue: [],
-      sessionCompletedCount: 0,
-      sessionStartTime: null,
-      sessionDuration: null,
-      sessionPassCount: 0,
-      sessionFailCount: 0,
-      // Clear struggled problems cache when switching problem set keys
-      struggledProblems: [],
-    }));
+    setState((prev) => {
+      const newState = {
+        ...prev,
+        selectedProblemSetKey: problemSetKey,
+        recentProblemIds: [],
+        currentProblem: null,
+        // Reset session when switching problem set keys
+        isSessionActive: false,
+        sessionQueue: [],
+        sessionCompletedCount: 0,
+        sessionStartTime: null,
+        sessionDuration: null,
+        sessionPassCount: 0,
+        sessionFailCount: 0,
+        // Clear struggled problems cache when switching problem set keys
+        struggledProblems: [],
+      };
+      // Update stateRef synchronously within setState updater
+      stateRef.current = newState;
+      return newState;
+    });
   }, []);
 
   const selectProblemSet = useCallback((problemSetId: string) => {
-    setState((prev) => ({
-      ...prev,
-      selectedProblemSetId: problemSetId,
-      recentProblemIds: [],
-      currentProblem: null,
-      // Reset session when selecting problem set
-      isSessionActive: false,
-      sessionQueue: [],
-      sessionCompletedCount: 0,
-      sessionStartTime: null,
-      sessionDuration: null,
-      sessionPassCount: 0,
-      sessionFailCount: 0,
-      // Clear struggled problems cache
-      struggledProblems: [],
-    }));
+    setState((prev) => {
+      // Find the selected problem set to get its problemSetKey
+      const selectedSet = prev.availableProblemSets.find(ps => ps.id === problemSetId);
+      const problemSetKey = selectedSet?.problemSetKey || prev.selectedProblemSetKey;
+      
+      const newState = {
+        ...prev,
+        selectedProblemSetId: problemSetId,
+        selectedProblemSetKey: problemSetKey, // Update problemSetKey to match selected set
+        recentProblemIds: [],
+        currentProblem: null,
+        // Reset session when selecting problem set
+        isSessionActive: false,
+        sessionQueue: [],
+        sessionCompletedCount: 0,
+        sessionStartTime: null,
+        sessionDuration: null,
+        sessionPassCount: 0,
+        sessionFailCount: 0,
+        // Clear struggled problems cache
+        struggledProblems: [],
+      };
+      // Update stateRef synchronously within setState updater
+      stateRef.current = newState;
+      return newState;
+    });
   }, []);
 
 
@@ -385,8 +400,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadStruggledProblems = useCallback(async () => {
     try {
       setLoading(true);
-      const { selectedProblemSetKey } = stateRef.current;
-      const problems = await databaseService.getStruggledProblems(20, selectedProblemSetKey);
+      const { selectedProblemSetId } = stateRef.current;
+      
+      const problems = await databaseService.getStruggledProblems(20, selectedProblemSetId || undefined);
       setState((prev) => ({ ...prev, struggledProblems: problems }));
     } catch (error) {
       console.error('Failed to load struggled problems:', error);
@@ -403,8 +419,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const resetAllData = useCallback(async () => {
     try {
       setLoading(true);
-      // Reset statistics only for the currently selected problemSetKey
-      await databaseService.resetStatisticsByProblemSetKey(stateRef.current.selectedProblemSetKey);
+      const { selectedProblemSetId } = stateRef.current;
+      
+      // Reset statistics only for the currently selected problem set
+      if (selectedProblemSetId) {
+        await databaseService.resetStatisticsByProblemSetId(selectedProblemSetId);
+      }
       setState((prev) => ({
         ...prev,
         struggledProblems: [],

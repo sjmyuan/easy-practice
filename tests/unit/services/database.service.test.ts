@@ -205,14 +205,15 @@ describe('DatabaseService', () => {
         expect(stat.failCount).toBe(1);
       });
 
-      // Reset only addition problems
-      await service.resetStatisticsByProblemSetKey('addition-within-20');
-
-      // Get problems and their stats after reset
+      // Get problem sets before reset
       const problemSets = await db.problemSets.toArray();
       const additionSet = problemSets.find((ps) => ps.problemSetKey === 'addition-within-20');
       const subtractionSet = problemSets.find((ps) => ps.problemSetKey === 'subtraction-within-20');
 
+      // Reset only addition problems
+      await service.resetStatisticsByProblemSetId(additionSet!.id!);
+
+      // Get problems and their stats after reset
       const additionProblems = await db.problems
         .where('problemSetId')
         .equals(additionSet!.id!)
@@ -273,8 +274,11 @@ describe('DatabaseService', () => {
       const problems = await db.problems.toArray();
       await service.recordAttempt(problems[0].id!, 'pass');
 
-      // Reset non-existent type
-      await service.resetStatisticsByProblemSetKey('multiplication');
+      // Get a non-existent problem set ID
+      const nonExistentId = 'non-existent-id';
+
+      // Reset non-existent problem set (should not affect anything)
+      await service.resetStatisticsByProblemSetId(nonExistentId);
 
       // Verify addition statistics are unchanged
       const stats = await db.statistics.get(problems[0].id!);
@@ -319,12 +323,15 @@ describe('DatabaseService', () => {
         await service.recordAttempt(problem.id!, 'fail');
       }
 
-      // Reset only addition problems
-      await service.resetStatisticsByProblemSetKey('addition-within-20');
-
-      // Verify addition problem statistics are reset
+      // Get problem sets before reset
       const problemSets = await db.problemSets.toArray();
       const additionSetId = problemSets.find(ps => ps.problemSetKey === 'addition-within-20')!.id!;
+      const subtractionSetId = problemSets.find(ps => ps.problemSetKey === 'subtraction-within-20')!.id!;
+
+      // Reset only addition problems
+      await service.resetStatisticsByProblemSetId(additionSetId);
+
+      // Verify addition problem statistics are reset
       const additionProblems = await db.problems.where('problemSetId').equals(additionSetId).toArray();
 
       for (const problem of additionProblems) {
@@ -340,7 +347,6 @@ describe('DatabaseService', () => {
       }
 
       // Verify subtraction statistics are NOT reset
-      const subtractionSetId = problemSets.find(ps => ps.problemSetKey === 'subtraction-within-20')!.id!;
       const subtractionProblems = await db.problems.where('problemSetId').equals(subtractionSetId).toArray();
 
       for (const problem of subtractionProblems) {
@@ -439,8 +445,12 @@ describe('DatabaseService', () => {
         await service.recordAttempt(problem.id!, 'pass');
       }
 
-      // Get struggled problems filtered by addition type
-      const struggledProblems = await service.getStruggledProblems(20, 'addition-within-20');
+      // Get the addition problem set ID
+      const problemSets = await db.problemSets.toArray();
+      const additionSetId = problemSets.find(ps => ps.problemSetKey === 'addition-within-20')!.id!;
+
+      // Get struggled problems filtered by addition problem set ID
+      const struggledProblems = await service.getStruggledProblems(20, additionSetId);
 
       expect(struggledProblems.length).toBe(2);
       struggledProblems.forEach((problem) => {
@@ -488,8 +498,12 @@ describe('DatabaseService', () => {
         await service.recordAttempt(problem.id!, 'pass');
       }
 
-      // Get struggled problems filtered by subtraction type
-      const struggledProblems = await service.getStruggledProblems(20, 'subtraction-within-20');
+      // Get the subtraction problem set ID
+      const problemSets = await db.problemSets.toArray();
+      const subtractionSetId = problemSets.find(ps => ps.problemSetKey === 'subtraction-within-20')!.id!;
+
+      // Get struggled problems filtered by subtraction problem set ID
+      const struggledProblems = await service.getStruggledProblems(20, subtractionSetId);
 
       expect(struggledProblems.length).toBe(2);
       struggledProblems.forEach((problem) => {
