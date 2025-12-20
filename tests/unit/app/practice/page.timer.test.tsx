@@ -32,8 +32,9 @@ let mockState: AppState = {
     {
       id: 'set-1',
       name: 'Addition Within 10',
-      key: 'addition-within-10',
+      problemSetKey: 'addition-within-10',
       enabled: true,
+      createdAt: Date.now(),
     },
   ],
   sessionStartTime: null,
@@ -90,8 +91,9 @@ describe('Practice Page - Session Timer Integration', () => {
         {
           id: 'set-1',
           name: 'Addition Within 10',
-          key: 'addition-within-10',
+          problemSetKey: 'addition-within-10',
           enabled: true,
+          createdAt: Date.now(),
         },
       ],
       sessionStartTime: null,
