@@ -1,7 +1,7 @@
 // components/ProblemDisplay.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Problem } from '@/types';
 
@@ -11,11 +11,6 @@ interface ProblemDisplayProps {
 
 export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   const [showAnswer, setShowAnswer] = useState(false);
-
-  // Reset toggle state when problem changes
-  useEffect(() => {
-    setShowAnswer(false);
-  }, [problem?.id]);
 
   if (!problem) {
     return (
@@ -33,6 +28,7 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
 
   return (
     <div
+      key={problem.id}
       className="relative flex min-h-[200px] flex-col items-center justify-center p-8"
       role="region"
       aria-label="Current math problem"
