@@ -1,13 +1,28 @@
 # Software Architecture Design Document
+
 ## Math Practice App for Parents
 
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Date:** December 20, 2025  
-**Status:** In Progress - Epics 1, 2, & 4 Completed
+**Status:** In Progress - Epics 1, 2, 3, & 4 Completed
 
 ## Recent Updates
 
+### Epic 3 Implementation - Mobile-First Design (December 20, 2025)
+
+- **Enhanced Button Styling for Mobile**: All buttons now use consistent h-12 height (48px minimum) for easy tapping on mobile devices
+- **Improved Button Accessibility**: Updated all buttons with proper padding (px-6 or px-8), font sizing, and transition-colors for smooth visual feedback
+- **Responsive Layout Optimization**: Confirmed and tested mobile-first layout with proper viewport handling, flexible spacing, and dynamic orientation support
+- **High Contrast Color Scheme**: Implemented consistent color palette with sufficient contrast for low-light conditions (gray-900 text, white backgrounds, colorful buttons)
+- **Engaging Visual Design**: Added colorful button states (blue for selection, green for success actions, red for destructive actions), subtle transition effects, rounded corners, and shadow effects
+- **Visual Feedback**: All interactive elements include hover states and transition-colors for smooth, non-distracting animations
+- **Mobile Touch Targets**: Ensured all buttons meet or exceed 48px height requirement with appropriate horizontal padding (gap-4 spacing)
+- **Consistent Typography**: Maintained clear visual hierarchy with large text (3xl headings, 6xl problem display) for easy readability
+- **Added 28 comprehensive tests** covering responsive design, button sizing, contrast, hover states, and visual engagement
+- All Epic 3 acceptance criteria met and tested
+
 ### Epic 4 Implementation - Session-Based Practice with Progress Tracking (December 20, 2025)
+
 - **Implemented Session State Management**: Added `isSessionActive`, `sessionQueue`, and `sessionCompletedCount` to AppContext
 - **Implemented Session Queue Generation**: Algorithm that selects problems based on success ratios (<90% always included, ≥90% included with 30% probability)
 - **Implemented StartSessionButton Component**: Explicit button to start practice sessions
@@ -22,12 +37,14 @@
 - All Epic 4 acceptance criteria met and tested
 
 ### Design Refinement - Streamlined User Flow (December 20, 2025)
+
 - **Removed NextProblemButton from main page**: Pass/Fail buttons now automatically load the next problem
 - **Simplified workflow**: Mark answer → Next problem loads automatically → Repeat
 - **Improved UX**: Reduced cognitive load by eliminating redundant button
 - NextProblemButton component retained in codebase for potential future use
 
 ### Epic 2 Implementation - Simple Performance Tracking (December 20, 2025)
+
 - Implemented **AnswerButtons Component**: Allows parents to mark problems as Pass or Fail
 - Implemented **SummaryView Component**: Displays list of struggled problems with details
 - Implemented **ResetDataButton Component**: Allows clearing all performance data with confirmation
@@ -36,12 +53,14 @@
 - All Epic 2 acceptance criteria met and tested
 
 ### Bug Fix - Date Storage (December 20, 2025)
+
 - Fixed "Invalid key provided" error in Next Problem button by converting Date objects to Unix timestamps (milliseconds)
 - Updated all date fields (`createdAt`, `attemptedAt`, `lastAttemptedAt`) to store numbers instead of Date objects
 - This ensures proper IndexedDB indexing support across all browsers
 - Modified `formatDate()` utility to accept timestamps and convert them for display
 
 ### Bug Fix - State Variable Initialization (December 20, 2025)
+
 - Fixed "Invalid key provided" error when `selectedType` was undefined in database queries
 - Changed state capture pattern in `loadNextProblem()`, `submitAnswer()`, and `initializeApp()` to use initialized objects
 - Ensures variables always have valid values before being passed to database queries
@@ -52,6 +71,7 @@
 ### Completed Features
 
 #### Epic 1: Parent-Focused Problem Generator ✅
+
 - ✅ **TypeSelector Component**: Allows parents to switch between addition and subtraction problems
 - ✅ **ProblemDisplay Component**: Displays math problems with large, readable text (6xl size)
 - ✅ **Main Page (app/page.tsx)**: Integrates all components with AppContext for state management
@@ -60,6 +80,7 @@
 - ✅ **Responsive Design**: Mobile-first layout with proper touch targets (48px minimum height)
 
 #### Epic 2: Simple Performance Tracking ✅
+
 - ✅ **AnswerButtons Component**: Pass/Fail buttons that automatically load next problem after marking
 - ✅ **SummaryView Component**: Modal displaying struggled problems with failure rates and details
 - ✅ **ResetDataButton Component**: Confirmation-based data reset functionality
@@ -68,7 +89,20 @@
 - ✅ **Empty State Handling**: Appropriate messages when no struggled problems exist
 - ✅ **Streamlined Workflow**: Pass/Fail action automatically triggers next problem load
 
+#### Epic 3: Mobile-First Design ✅
+
+- ✅ **Mobile-First Layout**: Responsive flex-based layout with min-h-screen, proper padding, and max-width constraints
+- ✅ **Touch-Friendly Buttons**: All buttons use h-12 (48px) height with proper padding (px-6/px-8) for mobile interaction
+- ✅ **Large Typography**: Clear visual hierarchy with 3xl headings and 6xl problem display for readability
+- ✅ **High Contrast Design**: Gray-900 text on white backgrounds with colorful, accessible button states
+- ✅ **Engaging Visuals**: Colorful button palette (blue for primary, green for success, red for destructive), rounded corners, shadows, and smooth transitions
+- ✅ **Responsive Adaptation**: Flexible layout that adjusts seamlessly between portrait and landscape orientations
+- ✅ **Visual Feedback**: All interactive elements include hover states and transition-colors animations
+- ✅ **Consistent Spacing**: Proper gap spacing (gap-4, space-y-8) prevents accidental taps and visual clutter
+- ✅ **Session Complete Celebration**: Emoji-enhanced completion screen (🎉) for child engagement
+
 #### Epic 4: Session-Based Practice with Progress Tracking ✅
+
 - ✅ **Session State Management**: Ephemeral session state in AppContext (not persisted to DB)
 - ✅ **Adaptive Queue Generation**: Problems selected based on success ratios with intelligent filtering
   - Success ratio < 90%: Always included
@@ -81,11 +115,13 @@
 - ✅ **Session-Based Problem Flow**: Problems advance through queue as answers are submitted
 
 ### Test Coverage
-- 109 tests passing across 13 test files
+
+- 138 tests passing across 14 test files
 - Component tests: TypeSelector, ProblemDisplay, AnswerButtons, SummaryView, ResetDataButton, ProgressIndicator, StartSessionButton
-- Integration tests: Main page with Epic 2 and Epic 4 components
+- Integration tests: Main page with Epic 2, Epic 3, and Epic 4 components
 - Unit tests: Priority calculation, database services, utilities, session queue generation
 - Context tests: Session state, start session action, progress tracking, type switch reset
+- Epic 3 tests: Responsive design, button sizing, contrast, hover states, and visual engagement (28 tests)
 - Note: NextProblemButton component tests retained but component not used in main page flow
 
 ---
@@ -112,6 +148,7 @@ The Math Practice App is a **mobile-first web application** designed as a **Sing
 The system follows a **layered architecture** with clear separation of concerns:
 
 **Frontend Layer (Client-Side)**
+
 - **UI Components Module**: Reusable React components for problem display, buttons, and summary views
 - **State Management Module**: Centralized state using React Context API for current problem, performance data, and UI state
 - **Problem Generator Module**: Logic for generating all possible addition/subtraction problems within constraints
@@ -252,20 +289,20 @@ State -> UI: Confirm saved
 
 ### 2.1 Core Technologies
 
-| Category | Technology | Version | Justification |
-|----------|-----------|---------|---------------|
-| **Frontend Framework** | Next.js | 14+ | SSG support, App Router, optimal performance |
-| **UI Library** | React | 18+ | Component reusability, strong ecosystem |
-| **Language** | TypeScript | 5+ | Type safety for math logic, better DX |
-| **State Management** | React Context API | Built-in | Sufficient for app complexity, no extra deps |
-| **UI Styling** | Tailwind CSS | 3+ | Mobile-first utilities, rapid development |
-| **Icons** | lucide-react | Latest | Clean icons, tree-shakeable, React components |
-| **Data Storage** | IndexedDB (Dexie.js) | 4+ | Structured storage, 50MB+ capacity, indexing |
-| **Build Tool** | Next.js Built-in | 14+ | Optimized builds, code splitting |
-| **Testing** | Vitest + RTL | Latest | Fast testing, user-focused |
-| **Code Quality** | ESLint + Prettier | Latest | Enforce standards, consistency |
-| **Hosting** | AWS S3 + CloudFront | N/A | Static hosting, global CDN, cost-effective |
-| **PWA Support** | next-pwa | Latest | Offline support, installable app |
+| Category               | Technology           | Version  | Justification                                 |
+| ---------------------- | -------------------- | -------- | --------------------------------------------- |
+| **Frontend Framework** | Next.js              | 14+      | SSG support, App Router, optimal performance  |
+| **UI Library**         | React                | 18+      | Component reusability, strong ecosystem       |
+| **Language**           | TypeScript           | 5+       | Type safety for math logic, better DX         |
+| **State Management**   | React Context API    | Built-in | Sufficient for app complexity, no extra deps  |
+| **UI Styling**         | Tailwind CSS         | 3+       | Mobile-first utilities, rapid development     |
+| **Icons**              | lucide-react         | Latest   | Clean icons, tree-shakeable, React components |
+| **Data Storage**       | IndexedDB (Dexie.js) | 4+       | Structured storage, 50MB+ capacity, indexing  |
+| **Build Tool**         | Next.js Built-in     | 14+      | Optimized builds, code splitting              |
+| **Testing**            | Vitest + RTL         | Latest   | Fast testing, user-focused                    |
+| **Code Quality**       | ESLint + Prettier    | Latest   | Enforce standards, consistency                |
+| **Hosting**            | AWS S3 + CloudFront  | N/A      | Static hosting, global CDN, cost-effective    |
+| **PWA Support**        | next-pwa             | Latest   | Offline support, installable app              |
 
 ### 2.2 Development Dependencies
 
@@ -310,24 +347,28 @@ State -> UI: Confirm saved
 ### 2.3 Technology Choices Rationale
 
 #### Next.js over Vite
+
 - **SSG Support**: Static export for S3 + CloudFront deployment
 - **App Router**: Modern routing with layouts and server components
 - **Built-in Optimizations**: Image optimization, font optimization, code splitting
 - **Production Ready**: Battle-tested framework with excellent documentation
 
 #### React Context API over Redux
+
 - **Simplicity**: No boilerplate for simple state management
 - **Built-in**: No additional dependencies
 - **Sufficient**: App state is straightforward (current problem, statistics, UI state)
 - **Performance**: With proper memoization, no performance concerns
 
 #### IndexedDB (Dexie.js) over localStorage
+
 - **Capacity**: 50MB+ vs 5-10MB for localStorage
 - **Structured Data**: Supports complex queries and indexing
 - **Performance**: Asynchronous, doesn't block UI thread
 - **Versioning**: Built-in schema migration support
 
 #### AWS S3 + CloudFront over Other Platforms
+
 - **Cost-effective**: ~$1.50/month for typical usage
 - **Global CDN**: 450+ edge locations worldwide
 - **Scalability**: Automatic scaling with no infrastructure management
@@ -347,15 +388,16 @@ The application uses **IndexedDB** for local data persistence with three core en
 
 Represents a single problem with its question and answer.
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `id` | string | Unique identifier (UUID) | Primary Key, auto-generated |
-| `problem` | string | Problem text (e.g., "5 + 7") | Required, max 200 chars |
-| `answer` | string | Correct answer (e.g., "12") | Required, max 50 chars |
-| `category` | string | Problem type | 'addition' or 'subtraction' |
-| `createdAt` | number | When problem was created | Unix timestamp (milliseconds) |
+| Field       | Type   | Description                  | Constraints                   |
+| ----------- | ------ | ---------------------------- | ----------------------------- |
+| `id`        | string | Unique identifier (UUID)     | Primary Key, auto-generated   |
+| `problem`   | string | Problem text (e.g., "5 + 7") | Required, max 200 chars       |
+| `answer`    | string | Correct answer (e.g., "12")  | Required, max 50 chars        |
+| `category`  | string | Problem type                 | 'addition' or 'subtraction'   |
+| `createdAt` | number | When problem was created     | Unix timestamp (milliseconds) |
 
 **Sample Data:**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -370,14 +412,15 @@ Represents a single problem with its question and answer.
 
 Tracks each attempt at solving a problem.
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `id` | string | Unique identifier (UUID) | Primary Key, auto-generated |
-| `problemId` | string | Reference to Problem | Foreign Key |
-| `result` | string | Outcome of attempt | 'pass' or 'fail' |
-| `attemptedAt` | number | When attempt was made | Unix timestamp (milliseconds) |
+| Field         | Type   | Description              | Constraints                   |
+| ------------- | ------ | ------------------------ | ----------------------------- |
+| `id`          | string | Unique identifier (UUID) | Primary Key, auto-generated   |
+| `problemId`   | string | Reference to Problem     | Foreign Key                   |
+| `result`      | string | Outcome of attempt       | 'pass' or 'fail'              |
+| `attemptedAt` | number | When attempt was made    | Unix timestamp (milliseconds) |
 
 **Sample Data:**
+
 ```json
 {
   "id": "660e8400-e29b-41d4-a716-446655440001",
@@ -391,18 +434,19 @@ Tracks each attempt at solving a problem.
 
 Aggregated statistics for each problem to enable fast prioritization.
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `problemId` | string | Reference to Problem | Primary Key, Foreign Key |
-| `totalAttempts` | number | Total number of attempts | ≥ 0 |
-| `passCount` | number | Number of successful attempts | ≥ 0 |
-| `failCount` | number | Number of failed attempts | ≥ 0 |
+| Field             | Type           | Description                   | Constraints                             |
+| ----------------- | -------------- | ----------------------------- | --------------------------------------- |
+| `problemId`       | string         | Reference to Problem          | Primary Key, Foreign Key                |
+| `totalAttempts`   | number         | Total number of attempts      | ≥ 0                                     |
+| `passCount`       | number         | Number of successful attempts | ≥ 0                                     |
+| `failCount`       | number         | Number of failed attempts     | ≥ 0                                     |
 | `lastAttemptedAt` | number \| null | Most recent attempt timestamp | Unix timestamp (milliseconds), nullable |
-| `lastResult` | string | Most recent attempt result | 'pass', 'fail', or null |
-| `failureRate` | number | Percentage of failed attempts | 0.0 to 1.0 (computed) |
-| `priority` | number | Calculated priority score | Higher = show sooner |
+| `lastResult`      | string         | Most recent attempt result    | 'pass', 'fail', or null                 |
+| `failureRate`     | number         | Percentage of failed attempts | 0.0 to 1.0 (computed)                   |
+| `priority`        | number         | Calculated priority score     | Higher = show sooner                    |
 
 **Sample Data:**
+
 ```json
 {
   "problemId": "p-550e8400-e29b-41d4-a716-446655440000",
@@ -489,6 +533,7 @@ Multiple problem sets can be stored in a single JSON file:
 #### Sample Problem Set Files
 
 **File: `public/problem-sets/addition-within-20.json`**
+
 ```json
 {
   "version": "1.0",
@@ -618,12 +663,12 @@ export class MathPracticeDB extends Dexie {
 
   constructor() {
     super('MathPracticeDB');
-    
+
     this.version(1).stores({
       problemSets: 'id, type, enabled, createdAt',
       problems: 'id, problemSetId, createdAt',
       attempts: 'id, problemId, attemptedAt, result',
-      statistics: 'problemId, priority, failureRate, lastAttemptedAt'
+      statistics: 'problemId, priority, failureRate, lastAttemptedAt',
     });
   }
 }
@@ -665,74 +710,40 @@ interface ProblemSetJSON {
 }
 
 async function importProblemsFromJSON(jsonData: ProblemSetJSON): Promise<void> {
-  await db.transaction('rw', db.problemSets, db.problems, db.statistics, async () => {
-    // Handle single problem set
-    if (jsonData.problemSet && jsonData.problems) {
-      const problemSetId = crypto.randomUUID();
-      
-      // Insert problem set
-      await db.problemSets.add({
-        id: problemSetId,
-        name: jsonData.problemSet.name,
-        description: jsonData.problemSet.description,
-        type: jsonData.problemSet.type,
-        difficulty: jsonData.problemSet.difficulty,
-        enabled: true,
-        createdAt: new Date(),
-        metadata: jsonData.problemSet.metadata
-      });
-      
-      // Insert problems
-      for (const p of jsonData.problems) {
-        const problemId = crypto.randomUUID();
-        await db.problems.add({
-          id: problemId,
-          problemSetId: problemSetId,
-          problem: p.problem,
-          answer: p.answer,
-          createdAt: new Date()
-        });
-        
-        // Initialize statistics
-        await db.statistics.add({
-          problemId: problemId,
-          totalAttempts: 0,
-          passCount: 0,
-          failCount: 0,
-          lastAttemptedAt: null,
-          lastResult: null,
-          failureRate: 0,
-          priority: 50 // Default priority for new problems
-        });
-      }
-    }
-    
-    // Handle multiple problem sets
-    if (jsonData.problemSets) {
-      for (const ps of jsonData.problemSets) {
+  await db.transaction(
+    'rw',
+    db.problemSets,
+    db.problems,
+    db.statistics,
+    async () => {
+      // Handle single problem set
+      if (jsonData.problemSet && jsonData.problems) {
         const problemSetId = crypto.randomUUID();
-        
+
+        // Insert problem set
         await db.problemSets.add({
           id: problemSetId,
-          name: ps.name,
-          description: ps.description,
-          type: ps.type,
-          difficulty: ps.difficulty,
+          name: jsonData.problemSet.name,
+          description: jsonData.problemSet.description,
+          type: jsonData.problemSet.type,
+          difficulty: jsonData.problemSet.difficulty,
           enabled: true,
           createdAt: new Date(),
-          metadata: ps.metadata
+          metadata: jsonData.problemSet.metadata,
         });
-        
-        for (const p of ps.problems) {
+
+        // Insert problems
+        for (const p of jsonData.problems) {
           const problemId = crypto.randomUUID();
           await db.problems.add({
             id: problemId,
             problemSetId: problemSetId,
             problem: p.problem,
             answer: p.answer,
-            createdAt: new Date()
+            createdAt: new Date(),
           });
-          
+
+          // Initialize statistics
           await db.statistics.add({
             problemId: problemId,
             totalAttempts: 0,
@@ -741,23 +752,67 @@ async function importProblemsFromJSON(jsonData: ProblemSetJSON): Promise<void> {
             lastAttemptedAt: null,
             lastResult: null,
             failureRate: 0,
-            priority: 50
+            priority: 50, // Default priority for new problems
           });
         }
       }
+
+      // Handle multiple problem sets
+      if (jsonData.problemSets) {
+        for (const ps of jsonData.problemSets) {
+          const problemSetId = crypto.randomUUID();
+
+          await db.problemSets.add({
+            id: problemSetId,
+            name: ps.name,
+            description: ps.description,
+            type: ps.type,
+            difficulty: ps.difficulty,
+            enabled: true,
+            createdAt: new Date(),
+            metadata: ps.metadata,
+          });
+
+          for (const p of ps.problems) {
+            const problemId = crypto.randomUUID();
+            await db.problems.add({
+              id: problemId,
+              problemSetId: problemSetId,
+              problem: p.problem,
+              answer: p.answer,
+              createdAt: new Date(),
+            });
+
+            await db.statistics.add({
+              problemId: problemId,
+              totalAttempts: 0,
+              passCount: 0,
+              failCount: 0,
+              lastAttemptedAt: null,
+              lastResult: null,
+              failureRate: 0,
+              priority: 50,
+            });
+          }
+        }
+      }
     }
-  });
+  );
 }
 
 // Load default problem sets on first launch
 async function initializeDefaultProblems(): Promise<void> {
   const existingProblems = await db.problems.count();
-  
+
   if (existingProblems === 0) {
     // Load from multiple JSON files
-    const additionJSON = await fetch('/problem-sets/addition-within-20.json').then(r => r.json());
-    const subtractionJSON = await fetch('/problem-sets/subtraction-within-20.json').then(r => r.json());
-    
+    const additionJSON = await fetch(
+      '/problem-sets/addition-within-20.json'
+    ).then((r) => r.json());
+    const subtractionJSON = await fetch(
+      '/problem-sets/subtraction-within-20.json'
+    ).then((r) => r.json());
+
     await importProblemsFromJSON(additionJSON);
     await importProblemsFromJSON(subtractionJSON);
   }
@@ -767,13 +822,16 @@ async function initializeDefaultProblems(): Promise<void> {
 #### Pattern 2: Get Next Problem to Display
 
 **Priority calculation algorithm:**
+
 ```typescript
-priority = (failCount / totalAttempts) * 100 
-          + (totalAttempts === 0 ? 50 : 0)  // Boost new problems
-          - (passCount >= 3 ? 20 : 0);       // Reduce mastered problems
+priority =
+  (failCount / totalAttempts) * 100 +
+  (totalAttempts === 0 ? 50 : 0) - // Boost new problems
+  (passCount >= 3 ? 20 : 0); // Reduce mastered problems
 ```
 
 **Selection steps:**
+
 1. Query enabled problem sets by type (addition or subtraction)
 2. Get problems from those sets
 3. Join with `statistics` and order by `priority DESC`
@@ -788,19 +846,19 @@ async function getNextProblem(
   const problemSets = await db.problemSets
     .where('type')
     .equals(type)
-    .and(ps => ps.enabled)
+    .and((ps) => ps.enabled)
     .toArray();
-  
+
   if (problemSets.length === 0) return null;
-  
-  const problemSetIds = problemSets.map(ps => ps.id!);
-  
+
+  const problemSetIds = problemSets.map((ps) => ps.id!);
+
   // Get problems from these sets
   const problems = await db.problems
     .where('problemSetId')
     .anyOf(problemSetIds)
     .toArray();
-  
+
   // Get statistics and filter by priority
   const problemsWithStats = await Promise.all(
     problems.map(async (p) => {
@@ -808,18 +866,18 @@ async function getNextProblem(
       return { problem: p, stats };
     })
   );
-  
+
   // Filter out recently shown problems and sort by priority
   const available = problemsWithStats
     .filter(({ problem }) => !excludeIds.includes(problem.id!))
     .sort((a, b) => (b.stats?.priority || 0) - (a.stats?.priority || 0));
-  
+
   if (available.length === 0) return null;
-  
+
   // Select from top 10 randomly
   const topProblems = available.slice(0, 10);
   const randomIndex = Math.floor(Math.random() * topProblems.length);
-  
+
   return topProblems[randomIndex].problem;
 }
 ```
@@ -834,9 +892,9 @@ async function recordAttempt(problemId: string, result: 'pass' | 'fail') {
       id: crypto.randomUUID(),
       problemId,
       result,
-      attemptedAt: new Date()
+      attemptedAt: new Date(),
     });
-    
+
     // Update statistics
     const stats = await db.statistics.get(problemId);
     if (stats) {
@@ -847,7 +905,7 @@ async function recordAttempt(problemId: string, result: 'pass' | 'fail') {
       stats.lastResult = result;
       stats.failureRate = stats.failCount / stats.totalAttempts;
       stats.priority = calculatePriority(stats);
-      
+
       await db.statistics.put(stats);
     }
   });
@@ -863,7 +921,7 @@ async function getStruggledProblems(limit = 20) {
     .above(0)
     .reverse()
     .sortBy('priority')
-    .then(stats => stats.slice(0, limit));
+    .then((stats) => stats.slice(0, limit));
 }
 ```
 
@@ -880,7 +938,7 @@ async function resetStatistics() {
       lastAttemptedAt: null,
       lastResult: null,
       failureRate: 0,
-      priority: 0
+      priority: 0,
     });
   });
 }
@@ -889,6 +947,7 @@ async function resetStatistics() {
 ### 3.7 Indexing Strategy
 
 **IndexedDB Indexes:**
+
 - `problemSets.id`: Primary key lookup
 - `problemSets.type`: Filter by problem type (addition/subtraction)
 - `problemSets.enabled`: Filter active problem sets
@@ -919,26 +978,26 @@ export interface IDatabaseService {
   getProblemSetById(id: string): Promise<ProblemSet | undefined>;
   toggleProblemSet(id: string, enabled: boolean): Promise<void>;
   deleteProblemSet(id: string): Promise<void>;
-  
+
   // Problem Operations
   getProblems(problemSetId?: string): Promise<Problem[]>;
   getProblemsByType(type: string): Promise<Problem[]>;
   getProblemById(id: string): Promise<Problem | undefined>;
-  
+
   // Statistics Operations
   getStatistics(problemId: string): Promise<ProblemStatistics | undefined>;
   getAllStatistics(): Promise<ProblemStatistics[]>;
   updateStatistics(problemId: string, result: 'pass' | 'fail'): Promise<void>;
   resetStatistics(): Promise<void>;
-  
+
   // Attempt Operations
   recordAttempt(problemId: string, result: 'pass' | 'fail'): Promise<void>;
   getAttemptHistory(problemId: string): Promise<ProblemAttempt[]>;
   getAllAttempts(): Promise<ProblemAttempt[]>;
-  
+
   // Summary Operations
   getStruggledProblems(limit?: number): Promise<StruggledProblemSummary[]>;
-  
+
   // Utility Operations
   clearAllData(): Promise<void>;
   exportData(): Promise<string>;
@@ -967,19 +1026,16 @@ export interface IProblemService {
   // Problem Import
   loadProblemSetFromFile(file: File): Promise<void>;
   loadDefaultProblemSets(): Promise<void>;
-  
+
   // Problem Selection
-  getNextProblem(
-    type: string,
-    excludeIds?: string[]
-  ): Promise<Problem | null>;
-  
+  getNextProblem(type: string, excludeIds?: string[]): Promise<Problem | null>;
+
   // Problem Queue Management
   getOrderedProblemQueue(
     category: 'addition' | 'subtraction',
     limit?: number
   ): Promise<Problem[]>;
-  
+
   // Validation
   validateAnswer(problem: Problem, userAnswer: string): boolean;
 }
@@ -994,20 +1050,20 @@ export interface AppState {
   // Current Problem State
   currentProblem: Problem | null;
   recentProblemIds: string[];
-  
+
   // UI State
   selectedType: string; // 'addition', 'subtraction', etc.
   availableProblemSets: ProblemSet[];
   isLoading: boolean;
   showSummary: boolean;
-  
+
   // Statistics
   struggledProblems: StruggledProblemSummary[];
-  
+
   // Initialization
   isInitialized: boolean;
   initializationError: string | null; // Error message if initialization fails
-  
+
   // Settings
   problemsPerSession: number;
   currentSessionCount: number;
@@ -1018,23 +1074,23 @@ export interface AppActions {
   importProblemSet: (file: File) => Promise<void>;
   loadProblemSets: () => Promise<void>;
   toggleProblemSet: (id: string, enabled: boolean) => Promise<void>;
-  
+
   // Problem Actions
   loadNextProblem: () => Promise<void>;
   submitAnswer: (result: 'pass' | 'fail') => Promise<void>;
-  
+
   // Type Selection Actions
   setType: (type: string) => void;
-  
+
   // Summary Actions
   loadStruggledProblems: () => Promise<void>;
   toggleSummary: () => void;
-  
+
   // Data Management Actions
   resetAllData: () => Promise<void>;
   exportData: () => Promise<void>;
   importData: (file: File) => Promise<void>;
-  
+
   // Initialization
   initializeApp: () => Promise<void>;
 }
@@ -1057,15 +1113,18 @@ The application follows a robust initialization sequence to ensure data availabi
 6. **State Update**: Sets `isInitialized` to true, enabling the main UI to render
 
 **Error Handling**:
+
 - If any step fails, sets `initializationError` with a descriptive message
 - UI displays error message with a "Retry" button
 - User can manually retry initialization without refreshing the page
 
 **Benefits**:
+
 - Single useEffect execution prevents duplicate initialization calls
 - Proper error state prevents infinite loading screens
 - Auto-loading first problem improves UX (no blank screen after init)
-```
+
+````
 
 ### 4.5 Component Props Interfaces
 
@@ -1099,18 +1158,19 @@ export interface StruggledProblemCardProps {
   problem: StruggledProblemSummary;
   onClick?: () => void;
 }
-```
+````
 
 ### 4.6 API Usage Examples
 
 #### Example 1: Initialize App
+
 ```typescript
 async function initializeApp() {
   const dbService = new DatabaseService();
   const problemService = new ProblemService();
-  
+
   const existingProblems = await dbService.getProblems();
-  
+
   if (existingProblems.length === 0) {
     // Load default problem sets from JSON files
     await problemService.loadDefaultProblemSets();
@@ -1119,6 +1179,7 @@ async function initializeApp() {
 ```
 
 #### Example 2: Load Next Problem
+
 ```typescript
 async function loadNextProblem(
   type: string,
@@ -1130,6 +1191,7 @@ async function loadNextProblem(
 ```
 
 #### Example 3: Submit Answer
+
 ```typescript
 async function submitAnswer(
   problemId: string,
@@ -1141,12 +1203,13 @@ async function submitAnswer(
 ```
 
 #### Example 4: Import Custom Problem Set
+
 ```typescript
 async function importCustomProblemSet(file: File): Promise<void> {
   const dbService = new DatabaseService();
   const text = await file.text();
   const jsonData = JSON.parse(text);
-  
+
   await dbService.importProblemsFromJSON(jsonData);
   console.log('Problem set imported successfully');
 }
@@ -1156,7 +1219,10 @@ async function importCustomProblemSet(file: File): Promise<void> {
 
 ```typescript
 export class DatabaseError extends Error {
-  constructor(message: string, public originalError?: Error) {
+  constructor(
+    message: string,
+    public originalError?: Error
+  ) {
     super(message);
     this.name = 'DatabaseError';
   }
@@ -1212,7 +1278,7 @@ Deployment_Node(aws, "AWS Cloud", "US-EAST-1") {
     Deployment_Node(s3, "S3 Bucket", "Static Storage") {
         Container(staticFiles, "Static Files", "HTML/JS/CSS", "Built application files")
     }
-    
+
     Deployment_Node(cloudfront, "CloudFront CDN", "Global Edge Locations") {
         Container(cdn, "CDN Distribution", "CloudFront", "Content delivery network")
     }
@@ -1256,34 +1322,34 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run ESLint
         run: npm run lint
-      
+
       - name: TypeScript type check
         run: npm run type-check
-      
+
       - name: Run tests
         run: npm run test:ci
-      
+
       - name: Build Next.js static export
         run: npm run build
         env:
           NEXT_PUBLIC_APP_ENV: production
-      
+
       - name: Configure AWS credentials
         if: github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@v4
@@ -1291,7 +1357,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Sync files to S3
         if: github.ref == 'refs/heads/main'
         run: |
@@ -1300,14 +1366,14 @@ jobs:
             --cache-control "public, max-age=31536000, immutable" \
             --exclude "*.html" \
             --exclude "*.json"
-          
+
           aws s3 sync out/ s3://${{ env.S3_BUCKET }} \
             --delete \
             --cache-control "public, max-age=0, must-revalidate" \
             --exclude "*" \
             --include "*.html" \
             --include "*.json"
-      
+
       - name: Invalidate CloudFront distribution
         if: github.ref == 'refs/heads/main'
         run: |
@@ -1369,33 +1435,36 @@ jobs:
 ### 5.5 Security
 
 #### HTTPS Enforcement
+
 - CloudFront configured with `redirect-to-https`
 - TLS 1.2+ encryption
 - HSTS headers enabled
 
 #### Security Headers
+
 ```typescript
 const securityHeaders = [
   {
     key: 'Strict-Transport-Security',
-    value: 'max-age=63072000; includeSubDomains; preload'
+    value: 'max-age=63072000; includeSubDomains; preload',
   },
   {
     key: 'X-Frame-Options',
-    value: 'SAMEORIGIN'
+    value: 'SAMEORIGIN',
   },
   {
     key: 'X-Content-Type-Options',
-    value: 'nosniff'
+    value: 'nosniff',
   },
   {
     key: 'X-XSS-Protection',
-    value: '1; mode=block'
-  }
+    value: '1; mode=block',
+  },
 ];
 ```
 
 #### IAM Permissions (Minimal)
+
 ```json
 {
   "Version": "2012-10-17",
@@ -1415,9 +1484,7 @@ const securityHeaders = [
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "cloudfront:CreateInvalidation"
-      ],
+      "Action": ["cloudfront:CreateInvalidation"],
       "Resource": "arn:aws:cloudfront::*:distribution/*"
     }
   ]
@@ -1426,13 +1493,13 @@ const securityHeaders = [
 
 ### 5.6 Cost Estimation
 
-| Service | Usage | Monthly Cost (USD) |
-|---------|-------|-------------------|
-| S3 Storage | 100 MB | $0.02 |
-| S3 Requests | 100K GET | $0.04 |
-| CloudFront | 10 GB transfer | $0.85 |
-| CloudFront Requests | 100K | $0.01 |
-| **Total** | | **~$1.50/month** |
+| Service             | Usage          | Monthly Cost (USD) |
+| ------------------- | -------------- | ------------------ |
+| S3 Storage          | 100 MB         | $0.02              |
+| S3 Requests         | 100K GET       | $0.04              |
+| CloudFront          | 10 GB transfer | $0.85              |
+| CloudFront Requests | 100K           | $0.01              |
+| **Total**           |                | **~$1.50/month**   |
 
 ### 5.7 Scalability
 
@@ -1541,6 +1608,7 @@ math-practice-app/
 ### 6.2 Configuration Files
 
 #### `tsconfig.json`
+
 ```json
 {
   "compilerOptions": {
@@ -1575,6 +1643,7 @@ math-practice-app/
 ```
 
 #### `next.config.js`
+
 ```javascript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -1597,6 +1666,7 @@ module.exports = nextConfig;
 ### 6.3 Development Workflow
 
 #### Initial Setup
+
 ```bash
 git clone https://github.com/username/math-practice-app.git
 cd math-practice-app
@@ -1606,6 +1676,7 @@ npm run dev
 ```
 
 #### Making Changes
+
 ```bash
 git checkout -b feature/new-feature
 npm run test
@@ -1615,6 +1686,7 @@ git push origin feature/new-feature
 ```
 
 #### Code Quality Checks
+
 ```bash
 npm run type-check    # TypeScript
 npm run lint          # ESLint

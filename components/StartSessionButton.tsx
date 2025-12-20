@@ -6,12 +6,15 @@ interface StartSessionButtonProps {
   disabled?: boolean;
 }
 
-export function StartSessionButton({ onStart, disabled = false }: StartSessionButtonProps) {
+export function StartSessionButton({
+  onStart,
+  disabled = false,
+}: StartSessionButtonProps) {
   return (
     <button
       onClick={onStart}
       disabled={disabled}
-      className="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+      className="h-12 rounded-lg bg-green-500 px-8 font-semibold text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-gray-400"
     >
       Start New Session
     </button>

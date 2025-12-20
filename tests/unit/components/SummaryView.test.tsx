@@ -66,7 +66,9 @@ describe('SummaryView Component', () => {
     const mockOnClose = vi.fn();
     render(<SummaryView problems={[]} onClose={mockOnClose} />);
 
-    expect(screen.getByText(/no struggled problems found/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/no struggled problems found/i)
+    ).toBeInTheDocument();
   });
 
   it('should render close button', () => {
@@ -94,7 +96,7 @@ describe('SummaryView Component', () => {
 
     const problemItem = screen.getByLabelText('View details for 5 + 7');
     expect(problemItem).toBeInTheDocument();
-    
+
     await user.click(problemItem);
     // After clicking, more details should be visible
     expect(screen.getByText(/total attempts/i)).toBeInTheDocument();
@@ -105,7 +107,10 @@ describe('SummaryView Component', () => {
     render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     const region = screen.getByRole('region');
-    expect(region).toHaveAttribute('aria-label', expect.stringMatching(/summary/i));
+    expect(region).toHaveAttribute(
+      'aria-label',
+      expect.stringMatching(/summary/i)
+    );
   });
 
   it('should display problems sorted by failure rate', () => {

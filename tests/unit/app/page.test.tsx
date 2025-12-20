@@ -10,6 +10,7 @@ const mockSubmitAnswer = vi.fn();
 const mockLoadStruggledProblems = vi.fn();
 const mockToggleSummary = vi.fn();
 const mockResetAllData = vi.fn();
+const mockStartNewSession = vi.fn();
 
 let mockState: {
   currentProblem: any;
@@ -19,6 +20,9 @@ let mockState: {
   initializationError: string | null;
   showSummary: boolean;
   struggledProblems: any[];
+  isSessionActive: boolean;
+  sessionQueue: any[];
+  sessionCompletedCount: number;
 } = {
   currentProblem: null,
   selectedType: 'addition',
@@ -27,6 +31,9 @@ let mockState: {
   initializationError: null,
   showSummary: false,
   struggledProblems: [],
+  isSessionActive: false,
+  sessionQueue: [],
+  sessionCompletedCount: 0,
 };
 
 // Mock the context
@@ -41,6 +48,7 @@ vi.mock('@/contexts', () => ({
       loadStruggledProblems: mockLoadStruggledProblems,
       toggleSummary: mockToggleSummary,
       resetAllData: mockResetAllData,
+      startNewSession: mockStartNewSession,
     },
   }),
 }));
@@ -56,6 +64,9 @@ describe('Home Page', () => {
       initializationError: null,
       showSummary: false,
       struggledProblems: [],
+      isSessionActive: false,
+      sessionQueue: [],
+      sessionCompletedCount: 0,
     };
   });
 
@@ -68,14 +79,39 @@ describe('Home Page', () => {
   it('should display type selector buttons', () => {
     render(<Home />);
 
-    expect(screen.getByRole('button', { name: /addition/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /subtraction/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /addition/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /subtraction/i })
+    ).toBeInTheDocument();
   });
 
-  it('should display problem display area', () => {
+  it('should display problem display area when session is active', () => {
+    mockState = {
+      ...mockState,
+      isSessionActive: true,
+      currentProblem: { problem: '5 + 3', answer: 8, problemType: 'addition' },
+      sessionQueue: [
+        { problem: '5 + 3', answer: 8, problemType: 'addition' },
+        { problem: '7 + 2', answer: 9, problemType: 'addition' },
+      ],
+    };
+
     render(<Home />);
 
-    expect(screen.getByRole('region', { name: /current math problem/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('region', { name: /current math problem/i })
+    ).toBeInTheDocument();
+  });
+
+  it('should display Start Session button when no session is active', () => {
+    render(<Home />);
+
+    expect(
+      screen.getByRole('button', { name: /start new session/i })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/start a new practice session to begin/i)).toBeInTheDocument();
   });
 
   it('should be responsive on mobile viewports', () => {
@@ -114,7 +150,7 @@ describe('Home Page', () => {
 
       // Should still render without errors
       expect(screen.getByText(/math practice/i)).toBeInTheDocument();
-      
+
       // initializeApp should still not be called
       expect(mockInitializeApp).not.toHaveBeenCalled();
     });
@@ -130,8 +166,12 @@ describe('Home Page', () => {
 
       render(<Home />);
 
-      expect(screen.getByText(/error: failed to load problem sets/i)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+      expect(
+        screen.getByText(/error: failed to load problem sets/i)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /retry/i })
+      ).toBeInTheDocument();
     });
 
     it('should call initializeApp when retry button is clicked', async () => {

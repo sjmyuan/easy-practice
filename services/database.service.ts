@@ -216,7 +216,10 @@ export class DatabaseService {
   /**
    * Record an attempt and update statistics
    */
-  async recordAttempt(problemId: string, result: 'pass' | 'fail'): Promise<void> {
+  async recordAttempt(
+    problemId: string,
+    result: 'pass' | 'fail'
+  ): Promise<void> {
     await db.transaction('rw', db.attempts, db.statistics, async () => {
       // Insert attempt
       await db.attempts.add({
@@ -263,9 +266,7 @@ export class DatabaseService {
   /**
    * Get struggled problems summary
    */
-  async getStruggledProblems(
-    limit = 20
-  ): Promise<StruggledProblemSummary[]> {
+  async getStruggledProblems(limit = 20): Promise<StruggledProblemSummary[]> {
     const stats = await db.statistics
       .where('failCount')
       .above(0)

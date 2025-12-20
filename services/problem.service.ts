@@ -74,10 +74,7 @@ export class ProblemService {
 
     // Filter out recently shown problems and sort by priority
     const available = problemsWithStats
-      .filter(
-        ({ problem }) =>
-          problem.id && !excludeIds.includes(problem.id)
-      )
+      .filter(({ problem }) => problem.id && !excludeIds.includes(problem.id))
       .sort((a, b) => (b.stats?.priority || 0) - (a.stats?.priority || 0));
 
     if (available.length === 0) {
@@ -98,10 +95,7 @@ export class ProblemService {
   /**
    * Get ordered problem queue for display
    */
-  async getOrderedProblemQueue(
-    type: string,
-    limit = 10
-  ): Promise<Problem[]> {
+  async getOrderedProblemQueue(type: string, limit = 10): Promise<Problem[]> {
     const problemSets = await db.problemSets
       .where('type')
       .equals(type)
@@ -136,7 +130,9 @@ export class ProblemService {
    * Validate answer (for future use if needed)
    */
   validateAnswer(problem: Problem, userAnswer: string): boolean {
-    return problem.answer.trim().toLowerCase() === userAnswer.trim().toLowerCase();
+    return (
+      problem.answer.trim().toLowerCase() === userAnswer.trim().toLowerCase()
+    );
   }
 
   /**

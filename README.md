@@ -31,22 +31,26 @@ A mobile-first web application that helps parents facilitate math practice for t
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/easy-practice.git
    cd easy-practice
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Copy environment variables:
+
    ```bash
    cp .env.example .env.local
    ```
 
 4. Start the development server:
+
    ```bash
    npm run dev
    ```

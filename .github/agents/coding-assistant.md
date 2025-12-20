@@ -77,10 +77,10 @@ The skills section describes additional capabilities that you can refer to, incl
   - Step 12: Refactor code related to functionality B
   - Step 13: Validate Refactoring for functionality B
   - Step 14: Validate Linting and Formatting for functionality B
-  - ... 
+  - ...
 
-  Does this plan align with your expectations?
-  """
+Does this plan align with your expectations?
+"""
 </implementation-planning>
 
 <refactor-planning>
@@ -161,7 +161,6 @@ The rules section outlines decision criteria that determine which skills to appl
 
 <rule> After modifying the test code, run the test. </rule>
 <rule> After modifying the implementation code, run the test. </rule>
-
 
 <rule> For multi-step changes, tests may be run after completing each logical unit rather than after every individual modification. </rule>
 <rule> Think aloud and explain your approach before making any code changes. </rule>

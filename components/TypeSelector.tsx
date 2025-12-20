@@ -20,9 +20,9 @@ export function TypeSelector({ selectedType, onChange }: TypeSelectorProps) {
       <button
         type="button"
         onClick={() => handleClick('addition')}
-        className={`h-12 px-6 rounded-lg font-medium transition-colors ${
+        className={`h-12 rounded-lg px-6 font-medium transition-colors ${
           selectedType === 'addition'
-            ? 'bg-blue-600 text-white'
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
             : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
         }`}
       >
@@ -31,9 +31,9 @@ export function TypeSelector({ selectedType, onChange }: TypeSelectorProps) {
       <button
         type="button"
         onClick={() => handleClick('subtraction')}
-        className={`h-12 px-6 rounded-lg font-medium transition-colors ${
+        className={`h-12 rounded-lg px-6 font-medium transition-colors ${
           selectedType === 'subtraction'
-            ? 'bg-blue-600 text-white'
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
             : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
         }`}
       >

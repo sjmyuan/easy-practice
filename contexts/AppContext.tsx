@@ -1,7 +1,15 @@
 // contexts/AppContext.tsx - Global application state management
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import type { Problem, ProblemSet, StruggledProblemSummary } from '@/types';
 import { databaseService, problemService } from '@/services';
 import { db } from '@/lib/db';
@@ -97,7 +105,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const initializeApp = useCallback(async () => {
     try {
-      setState((prev) => ({ ...prev, isLoading: true, initializationError: null }));
+      setState((prev) => ({
+        ...prev,
+        isLoading: true,
+        initializationError: null,
+      }));
 
       const hasProblems = await problemService.hasProblems();
 
@@ -117,7 +129,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // No longer auto-load first problem - user must start a session
     } catch (error) {
       console.error('Failed to initialize app:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to initialize application';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to initialize application';
       setState((prev) => ({
         ...prev,
         isLoading: false,
@@ -132,18 +147,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => ({ ...prev, availableProblemSets: problemSets }));
   }, []);
 
-  const importProblemSet = useCallback(async (file: File) => {
-    try {
-      setLoading(true);
-      await problemService.loadProblemSetFromFile(file);
-      await loadProblemSets();
-    } catch (error) {
-      console.error('Failed to import problem set:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [setLoading, loadProblemSets]);
+  const importProblemSet = useCallback(
+    async (file: File) => {
+      try {
+        setLoading(true);
+        await problemService.loadProblemSetFromFile(file);
+        await loadProblemSets();
+      } catch (error) {
+        console.error('Failed to import problem set:', error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setLoading, loadProblemSets]
+  );
 
   const toggleProblemSet = useCallback(
     async (id: string, enabled: boolean) => {
@@ -161,10 +179,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadNextProblem = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Get current state values from ref
       const { selectedType, recentProblemIds } = stateRef.current;
-      
+
       const problem = await problemService.getNextProblem(
         selectedType,
         recentProblemIds
@@ -194,9 +212,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     async (result: 'pass' | 'fail') => {
       try {
         // Get current state from ref
-        const { currentProblem, isSessionActive, sessionQueue, sessionCompletedCount } = stateRef.current;
+        const {
+          currentProblem,
+          isSessionActive,
+          sessionQueue,
+          sessionCompletedCount,
+        } = stateRef.current;
         const problemId = currentProblem?.id;
-        
+
         if (!problemId) return;
 
         // Record the attempt
@@ -205,7 +228,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         // If session is active, handle session-based progression
         if (isSessionActive && sessionQueue.length > 0) {
           const newCompletedCount = sessionCompletedCount + 1;
-          
+
           // Check if session is complete
           if (newCompletedCount >= sessionQueue.length) {
             // Session complete
@@ -219,7 +242,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             // Load next problem from session queue
             const nextProblemId = sessionQueue[newCompletedCount];
             const nextProblem = await db.problems.get(nextProblemId);
-            
+
             setState((prev) => ({
               ...prev,
               sessionCompletedCount: newCompletedCount,
@@ -254,13 +277,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const startNewSession = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Get current state from ref
       const { selectedType } = stateRef.current;
-      
+
       // Generate session queue
       const queue = await problemService.generateSessionQueue(selectedType);
-      
+
       // If no problems in queue, don't start session
       if (queue.length === 0) {
         setState((prev) => ({
@@ -272,11 +295,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }));
         return;
       }
-      
+
       // Load first problem from queue
       const firstProblemId = queue[0];
       const firstProblem = await db.problems.get(firstProblemId);
-      
+
       // Update state with session info and first problem
       setState((prev) => ({
         ...prev,
@@ -411,7 +434,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [state, actions]
   );
 
-  return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
+  );
 }
 
 export function useApp() {

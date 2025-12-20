@@ -12,11 +12,11 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   if (!problem) {
     return (
       <div
-        className="flex items-center justify-center min-h-[200px] p-8"
+        className="flex min-h-[200px] items-center justify-center p-8"
         role="region"
         aria-label="Current math problem"
       >
-        <p className="text-xl text-gray-500 text-center">
+        <p className="text-center text-xl text-gray-500">
           Select a problem type to begin
         </p>
       </div>
@@ -25,11 +25,11 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
 
   return (
     <div
-      className="flex items-center justify-center min-h-[200px] p-8"
+      className="flex min-h-[200px] items-center justify-center p-8"
       role="region"
       aria-label="Current math problem"
     >
-      <p className="text-6xl font-bold text-gray-900 text-center">
+      <p className="text-center text-6xl font-bold text-gray-900">
         {problem.problem}
       </p>
     </div>

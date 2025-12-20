@@ -1,24 +1,30 @@
 # Project: Math Practice App for Parents
+
 A mobile-first web application that helps parents facilitate math practice for their children (ages 3-9) by generating random addition and subtraction problems within 20. The app prioritizes previously failed problems and provides simple performance tracking.
 
 ## Design Decisions
 
 ### Streamlined Workflow (December 20, 2025)
+
 **Decision**: Removed the dedicated "Next Problem" button from the main interface.
 
-**Rationale**: 
+**Rationale**:
+
 - The Pass and Fail buttons in Epic 2 automatically load the next problem after marking, making a separate "Next Problem" button redundant
 - Simplifies the user interface and reduces cognitive load
 - Aligns with the "one-tap actions" usability need from the Busy Parent persona
 - Streamlines the workflow: Display problem → Mark Pass/Fail → Next problem loads automatically
 
 **Impact**:
+
 - Reduced button count from 4 to 3 in main interface (Type selector buttons + View Summary + Reset Data)
 - More efficient workflow with fewer clicks per problem
 - NextProblemButton component retained in codebase but not used in main page flow
 
 ## Personas
+
 ### Persona: Busy Parent
+
 - Description: A parent who wants to help their child improve math skills but has limited time to create practice problems or track progress manually.
 - Goal: Save time creating math problems while focusing on areas where their child struggles, ultimately improving their child’s math skills.
 - Pain Points:
@@ -32,125 +38,176 @@ A mobile-first web application that helps parents facilitate math practice for t
 - Role: Primary caregiver responsible for facilitating math practice.
 
 ## Epics
+
 ### Epic 1: Parent-Focused Problem Generator ✅ COMPLETED
+
 [Busy Parent] wants to generate math problems quickly so that they can focus on their child's weak areas and save time.
 
 #### User Story 1: Generate Random Addition Problems ✅ COMPLETED
+
 As a busy parent, I want to generate random addition problems within 20 so that I can verbally present them to my child for practice.
+
 ##### Acceptance Criteria:
+
 - ✅ Given the app is opened, when the parent selects "Addition," then a random addition problem within 20 is displayed.
 - ✅ Given the app generates an addition problem, when the problem is displayed, then it should always be within the range of 0 to 20.
 - ✅ Given the app generates an addition problem, when the same problem is generated consecutively, then the system should avoid repetition unless all problems have been used.
 
 #### User Story 2: Generate Random Subtraction Problems ✅ COMPLETED
+
 As a busy parent, I want to generate random subtraction problems within 20 so that I can verbally present them to my child for practice.
+
 ##### Acceptance Criteria:
+
 - ✅ Given the app is opened, when the parent selects "Subtraction," then a random subtraction problem within 20 is displayed.
 - ✅ Given the app generates a subtraction problem, when the problem is displayed, then the result should never be negative.
 - ✅ Given the app generates a subtraction problem, when the same problem is generated consecutively, then the system should avoid repetition unless all problems have been used.
 
 #### User Story 3: Prioritize Previously Failed Problems ✅ COMPLETED
+
 As a busy parent, I want the system to prioritize previously failed problems so that I can help my child focus on areas needing improvement.
+
 ##### Acceptance Criteria:
+
 - ✅ Given the parent marks a problem as failed, when generating new problems, then the failed problem should appear more frequently.
 - ✅ Given the parent marks all problems as passed, when generating new problems, then the system should reset prioritization and generate random problems.
 - ✅ Given there are no previously failed problems, when generating new problems, then the system should generate random problems without prioritization.
 
 #### User Story 4: Display Current Math Problem Clearly ✅ COMPLETED
+
 As a busy parent, I want a simple display of the current math problem (e.g., "5 + 7") so that I can easily read it aloud to my child.
+
 ##### Acceptance Criteria:
+
 - ✅ Given a math problem is generated, when it is displayed, then the text size should be large enough to read easily on a mobile device.
 - ✅ Given a math problem is displayed, when the parent interacts with the app, then the problem text should remain visible without overlapping other UI elements.
 - ✅ Given a math problem is displayed, when the app is rotated (portrait to landscape), then the problem text should adjust to fit the screen.
 
 ### Epic 2: Simple Performance Tracking ✅ COMPLETED
+
 [Busy Parent] wants to track their child's performance easily so that they can identify weak areas and monitor improvement.
 
 #### User Story 1: Mark Problems as Passed or Failed ✅ COMPLETED
+
 As a busy parent, I want to quickly mark each problem as passed or failed so that I can track my child’s progress.
+
 ##### Acceptance Criteria:
+
 - ✅ Given a math problem is displayed, when the parent taps "Pass," then the problem is marked as passed and stored locally.
 - ✅ Given a math problem is displayed, when the parent taps "Fail," then the problem is marked as failed and stored locally.
 - ✅ Given the parent marks a problem, when the next problem is generated, then the previous problem's status should persist.
 
 #### User Story 2: View Summary of Struggled Problems ✅ COMPLETED
+
 As a busy parent, I want to see a summary of which problems my child has struggled with so that I can focus on those areas during future practice sessions.
+
 ##### Acceptance Criteria:
+
 - ✅ Given the parent marks problems as failed, when viewing the summary, then the list of struggled problems should be displayed.
 - ✅ Given there are no failed problems, when viewing the summary, then the app should display a message like "No struggled problems found."
 - ✅ Given the parent views the summary, when they tap on a specific problem, then the app should highlight its details (e.g., frequency of failure).
 
 #### User Story 3: Reset Performance Data ✅ COMPLETED
+
 As a busy parent, I want to reset or clear performance data periodically so that I can reassess my child's skills.
+
 ##### Acceptance Criteria:
+
 - ✅ Given performance data exists, when the parent taps "Reset Data," then all stored data should be cleared.
 - ✅ Given performance data is cleared, when the parent views the summary, then the app should display a message like "No data available."
 - ✅ Given the parent resets data, when new problems are generated, then the system should start tracking performance from scratch.
 
-### Epic 3: Mobile-First Design (Parent-Centric)
+### Epic 3: Mobile-First Design (Parent-Centric) ✅ COMPLETED
+
 [Busy Parent] wants a mobile-first, distraction-free interface so that they can use the app conveniently during short practice sessions.
 
-#### User Story 1: Responsive Design for Mobile Devices
+#### User Story 1: Responsive Design for Mobile Devices ✅ COMPLETED
+
 As a busy parent, I want the application to work seamlessly on my mobile device so that I can use it anywhere.
-##### Acceptance Criteria:
-- Given the app is opened on a mobile device, when viewed in portrait mode, then all UI elements should fit within the screen without scrolling.
-- Given the app is opened on a mobile device, when rotated to landscape mode, then the layout should adjust dynamically without breaking.
-- Given the app is opened on different screen sizes, when viewed, then the design should remain consistent and usable.
 
-#### User Story 2: Large Text and Buttons for Ease of Use
-As a busy parent, I want the interface to have large text/buttons so that I can easily interact with the app while managing my child’s practice.
 ##### Acceptance Criteria:
-- Given the app is opened, when buttons or text are displayed, then their size should be at least 16px for readability.
-- Given the app is used on a small screen, when buttons are tapped, then they should have sufficient padding to prevent accidental taps.
-- Given the app is used in low-light conditions, when text is displayed, then it should have sufficient contrast against the background.
 
-#### User Story 3: Engaging Visuals for Child Engagement
-As a busy parent, I want the design to include engaging visuals (e.g., colors, illustrations) so that my child remains interested during practice, even though they aren’t directly using the app.
+- ✅ Given the app is opened on a mobile device, when viewed in portrait mode, then all UI elements should fit within the screen without scrolling.
+- ✅ Given the app is opened on a mobile device, when rotated to landscape mode, then the layout should adjust dynamically without breaking.
+- ✅ Given the app is opened on different screen sizes, when viewed, then the design should remain consistent and usable.
+
+#### User Story 2: Large Text and Buttons for Ease of Use ✅ COMPLETED
+
+As a busy parent, I want the interface to have large text/buttons so that I can easily interact with the app while managing my child's practice.
+
 ##### Acceptance Criteria:
-- Given the app is opened, when displayed, then the interface should include colorful visuals (e.g., illustrations, animations).
-- Given the app includes visuals, when viewed by the child, then the visuals should not distract from the parent’s ability to interact with the app.
-- Given the app is used repeatedly, when visuals are displayed, then they should remain engaging without becoming repetitive.
+
+- ✅ Given the app is opened, when buttons or text are displayed, then their size should be at least 16px for readability.
+- ✅ Given the app is used on a small screen, when buttons are tapped, then they should have sufficient padding to prevent accidental taps.
+- ✅ Given the app is used in low-light conditions, when text is displayed, then it should have sufficient contrast against the background.
+
+#### User Story 3: Engaging Visuals for Child Engagement ✅ COMPLETED
+
+As a busy parent, I want the design to include engaging visuals (e.g., colors, illustrations) so that my child remains interested during practice, even though they aren't directly using the app.
+
+##### Acceptance Criteria:
+
+- ✅ Given the app is opened, when displayed, then the interface should include colorful visuals (e.g., illustrations, animations).
+- ✅ Given the app includes visuals, when viewed by the child, then the visuals should not distract from the parent's ability to interact with the app.
+- ✅ Given the app is used repeatedly, when visuals are displayed, then they should remain engaging without becoming repetitive.
 
 ### Epic 4: Session-Based Practice with Progress Tracking ✅ COMPLETED
+
 [Busy Parent] wants to track progress through a defined set of problems so that they know when the practice session is complete and can see how many problems their child has worked through.
 
 #### User Story 1: Start Practice Sessions ✅ COMPLETED
+
 As a busy parent, I want to explicitly start a new practice session so that I have control over when practice begins.
+
 ##### Acceptance Criteria:
+
 - ✅ Given the app is initialized, when I view the main screen, then I should see a "Start New Session" button.
 - ✅ Given I tap "Start New Session," when the session starts, then a set of problems should be generated based on my child's performance history.
 - ✅ Given there are no enabled problem sets, when I tap "Start New Session," then the app should display a message indicating no problems are available.
 
 #### User Story 2: Adaptive Problem Selection ✅ COMPLETED
+
 As a busy parent, I want the session to intelligently select problems based on my child's performance so that we focus on areas needing improvement.
+
 ##### Acceptance Criteria:
+
 - ✅ Given problems have been attempted before, when generating a session, then all problems with success ratio < 90% should be included.
 - ✅ Given problems have been attempted before, when generating a session, then problems with success ratio ≥ 90% should be included with 30% probability.
 - ✅ Given no historical data exists, when generating a session, then all problems from enabled problem sets should be included.
 - ✅ Given a session is generated, when problems are presented, then they should appear in random order with no duplicates.
 
 #### User Story 3: Track Session Progress ✅ COMPLETED
+
 As a busy parent, I want to see how many problems have been completed in the current session so that I know how much progress we've made.
+
 ##### Acceptance Criteria:
+
 - ✅ Given a session is active, when viewing the problem, then I should see a progress indicator showing "X / Y" (e.g., "5 / 20") near the problem display.
 - ✅ Given I mark a problem as pass or fail, when the answer is submitted, then the progress indicator should increment the completed count.
 - ✅ Given the session reaches the last problem, when I submit an answer, then the session should complete.
 
 #### User Story 4: Session Completion Feedback ✅ COMPLETED
+
 As a busy parent, I want clear feedback when a session is complete so that I know we can take a break or start a new session.
+
 ##### Acceptance Criteria:
+
 - ✅ Given all problems in a session are completed, when the last answer is submitted, then the app should display a "Session Complete" message.
 - ✅ Given the session is complete, when viewing the completion screen, then I should see how many problems were completed.
 - ✅ Given the session is complete, when I want to continue, then I should be able to tap "Start New Session" to begin a new practice session.
 
 #### User Story 5: Session Reset on Type Switch ✅ COMPLETED
+
 As a busy parent, I want sessions to reset when I switch between addition and subtraction so that each type has its own practice flow.
+
 ##### Acceptance Criteria:
+
 - ✅ Given I am in an active session, when I switch from addition to subtraction (or vice versa), then the current session should be cleared.
 - ✅ Given I switch types, when viewing the screen, then I should see the "Start New Session" button to begin a new session for that type.
 - ✅ Given I switch types, when I start a new session, then the problems should be from the newly selected type.
 
 ## Dependencies/Risks
+
 - Dependency: Local data storage (e.g., browser localStorage or IndexedDB) is required for saving performance data.
 - Risk: Technical debt could arise if features are rushed without proper testing.
 - Risk: Scope creep may occur if additional features are requested mid-development.

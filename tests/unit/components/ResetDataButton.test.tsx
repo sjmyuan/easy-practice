@@ -9,16 +9,18 @@ describe('ResetDataButton Component', () => {
     const mockOnReset = vi.fn();
     render(<ResetDataButton onReset={mockOnReset} />);
 
-    expect(screen.getByRole('button', { name: /reset data/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /reset data/i })
+    ).toBeInTheDocument();
   });
 
   it('should show confirmation dialog when clicked', async () => {
     const user = userEvent.setup();
     const mockOnReset = vi.fn();
-    
+
     // Mock window.confirm
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    
+
     render(<ResetDataButton onReset={mockOnReset} />);
 
     const button = screen.getByRole('button', { name: /reset data/i });
@@ -27,41 +29,41 @@ describe('ResetDataButton Component', () => {
     expect(confirmSpy).toHaveBeenCalledWith(
       expect.stringMatching(/are you sure/i)
     );
-    
+
     confirmSpy.mockRestore();
   });
 
   it('should call onReset when confirmed', async () => {
     const user = userEvent.setup();
     const mockOnReset = vi.fn();
-    
+
     // Mock window.confirm to return true
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    
+
     render(<ResetDataButton onReset={mockOnReset} />);
 
     const button = screen.getByRole('button', { name: /reset data/i });
     await user.click(button);
 
     expect(mockOnReset).toHaveBeenCalledTimes(1);
-    
+
     confirmSpy.mockRestore();
   });
 
   it('should not call onReset when cancelled', async () => {
     const user = userEvent.setup();
     const mockOnReset = vi.fn();
-    
+
     // Mock window.confirm to return false
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    
+
     render(<ResetDataButton onReset={mockOnReset} />);
 
     const button = screen.getByRole('button', { name: /reset data/i });
     await user.click(button);
 
     expect(mockOnReset).not.toHaveBeenCalled();
-    
+
     confirmSpy.mockRestore();
   });
 
@@ -94,7 +96,7 @@ describe('ResetDataButton Component', () => {
     render(<ResetDataButton onReset={mockOnReset} />);
 
     const button = screen.getByRole('button', { name: /reset data/i });
-    expect(button).toHaveClass('px-4');
-    expect(button).toHaveClass('py-2');
+    expect(button).toHaveClass('h-12');
+    expect(button).toHaveClass('px-6');
   });
 });

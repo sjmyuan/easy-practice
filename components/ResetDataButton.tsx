@@ -12,7 +12,7 @@ export function ResetDataButton({ onReset }: ResetDataButtonProps) {
     const confirmed = window.confirm(
       'Are you sure you want to reset all performance data? This action cannot be undone.'
     );
-    
+
     if (confirmed) {
       onReset();
     }
@@ -21,7 +21,7 @@ export function ResetDataButton({ onReset }: ResetDataButtonProps) {
   return (
     <button
       onClick={handleClick}
-      className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors"
+      className="h-12 rounded-lg bg-red-500 px-6 font-medium text-white transition-colors hover:bg-red-600"
       aria-label="Reset Data"
     >
       Reset Data

@@ -9,15 +9,19 @@ interface NextProblemButtonProps {
   isLoading?: boolean;
 }
 
-export function NextProblemButton({ onClick, disabled, isLoading = false }: NextProblemButtonProps) {
+export function NextProblemButton({
+  onClick,
+  disabled,
+  isLoading = false,
+}: NextProblemButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled || isLoading}
-      className={`h-12 px-8 rounded-lg font-medium transition-colors ${
+      className={`h-12 rounded-lg px-8 font-medium transition-colors ${
         disabled || isLoading
-          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          ? 'cursor-not-allowed bg-gray-300 text-gray-500'
           : 'bg-blue-600 text-white hover:bg-blue-700'
       }`}
     >

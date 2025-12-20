@@ -10,27 +10,33 @@ interface SummaryViewProps {
 }
 
 export function SummaryView({ problems, onClose }: SummaryViewProps) {
-  const [selectedProblemId, setSelectedProblemId] = useState<string | null>(null);
+  const [selectedProblemId, setSelectedProblemId] = useState<string | null>(
+    null
+  );
 
   if (problems.length === 0) {
     return (
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
         role="region"
         aria-label="Summary of struggled problems"
       >
-        <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Struggled Problems</h2>
+        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Struggled Problems
+            </h2>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-2xl"
+              className="text-2xl text-gray-500 transition-colors hover:text-gray-700"
               aria-label="Close summary"
             >
               ×
             </button>
           </div>
-          <p className="text-center text-gray-500 py-8">No struggled problems found.</p>
+          <p className="py-8 text-center text-gray-500">
+            No struggled problems found.
+          </p>
         </div>
       </div>
     );
@@ -38,16 +44,18 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
       role="region"
       aria-label="Summary of struggled problems"
     >
-      <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Struggled Problems</h2>
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Struggled Problems
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-2xl text-gray-500 transition-colors hover:text-gray-700"
             aria-label="Close summary"
           >
             ×
@@ -56,23 +64,30 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
 
         <div className="space-y-4">
           {problems.map((problem) => (
-            <div key={problem.problemId} className="border border-gray-200 rounded-lg p-4">
+            <div
+              key={problem.problemId}
+              className="rounded-lg border border-gray-200 p-4"
+            >
               <button
                 onClick={() =>
                   setSelectedProblemId(
-                    selectedProblemId === problem.problemId ? null : problem.problemId
+                    selectedProblemId === problem.problemId
+                      ? null
+                      : problem.problemId
                   )
                 }
                 className="w-full text-left"
                 aria-label={`View details for ${problem.problem}`}
               >
-                <div className="flex justify-between items-start">
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="text-xl font-semibold text-gray-900">
                       {problem.problem} = {problem.answer}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Failed {problem.failCount} {problem.failCount === 1 ? 'time' : 'times'} ({Math.round(problem.failureRate * 100)}%)
+                    <p className="mt-1 text-sm text-gray-600">
+                      Failed {problem.failCount}{' '}
+                      {problem.failCount === 1 ? 'time' : 'times'} (
+                      {Math.round(problem.failureRate * 100)}%)
                     </p>
                   </div>
                   <div className="ml-4">
@@ -84,9 +99,10 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
               </button>
 
               {selectedProblemId === problem.problemId && (
-                <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
+                <div className="mt-4 space-y-2 border-t border-gray-200 pt-4">
                   <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Total Attempts:</span> {problem.totalAttempts}
+                    <span className="font-semibold">Total Attempts:</span>{' '}
+                    {problem.totalAttempts}
                   </p>
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Pass Count:</span>{' '}
@@ -94,7 +110,8 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
                   </p>
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Category:</span>{' '}
-                    {problem.category.charAt(0).toUpperCase() + problem.category.slice(1)}
+                    {problem.category.charAt(0).toUpperCase() +
+                      problem.category.slice(1)}
                   </p>
                   {problem.lastAttemptedAt && (
                     <p className="text-sm text-gray-700">

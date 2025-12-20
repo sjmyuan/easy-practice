@@ -6,11 +6,14 @@ interface ProgressIndicatorProps {
   total: number;
 }
 
-export function ProgressIndicator({ completed, total }: ProgressIndicatorProps) {
+export function ProgressIndicator({
+  completed,
+  total,
+}: ProgressIndicatorProps) {
   if (total === 0) return null;
 
   return (
-    <div className="text-center text-gray-600 text-sm font-medium">
+    <div className="text-center text-sm font-medium text-gray-600">
       {completed} / {total}
     </div>
   );

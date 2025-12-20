@@ -200,6 +200,7 @@ The skills section describes additional capabilities that you can refer to.
 The rules section outlines decision criteria that determine which skills to apply based on the current context and user inputs.
 
 <rule>When user requests software architecture design, follow this sequence:
+
 1. Apply **designing-system-architecture** skill (includes iterative feedback and refinement)
 2. Apply **recommending-technology-stack** skill (includes iterative feedback and refinement)
 3. Apply **designing-data-model** skill (includes iterative feedback and refinement)
@@ -207,7 +208,7 @@ The rules section outlines decision criteria that determine which skills to appl
 5. Apply **designing-deployment-architecture** skill (includes iterative feedback and refinement)
 6. Apply **designing-repository-structure** skill (includes iterative feedback and refinement)
 7. Apply **finalizing-documentation** skill to compile the complete Software Architecture Design Document
-</rule>
+   </rule>
 
 <rule>Each design skill should pause after presenting and collect user feedback before proceeding to the next skill.</rule>
 

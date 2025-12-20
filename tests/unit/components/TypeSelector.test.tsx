@@ -9,8 +9,12 @@ describe('TypeSelector Component', () => {
     const mockOnChange = vi.fn();
     render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
 
-    expect(screen.getByRole('button', { name: /addition/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /subtraction/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /addition/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /subtraction/i })
+    ).toBeInTheDocument();
   });
 
   it('should highlight the selected type', () => {
@@ -18,7 +22,9 @@ describe('TypeSelector Component', () => {
     render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
-    const subtractionButton = screen.getByRole('button', { name: /subtraction/i });
+    const subtractionButton = screen.getByRole('button', {
+      name: /subtraction/i,
+    });
 
     // Addition should be highlighted (active state)
     expect(additionButton).toHaveClass('bg-blue-600');
@@ -30,7 +36,9 @@ describe('TypeSelector Component', () => {
     const mockOnChange = vi.fn();
     render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
 
-    const subtractionButton = screen.getByRole('button', { name: /subtraction/i });
+    const subtractionButton = screen.getByRole('button', {
+      name: /subtraction/i,
+    });
     await user.click(subtractionButton);
 
     expect(mockOnChange).toHaveBeenCalledWith('subtraction');
@@ -53,7 +61,9 @@ describe('TypeSelector Component', () => {
     render(<TypeSelector selectedType="addition" onChange={mockOnChange} />);
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
-    const subtractionButton = screen.getByRole('button', { name: /subtraction/i });
+    const subtractionButton = screen.getByRole('button', {
+      name: /subtraction/i,
+    });
 
     expect(additionButton).toHaveAttribute('type', 'button');
     expect(subtractionButton).toHaveAttribute('type', 'button');

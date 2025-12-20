@@ -8,7 +8,9 @@ describe('AnswerButtons Component', () => {
   it('should render Pass and Fail buttons', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     expect(screen.getByRole('button', { name: /pass/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /fail/i })).toBeInTheDocument();
@@ -18,7 +20,9 @@ describe('AnswerButtons Component', () => {
     const user = userEvent.setup();
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
     await user.click(passButton);
@@ -31,7 +35,9 @@ describe('AnswerButtons Component', () => {
     const user = userEvent.setup();
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     const failButton = screen.getByRole('button', { name: /fail/i });
     await user.click(failButton);
@@ -43,7 +49,9 @@ describe('AnswerButtons Component', () => {
   it('should disable both buttons when disabled prop is true', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />
+    );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
     const failButton = screen.getByRole('button', { name: /fail/i });
@@ -56,7 +64,9 @@ describe('AnswerButtons Component', () => {
     const user = userEvent.setup();
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />
+    );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
     const failButton = screen.getByRole('button', { name: /fail/i });
@@ -71,7 +81,9 @@ describe('AnswerButtons Component', () => {
   it('should have large touch targets for mobile', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
     const failButton = screen.getByRole('button', { name: /fail/i });
@@ -83,7 +95,9 @@ describe('AnswerButtons Component', () => {
   it('should have appropriate padding for easy tapping', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
     const failButton = screen.getByRole('button', { name: /fail/i });
@@ -95,7 +109,9 @@ describe('AnswerButtons Component', () => {
   it('should display Pass button with success styling', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
     expect(passButton).toHaveClass('bg-green-500');
@@ -104,7 +120,9 @@ describe('AnswerButtons Component', () => {
   it('should display Fail button with error styling', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     const failButton = screen.getByRole('button', { name: /fail/i });
     expect(failButton).toHaveClass('bg-red-500');
@@ -113,7 +131,9 @@ describe('AnswerButtons Component', () => {
   it('should be accessible with proper ARIA labels', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
-    render(<AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />);
+    render(
+      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+    );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
     const failButton = screen.getByRole('button', { name: /fail/i });

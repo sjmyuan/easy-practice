@@ -89,7 +89,7 @@ describe('AppContext', () => {
         () => {
           renderCount++;
           const context = useApp();
-          
+
           // Simulate the pattern in page.tsx
           // This should not cause infinite re-renders
           return context;
@@ -118,9 +118,12 @@ describe('AppContext', () => {
       expect(result.current.state.isInitialized).toBe(false);
 
       // Wait for initialization to complete
-      await waitFor(() => {
-        expect(result.current.state.isInitialized).toBe(true);
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(result.current.state.isInitialized).toBe(true);
+        },
+        { timeout: 3000 }
+      );
 
       // Should have loaded problem sets
       expect(result.current.state.availableProblemSets).toHaveLength(1);
@@ -131,7 +134,7 @@ describe('AppContext', () => {
       const hasProblemsCall = vi.mocked(problemService.hasProblems);
       const loadDefaultCall = vi.mocked(problemService.loadDefaultProblemSets);
       const getProblemSetsCall = vi.mocked(databaseService.getProblemSets);
-      
+
       hasProblemsCall.mockResolvedValue(false);
       loadDefaultCall.mockResolvedValue(undefined);
       getProblemSetsCall.mockResolvedValue([]);
@@ -171,7 +174,7 @@ describe('AppContext', () => {
       const hasProblemsCall = vi.mocked(problemService.hasProblems);
       const loadDefaultCall = vi.mocked(problemService.loadDefaultProblemSets);
       const getProblemSetsCall = vi.mocked(databaseService.getProblemSets);
-      
+
       hasProblemsCall.mockResolvedValue(false);
       loadDefaultCall.mockResolvedValue(undefined);
       getProblemSetsCall.mockResolvedValue([]);
@@ -223,7 +226,7 @@ describe('AppContext', () => {
   describe('Issue C: Load first problem after initialization', () => {
     it('should NOT automatically load first problem after initialization', async () => {
       const getNextProblemCall = vi.mocked(problemService.getNextProblem);
-      
+
       getNextProblemCall.mockResolvedValue({
         id: 'p1',
         problemSetId: 'ps1',
@@ -248,7 +251,7 @@ describe('AppContext', () => {
 
     it('should not call getNextProblem during initialization', async () => {
       const getNextProblemCall = vi.mocked(problemService.getNextProblem);
-      
+
       const { result } = renderHook(() => useApp(), { wrapper });
 
       await waitFor(() => {
@@ -313,7 +316,7 @@ describe('AppContext', () => {
 
       // Initially no session
       expect(result.current.state.sessionQueue).toHaveLength(0);
-      
+
       // Total count should match queue length
       const totalCount = result.current.state.sessionQueue.length;
       expect(totalCount).toBe(0);
@@ -323,9 +326,11 @@ describe('AppContext', () => {
   describe('Start Session Action', () => {
     it('should generate session queue and activate session', async () => {
       const getNextProblemCall = vi.mocked(problemService.getNextProblem);
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
-      
+
       const firstProblem = {
         id: 'p1',
         problemSetId: 'ps1',
@@ -358,9 +363,11 @@ describe('AppContext', () => {
 
     it('should load first problem from session queue', async () => {
       const getNextProblemCall = vi.mocked(problemService.getNextProblem);
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
-      
+
       const firstProblem = {
         id: 'p1',
         problemSetId: 'ps1',
@@ -387,9 +394,11 @@ describe('AppContext', () => {
     });
 
     it('should use selected type when generating session queue', async () => {
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
-      
+
       const problem = {
         id: 'p1',
         problemSetId: 'ps1',
@@ -421,7 +430,9 @@ describe('AppContext', () => {
     });
 
     it('should handle empty session queue', async () => {
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       generateSessionQueueCall.mockResolvedValue([]);
 
       const { result } = renderHook(() => useApp(), { wrapper });
@@ -442,18 +453,32 @@ describe('AppContext', () => {
 
   describe('Session Progress Tracking', () => {
     it('should increment completed count when answering in session', async () => {
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
       const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
-      
+
       const problems = [
-        { id: 'p1', problemSetId: 'ps1', problem: '1 + 1', answer: '2', createdAt: Date.now() },
-        { id: 'p2', problemSetId: 'ps1', problem: '2 + 2', answer: '4', createdAt: Date.now() },
+        {
+          id: 'p1',
+          problemSetId: 'ps1',
+          problem: '1 + 1',
+          answer: '2',
+          createdAt: Date.now(),
+        },
+        {
+          id: 'p2',
+          problemSetId: 'ps1',
+          problem: '2 + 2',
+          answer: '4',
+          createdAt: Date.now(),
+        },
       ];
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
       problemsGetCall.mockImplementation(async (id: string) => {
-        return problems.find(p => p.id === id) || null;
+        return problems.find((p) => p.id === id) || null;
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -481,19 +506,39 @@ describe('AppContext', () => {
     });
 
     it('should load next problem from session queue', async () => {
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
       const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
-      
+
       const problems = [
-        { id: 'p1', problemSetId: 'ps1', problem: '1 + 1', answer: '2', createdAt: Date.now() },
-        { id: 'p2', problemSetId: 'ps1', problem: '2 + 2', answer: '4', createdAt: Date.now() },
-        { id: 'p3', problemSetId: 'ps1', problem: '3 + 3', answer: '6', createdAt: Date.now() },
+        {
+          id: 'p1',
+          problemSetId: 'ps1',
+          problem: '1 + 1',
+          answer: '2',
+          createdAt: Date.now(),
+        },
+        {
+          id: 'p2',
+          problemSetId: 'ps1',
+          problem: '2 + 2',
+          answer: '4',
+          createdAt: Date.now(),
+        },
+        {
+          id: 'p3',
+          problemSetId: 'ps1',
+          problem: '3 + 3',
+          answer: '6',
+          createdAt: Date.now(),
+        },
       ];
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3']);
       problemsGetCall.mockImplementation(async (id: string) => {
-        return problems.find(p => p.id === id) || null;
+        return problems.find((p) => p.id === id) || null;
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -524,18 +569,32 @@ describe('AppContext', () => {
     });
 
     it('should complete session when all problems are done', async () => {
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
       const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
-      
+
       const problems = [
-        { id: 'p1', problemSetId: 'ps1', problem: '1 + 1', answer: '2', createdAt: Date.now() },
-        { id: 'p2', problemSetId: 'ps1', problem: '2 + 2', answer: '4', createdAt: Date.now() },
+        {
+          id: 'p1',
+          problemSetId: 'ps1',
+          problem: '1 + 1',
+          answer: '2',
+          createdAt: Date.now(),
+        },
+        {
+          id: 'p2',
+          problemSetId: 'ps1',
+          problem: '2 + 2',
+          answer: '4',
+          createdAt: Date.now(),
+        },
       ];
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
       problemsGetCall.mockImplementation(async (id: string) => {
-        return problems.find(p => p.id === id) || null;
+        return problems.find((p) => p.id === id) || null;
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -567,7 +626,7 @@ describe('AppContext', () => {
     it('should not increment if no active session', async () => {
       const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
       const getNextProblemCall = vi.mocked(problemService.getNextProblem);
-      
+
       const problem = {
         id: 'p1',
         problemSetId: 'ps1',
@@ -599,15 +658,19 @@ describe('AppContext', () => {
       });
 
       // Completed count should not change when there's no active session
-      expect(result.current.state.sessionCompletedCount).toBe(initialCompletedCount);
+      expect(result.current.state.sessionCompletedCount).toBe(
+        initialCompletedCount
+      );
     });
   });
 
   describe('Type Switch Session Reset', () => {
     it('should reset session when switching types', async () => {
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
-      
+
       const problem = {
         id: 'p1',
         problemSetId: 'ps1',
@@ -646,9 +709,11 @@ describe('AppContext', () => {
     });
 
     it('should clear recent problem IDs when switching types', async () => {
-      const generateSessionQueueCall = vi.mocked(problemService.generateSessionQueue);
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
       const problemsGetCall = vi.mocked(db.problems.get);
-      
+
       const problem = {
         id: 'p1',
         problemSetId: 'ps1',

@@ -15,11 +15,13 @@ export default function Home() {
   if (state.initializationError) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-xl text-red-600">Error: {state.initializationError}</p>
+        <div className="space-y-4 text-center">
+          <p className="text-xl text-red-600">
+            Error: {state.initializationError}
+          </p>
           <button
             onClick={() => actions.initializeApp()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="h-12 rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600"
           >
             Retry
           </button>
@@ -37,9 +39,9 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-gray-50">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 space-y-8">
-        <h1 className="text-3xl font-bold text-center text-gray-900">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
+      <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
+        <h1 className="text-center text-3xl font-bold text-gray-900">
           Math Practice
         </h1>
 
@@ -73,12 +75,13 @@ export default function Home() {
           <>
             {/* Session Complete or Not Started */}
             {state.sessionCompletedCount > 0 ? (
-              <div className="text-center space-y-4 py-8">
+              <div className="space-y-4 py-8 text-center">
                 <div className="text-2xl font-bold text-green-600">
                   🎉 Session Complete!
                 </div>
                 <p className="text-gray-600">
-                  You completed {state.sessionCompletedCount} problem{state.sessionCompletedCount !== 1 ? 's' : ''}
+                  You completed {state.sessionCompletedCount} problem
+                  {state.sessionCompletedCount !== 1 ? 's' : ''}
                 </p>
                 <StartSessionButton
                   onStart={actions.startNewSession}
@@ -86,7 +89,7 @@ export default function Home() {
                 />
               </div>
             ) : (
-              <div className="text-center space-y-4 py-8">
+              <div className="space-y-4 py-8 text-center">
                 <p className="text-gray-600">
                   Start a new practice session to begin
                 </p>
@@ -99,13 +102,13 @@ export default function Home() {
           </>
         )}
 
-        <div className="flex justify-center gap-4 pt-4 border-t border-gray-200">
+        <div className="flex justify-center gap-4 border-t border-gray-200 pt-4">
           <button
             onClick={() => {
               actions.loadStruggledProblems();
               actions.toggleSummary();
             }}
-            className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors"
+            className="h-12 rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600"
           >
             View Summary
           </button>

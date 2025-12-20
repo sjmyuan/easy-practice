@@ -46,22 +46,23 @@ describe('DatabaseService', () => {
           type: 'addition',
           difficulty: 'easy',
         },
-        problems: [
-          { problem: '1 + 1', answer: '2' },
-        ],
+        problems: [{ problem: '1 + 1', answer: '2' }],
       };
 
       await service.importProblemsFromJSON(problemSetData);
       const problems = await db.problems.toArray();
       expect(problems.length).toBe(1);
-      
+
       const problemId = problems[0].id!;
 
       // Record attempt
       await service.recordAttempt(problemId, 'pass');
 
       // Verify attempt was recorded
-      const attempts = await db.attempts.where('problemId').equals(problemId).toArray();
+      const attempts = await db.attempts
+        .where('problemId')
+        .equals(problemId)
+        .toArray();
       expect(attempts.length).toBe(1);
       expect(attempts[0].result).toBe('pass');
       expect(attempts[0].problemId).toBe(problemId);
@@ -89,9 +90,7 @@ describe('DatabaseService', () => {
           type: 'subtraction',
           difficulty: 'easy',
         },
-        problems: [
-          { problem: '5 - 3', answer: '2' },
-        ],
+        problems: [{ problem: '5 - 3', answer: '2' }],
       };
 
       await service.importProblemsFromJSON(problemSetData);
@@ -102,7 +101,10 @@ describe('DatabaseService', () => {
       await service.recordAttempt(problemId, 'fail');
 
       // Verify attempt was recorded
-      const attempts = await db.attempts.where('problemId').equals(problemId).toArray();
+      const attempts = await db.attempts
+        .where('problemId')
+        .equals(problemId)
+        .toArray();
       expect(attempts.length).toBe(1);
       expect(attempts[0].result).toBe('fail');
 
@@ -124,9 +126,7 @@ describe('DatabaseService', () => {
           type: 'addition',
           difficulty: 'easy',
         },
-        problems: [
-          { problem: '2 + 2', answer: '4' },
-        ],
+        problems: [{ problem: '2 + 2', answer: '4' }],
       };
 
       await service.importProblemsFromJSON(problemSetData);
@@ -139,7 +139,10 @@ describe('DatabaseService', () => {
       await service.recordAttempt(problemId, 'pass');
 
       // Verify all attempts recorded
-      const attempts = await db.attempts.where('problemId').equals(problemId).toArray();
+      const attempts = await db.attempts
+        .where('problemId')
+        .equals(problemId)
+        .toArray();
       expect(attempts.length).toBe(3);
 
       // Verify statistics

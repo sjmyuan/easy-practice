@@ -9,13 +9,17 @@ interface AnswerButtonsProps {
   disabled: boolean;
 }
 
-export function AnswerButtons({ onPass, onFail, disabled }: AnswerButtonsProps) {
+export function AnswerButtons({
+  onPass,
+  onFail,
+  disabled,
+}: AnswerButtonsProps) {
   return (
-    <div className="flex gap-4 justify-center">
+    <div className="flex justify-center gap-4">
       <button
         onClick={onPass}
         disabled={disabled}
-        className="h-12 px-8 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="h-12 rounded-lg bg-green-500 px-8 font-semibold text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
         aria-label="Mark as Pass"
       >
         Pass
@@ -23,7 +27,7 @@ export function AnswerButtons({ onPass, onFail, disabled }: AnswerButtonsProps) 
       <button
         onClick={onFail}
         disabled={disabled}
-        className="h-12 px-8 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="h-12 rounded-lg bg-red-500 px-8 font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
         aria-label="Mark as Fail"
       >
         Fail

@@ -9,7 +9,9 @@ describe('NextProblemButton Component', () => {
     const mockOnClick = vi.fn();
     render(<NextProblemButton onClick={mockOnClick} disabled={false} />);
 
-    expect(screen.getByRole('button', { name: /next problem/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /next problem/i })
+    ).toBeInTheDocument();
   });
 
   it('should call onClick when clicked', async () => {
@@ -68,7 +70,13 @@ describe('NextProblemButton Component', () => {
 
   it('should show loading state when provided', () => {
     const mockOnClick = vi.fn();
-    render(<NextProblemButton onClick={mockOnClick} disabled={false} isLoading={true} />);
+    render(
+      <NextProblemButton
+        onClick={mockOnClick}
+        disabled={false}
+        isLoading={true}
+      />
+    );
 
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
