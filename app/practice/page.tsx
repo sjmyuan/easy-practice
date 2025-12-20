@@ -7,6 +7,7 @@ import { SummaryView } from '@/components/SummaryView';
 import { ResetDataButton } from '@/components/ResetDataButton';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { StartSessionButton } from '@/components/StartSessionButton';
+import { SessionTimer } from '@/components/SessionTimer';
 import { formatDuration } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -83,6 +84,12 @@ export default function PracticePage() {
         {/* Session-based UI */}
         {state.isSessionActive ? (
           <>
+            {/* Session Timer */}
+            <SessionTimer
+              sessionStartTime={state.sessionStartTime}
+              isSessionActive={state.isSessionActive}
+            />
+
             {/* Progress Indicator */}
             <ProgressIndicator
               completed={state.sessionCompletedCount}

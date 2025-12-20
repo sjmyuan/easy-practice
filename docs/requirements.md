@@ -4,6 +4,35 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 ## Design Decisions
 
+### Session Timer Feature (December 20, 2025)
+
+**Decision**: Added a real-time session timer that displays elapsed time during active practice sessions.
+
+**Rationale**:
+
+- Parents need to track how long practice sessions are taking to manage time effectively
+- Helps maintain appropriate session lengths for young children (ages 3-9) who have limited attention spans
+- Provides objective data for tracking practice patterns over time
+- Complements existing session completion statistics
+
+**Implementation Details**:
+
+- Timer displays in HH:MM:SS format (e.g., "00:02:35")
+- Positioned above the progress indicator (completed/total problems)
+- Updates automatically every second during active sessions
+- Only visible during active practice sessions (hidden when session is not active)
+- Uses React hooks (useState, useEffect) with proper cleanup to prevent memory leaks
+- Fully accessible with ARIA labels ("Session elapsed time")
+- Mobile-optimized with clear, readable typography
+
+**Impact**:
+
+- Enhanced time awareness for parents managing practice sessions
+- Better session planning based on actual duration data
+- Improved UX by providing real-time feedback on session progress
+- Complements session statistics displayed after completion
+- No impact on existing functionality - purely additive feature
+
 ### Answer Toggle Feature (December 20, 2025)
 
 **Decision**: Added a toggle icon in the ProblemDisplay component to show/hide the answer on demand.

@@ -8,6 +8,40 @@
 
 ## Recent Updates
 
+### Session Timer Component (December 20, 2025)
+
+- **New SessionTimer Component**:
+  - Displays real-time elapsed time during active practice sessions
+  - Format: HH:MM:SS (e.g., "00:02:35")
+  - Updates automatically every second using setInterval
+  - Position: Above ProgressIndicator in practice page
+  - Only visible when `isSessionActive` is true and `sessionStartTime` is not null
+- **Implementation Details**:
+  - Uses React hooks (useState, useEffect) for state and side effects
+  - Proper cleanup with clearInterval on unmount or when session becomes inactive
+  - Calculates elapsed time as `Date.now() - sessionStartTime`
+  - Format helper function pads hours, minutes, seconds with leading zeros
+- **Accessibility**:
+  - ARIA label: "Session elapsed time"
+  - Semantic HTML: `<time>` element for time display
+- **Testing**:
+  - 14 comprehensive tests for SessionTimer component covering:
+    - Time formatting (HH:MM:SS with leading zeros)
+    - Timer updates (every second, across minute/hour boundaries)
+    - Session state management (visibility based on session active state)
+    - Cleanup (interval cleared on unmount or session end)
+    - Accessibility (ARIA labels, semantic elements)
+  - 8 integration tests for practice page covering:
+    - Timer display during active sessions
+    - Timer positioning above progress indicator
+    - Timer updates as time passes
+    - Timer persistence across problem changes
+    - Timer hiding when session completes
+- **Components Modified**:
+  - `components/SessionTimer.tsx` (new)
+  - `app/practice/page.tsx` (integrated SessionTimer)
+- All 306 tests passing (including 22 new timer-related tests)
+
 ### Answer Toggle Feature for ProblemDisplay (December 20, 2025)
 
 - **Enhanced ProblemDisplay Component**:
