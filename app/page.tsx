@@ -4,16 +4,25 @@ import { useApp } from '@/contexts';
 import { TypeSelector } from '@/components/TypeSelector';
 import { ProblemDisplay } from '@/components/ProblemDisplay';
 import { NextProblemButton } from '@/components/NextProblemButton';
-import { useEffect } from 'react';
 
 export default function Home() {
   const { state, actions } = useApp();
 
-  useEffect(() => {
-    if (!state.isInitialized) {
-      actions.initializeApp();
-    }
-  }, [state.isInitialized, actions]);
+  if (state.initializationError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-xl text-red-600">Error: {state.initializationError}</p>
+          <button
+            onClick={() => actions.initializeApp()}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!state.isInitialized) {
     return (

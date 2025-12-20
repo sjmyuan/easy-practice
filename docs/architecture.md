@@ -938,6 +938,10 @@ export interface AppState {
   // Statistics
   struggledProblems: StruggledProblemSummary[];
   
+  // Initialization
+  isInitialized: boolean;
+  initializationError: string | null; // Error message if initialization fails
+  
   // Settings
   problemsPerSession: number;
   currentSessionCount: number;
@@ -973,6 +977,28 @@ export interface AppContextValue {
   state: AppState;
   actions: AppActions;
 }
+```
+
+#### Initialization Flow
+
+The application follows a robust initialization sequence to ensure data availability before rendering the UI:
+
+1. **App Mount**: When AppProvider mounts, it triggers `initializeApp()` once via useEffect
+2. **Database Check**: Checks if problems exist in IndexedDB via `problemService.hasProblems()`
+3. **Default Data Load**: If no problems exist, loads default problem sets from `/public/problem-sets/`
+4. **Problem Set Retrieval**: Fetches all problem sets from database
+5. **First Problem Load**: Automatically loads the first problem for the default type (addition)
+6. **State Update**: Sets `isInitialized` to true, enabling the main UI to render
+
+**Error Handling**:
+- If any step fails, sets `initializationError` with a descriptive message
+- UI displays error message with a "Retry" button
+- User can manually retry initialization without refreshing the page
+
+**Benefits**:
+- Single useEffect execution prevents duplicate initialization calls
+- Proper error state prevents infinite loading screens
+- Auto-loading first problem improves UX (no blank screen after init)
 ```
 
 ### 4.5 Component Props Interfaces
