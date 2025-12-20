@@ -403,4 +403,125 @@ describe('Practice Page', () => {
       expect(screen.queryByText(/duration:/i)).not.toBeInTheDocument();
     });
   });
+
+  describe('Button Visibility Based on Session State', () => {
+    it('should show View Summary button when session is not active (before start)', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 0,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/view summary/i)).toBeInTheDocument();
+    });
+
+    it('should show Reset Data button when session is not active (before start)', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 0,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+    });
+
+    it('should show View Summary button when session is complete', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 10,
+        sessionDuration: 60000,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/view summary/i)).toBeInTheDocument();
+    });
+
+    it('should show Reset Data button when session is complete', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 10,
+        sessionDuration: 60000,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+    });
+
+    it('should hide View Summary button when session is active', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: true,
+        currentProblem: {
+          id: 'p1',
+          problem: '5 + 3',
+          answer: '8',
+          problemSetId: 'set-1',
+          createdAt: Date.now(),
+        },
+        sessionQueue: ['p1', 'p2', 'p3'],
+        sessionCompletedCount: 1,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.queryByText(/view summary/i)).not.toBeInTheDocument();
+    });
+
+    it('should hide Reset Data button when session is active', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: true,
+        currentProblem: {
+          id: 'p1',
+          problem: '5 + 3',
+          answer: '8',
+          problemSetId: 'set-1',
+          createdAt: Date.now(),
+        },
+        sessionQueue: ['p1', 'p2', 'p3'],
+        sessionCompletedCount: 1,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.queryByText(/reset data/i)).not.toBeInTheDocument();
+    });
+
+    it('should show all three buttons together when session is not active', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 0,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/start new session/i)).toBeInTheDocument();
+      expect(screen.getByText(/view summary/i)).toBeInTheDocument();
+      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+    });
+
+    it('should show all three buttons together when session is complete', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 5,
+        sessionDuration: 120000,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.getByText(/start new session/i)).toBeInTheDocument();
+      expect(screen.getByText(/view summary/i)).toBeInTheDocument();
+      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+    });
+  });
 });

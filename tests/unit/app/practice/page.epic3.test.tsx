@@ -368,6 +368,13 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
 
   describe('AC3: Visuals remain engaging without becoming repetitive', () => {
     it('should use varied colors for different button types', () => {
+      // Set session inactive so buttons are visible
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        sessionCompletedCount: 0,
+      };
+
       render(<PracticePage />);
 
       const main = screen.getByRole('main');

@@ -137,41 +137,53 @@ export default function PracticePage() {
                   </div>
                 </div>
                 
-                <div className="flex justify-center">
-                  <StartSessionButton
-                    onStart={actions.startNewSession}
-                    disabled={state.isLoading}
-                  />
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex w-full max-w-xs flex-col gap-3">
+                    <StartSessionButton
+                      onStart={actions.startNewSession}
+                      disabled={state.isLoading}
+                    />
+                    <button
+                      onClick={() => {
+                        actions.loadStruggledProblems();
+                        actions.toggleSummary();
+                      }}
+                      className="h-12 w-full rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600"
+                    >
+                      View Summary
+                    </button>
+                    <ResetDataButton
+                      onReset={actions.resetAllData}
+                    />
+                  </div>
                 </div>
               </div>
             ) : (
               <div className="space-y-4 py-8 text-center">
-                <div className="flex justify-center">
-                  <StartSessionButton
-                    onStart={actions.startNewSession}
-                    disabled={state.isLoading}
-                  />
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex w-full max-w-xs flex-col gap-3">
+                    <StartSessionButton
+                      onStart={actions.startNewSession}
+                      disabled={state.isLoading}
+                    />
+                    <button
+                      onClick={() => {
+                        actions.loadStruggledProblems();
+                        actions.toggleSummary();
+                      }}
+                      className="h-12 w-full rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600"
+                    >
+                      View Summary
+                    </button>
+                    <ResetDataButton
+                      onReset={actions.resetAllData}
+                    />
+                  </div>
                 </div>
               </div>
             )}
           </>
         )}
-
-        {/* Bottom Actions */}
-        <div className="flex justify-center gap-4 border-t border-gray-200 pt-4">
-          <button
-            onClick={() => {
-              actions.loadStruggledProblems();
-              actions.toggleSummary();
-            }}
-            className="h-12 rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600"
-          >
-            View Summary
-          </button>
-          <ResetDataButton
-            onReset={actions.resetAllData}
-          />
-        </div>
       </div>
 
       {state.showSummary && (
