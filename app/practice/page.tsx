@@ -14,6 +14,13 @@ export default function PracticePage() {
   const { state, actions } = useApp();
   const router = useRouter();
 
+  // Redirect to landing if no problem set is selected
+  useEffect(() => {
+    if (state.isInitialized && !state.selectedProblemSetId) {
+      router.push('/');
+    }
+  }, [state.isInitialized, state.selectedProblemSetId, router]);
+
   // Auto-start session when problem set is selected
   useEffect(() => {
     if (
@@ -64,10 +71,13 @@ export default function PracticePage() {
     );
   }
 
-  // Redirect to landing if no problem set is selected
+  // Show loading while redirecting to landing if no problem set is selected
   if (!state.selectedProblemSetId) {
-    router.push('/');
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-xl text-gray-500">Loading...</p>
+      </div>
+    );
   }
 
   return (

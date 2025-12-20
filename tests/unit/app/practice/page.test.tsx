@@ -1,6 +1,6 @@
 // tests/unit/app/practice/page.test.tsx
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import PracticePage from '@/app/practice/page';
 
 const mockInitializeApp = vi.fn();
@@ -15,18 +15,38 @@ const mockSelectProblemSet = vi.fn();
 const mockPush = vi.fn();
 
 let mockState: {
-  currentProblem: { problem: string; answer: number | string; problemType: string } | null;
+  currentProblem: {
+    problem: string;
+    answer: number | string;
+    problemType: string;
+  } | null;
   selectedType: string;
   isLoading: boolean;
   isInitialized: boolean;
   initializationError: string | null;
   showSummary: boolean;
-  struggledProblems: Array<{ problemId: string; problem: string; answer: string; category: string; failCount: number }>;
+  struggledProblems: Array<{
+    problemId: string;
+    problem: string;
+    answer: string;
+    category: string;
+    failCount: number;
+  }>;
   isSessionActive: boolean;
-  sessionQueue: Array<{ problem: string; answer: number | string; problemType: string }>;
+  sessionQueue: Array<{
+    problem: string;
+    answer: number | string;
+    problemType: string;
+  }>;
   sessionCompletedCount: number;
   selectedProblemSetId: string | null;
-  availableProblemSets: Array<{ id: string; name: string; type: string; enabled: boolean; createdAt: number }>;
+  availableProblemSets: Array<{
+    id: string;
+    name: string;
+    type: string;
+    enabled: boolean;
+    createdAt: number;
+  }>;
 } = {
   currentProblem: null,
   selectedType: 'addition',
@@ -70,6 +90,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('Practice Page', () => {
+  const originalError = console.error;
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockState = {
@@ -86,6 +108,12 @@ describe('Practice Page', () => {
       selectedProblemSetId: 'set-1',
       availableProblemSets: [],
     };
+    // Suppress console errors during tests
+    console.error = vi.fn();
+  });
+
+  afterEach(() => {
+    console.error = originalError;
   });
 
   it('should render the practice page', () => {
@@ -94,22 +122,37 @@ describe('Practice Page', () => {
     expect(screen.getByText(/math practice/i)).toBeInTheDocument();
   });
 
-  it('should redirect to landing if no problem set selected', () => {
+  it('should redirect to landing if no problem set selected', async () => {
     mockState.selectedProblemSetId = null;
-    
+
     render(<PracticePage />);
 
-    expect(mockPush).toHaveBeenCalledWith('/');
+    // Wait for useEffect to trigger the redirect
+    await vi.waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('should not throw error when redirecting to landing page', () => {
+    mockState.selectedProblemSetId = null;
+
+    // This should not throw a React error about setState during render
+    expect(() => render(<PracticePage />)).not.toThrow();
+
+    // Should not call console.error with React warnings
+    expect(console.error).not.toHaveBeenCalledWith(
+      expect.stringMatching(/Cannot update a component.*while rendering/i)
+    );
   });
 
   it('should display problem when session is active', () => {
     mockState = {
       ...mockState,
       isSessionActive: true,
-      currentProblem: { 
+      currentProblem: {
         id: 'p1',
-        problem: '5 + 3', 
-        answer: '8', 
+        problem: '5 + 3',
+        answer: '8',
         problemSetId: 'set-1',
         createdAt: Date.now(),
       },
@@ -151,9 +194,9 @@ describe('Practice Page', () => {
     mockState = {
       ...mockState,
       isSessionActive: true,
-      currentProblem: { 
+      currentProblem: {
         id: 'p1',
-        problem: '5 + 3', 
+        problem: '5 + 3',
         answer: '8',
         problemSetId: 'set-1',
         createdAt: Date.now(),
