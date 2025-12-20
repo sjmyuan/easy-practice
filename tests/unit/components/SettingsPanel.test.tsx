@@ -47,11 +47,22 @@ describe('SettingsPanel', () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
-  it('should render settings panel with slide-in animation class', () => {
+  it('should render centered modal with max-width and animation classes', () => {
     const { container } = render(<SettingsPanel {...defaultProps} />);
     const panel = container.querySelector('[role="dialog"]');
 
-    expect(panel).toHaveClass('translate-x-0');
+    // Check for centered positioning
+    expect(panel).toHaveClass('left-1/2');
+    expect(panel).toHaveClass('top-1/2');
+    expect(panel).toHaveClass('-translate-x-1/2');
+    expect(panel).toHaveClass('-translate-y-1/2');
+    
+    // Check for max-width constraint (with responsive prefix)
+    expect(panel).toHaveClass('sm:max-w-lg');
+    
+    // Check for fade-in scale animation
+    expect(panel).toHaveClass('opacity-100');
+    expect(panel).toHaveClass('scale-100');
   });
 
   it('should render close button', () => {
@@ -150,5 +161,21 @@ describe('SettingsPanel', () => {
     await user.click(panel);
 
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('should render full-screen on mobile devices', () => {
+    const { container } = render(<SettingsPanel {...defaultProps} />);
+    const panel = container.querySelector('[role="dialog"]');
+
+    // Check for full-screen classes on mobile (sm breakpoint)
+    expect(panel?.className).toMatch(/max-sm:w-full|sm:max-w-lg/);
+    expect(panel?.className).toMatch(/max-sm:h-full|sm:h-auto/);
+  });
+
+  it('should have fade-in backdrop animation', () => {
+    render(<SettingsPanel {...defaultProps} />);
+    
+    const backdrop = screen.getByTestId('settings-backdrop');
+    expect(backdrop).toHaveClass('opacity-100');
   });
 });

@@ -6,7 +6,7 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 ### Settings Panel (December 20, 2025)
 
-**Decision**: Added a settings panel accessible via a settings icon on the practice page to consolidate configuration controls.
+**Decision**: Added a settings panel accessible via a settings icon on the practice page to consolidate configuration controls, implemented as a centered modal dialog overlay.
 
 **Rationale**:
 
@@ -15,30 +15,40 @@ A mobile-first web application that helps parents facilitate practice for their 
 - Follows standard UI patterns with settings icon in top-right corner
 - Provides clear separation between practice actions and configuration options
 - Accessible only when no session is active, preventing accidental changes during practice
+- Modal overlay pattern provides better focus and accessibility compared to side panels
 
 **Implementation Details**:
 
 - Settings icon (gear icon from Lucide React) positioned absolutely in top-right corner of practice page header
 - Icon only visible when `isSessionActive === false` (both pre-session and post-session states)
-- Clicking icon opens a side panel that slides in from the right with smooth animation
-- Side panel includes:
-  - Close button (X icon) in panel header
+- Clicking icon opens a centered modal dialog overlay with fade-in and scale animation
+- Modal dialog:
+  - Centered positioning using `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`
+  - Max-width constraint: `max-w-lg` (~512px) on desktop
+  - Full-screen on mobile devices: `w-full h-full` on screens smaller than `sm` breakpoint
+  - Rounded corners on desktop: `sm:rounded-2xl`
+  - Max height on desktop: `sm:max-h-[90vh]` with scrollable content
+  - Backdrop overlay with fade-in animation
+  - Fade-in with scale animation for modal appearance (`opacity-100 scale-100`)
+- Modal content includes:
+  - Close button (X icon) in modal header
   - Problem Coverage Slider
   - Reset Data Button
-- Click on backdrop (overlay) closes the panel
-- Panel width: 384px (w-96) on larger screens, responsive on mobile
-- Smooth CSS transitions for panel slide-in/out animation
-- Z-index management: backdrop (z-40), panel (z-50)
-- Full keyboard accessibility with proper ARIA labels
+- Click on backdrop (overlay) closes the modal
+- Smooth CSS transitions for fade and scale animations
+- Z-index management: backdrop (z-40), modal (z-50)
+- Full keyboard accessibility with proper ARIA labels and dialog role
 
 **Impact**:
 
 - Cleaner main interface with fewer visible controls
-- Improved focus on core practice workflow
+- Improved focus on core practice workflow with modal overlay covering the page
 - Settings remain easily accessible via standard UI pattern (settings icon)
 - No impact on existing functionality - all features retained, just reorganized
 - Better visual hierarchy separating practice actions from configuration
 - Reduced cognitive load during active practice sessions
+- Enhanced mobile experience with full-screen modal on small devices
+- Improved accessibility with modal dialog pattern
 
 ### Back Navigation Icon (December 20, 2025)
 

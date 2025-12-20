@@ -13,23 +13,29 @@
 - **New Settings Panel Feature**:
   - Added settings icon (gear icon from Lucide React) in top-right corner of practice page header
   - Settings icon only visible when `isSessionActive === false` (pre-session and post-session states)
-  - Clicking icon opens a side panel that slides in from the right with smooth CSS transitions
+  - Clicking icon opens a centered modal dialog overlay with smooth fade-in and scale animations
 - **Settings Panel Components**:
   - **SettingsIcon** (`components/SettingsIcon.tsx`):
     - Gear icon button with hover effects (scale-110, color change to blue-600)
     - ARIA label: "Settings"
     - Positioned absolutely in top-right corner opposite back button
   - **SettingsPanel** (`components/SettingsPanel.tsx`):
-    - Slide-in panel from right side (w-96 width, fixed positioning)
-    - Backdrop overlay (z-40) with semi-transparent black background
-    - Panel content (z-50) with white background and shadow
-    - Close button (X icon) in panel header
+    - Centered modal dialog with backdrop overlay
+    - Positioning: `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2` (centered)
+    - Max-width constraint: `sm:max-w-lg` (~512px on desktop)
+    - Full-screen on mobile: `w-full h-full` below `sm` breakpoint
+    - Rounded corners on desktop: `sm:rounded-2xl`
+    - Max height on desktop: `sm:max-h-[90vh]` with scrollable content
+    - Backdrop overlay (z-40) with fade-in animation (`opacity-100`)
+    - Modal content (z-50) with white background and shadow
+    - Fade-in with scale animation: `opacity-100 scale-100`
+    - Close button (X icon) in modal header
     - Contains Problem Coverage Slider and Reset Data Button
-    - Smooth transition animations for panel and backdrop
+    - Smooth transition animations using `transition-all duration-300`
 - **UI Reorganization**:
   - Removed Problem Coverage Slider from main practice page view
   - Removed Reset Data Button from main practice page view
-  - These controls now only accessible via settings panel
+  - These controls now only accessible via settings modal
   - Main view now shows only Start Session and View Summary buttons
 - **Layout Structure**:
   - Practice page header uses relative positioning container
@@ -37,35 +43,35 @@
   - Title centered between them using flexbox
   - Settings icon hidden during active sessions to prevent accidental configuration changes
 - **State Management**:
-  - Local state `isSettingsOpen` in practice page controls panel visibility
-  - Panel closes when:
+  - Local state `isSettingsOpen` in practice page controls modal visibility
+  - Modal closes when:
     - User clicks backdrop overlay
-    - User clicks close button (X) in panel header
+    - User clicks close button (X) in modal header
     - Component unmounts
 - **Accessibility**:
   - Settings icon: ARIA label "Settings"
-  - Settings panel: role="dialog", aria-labelledby="settings-title"
+  - Settings modal: role="dialog", aria-labelledby="settings-title"
   - Close button: ARIA label "Close settings"
   - Full keyboard navigation support
+  - Modal pattern provides better focus management
 - **Testing**:
   - 5 tests for SettingsIcon component
-  - 15 tests for SettingsPanel component
+  - 17 tests for SettingsPanel component (updated for centered modal layout)
   - 10 integration tests for practice page with settings
-  - Updated 7 existing tests to reflect UI changes (controls moved to settings)
-  - All 366 tests passing
+  - Updated tests to verify centered positioning, max-width constraint, fade-in scale animation, and full-screen mobile behavior
+  - All 368 tests passing
 - **Components Modified**:
-  - `components/SettingsIcon.tsx` (new)
-  - `components/SettingsPanel.tsx` (new)
-  - `app/practice/page.tsx` (integrated settings icon and panel, removed inline controls)
-  - `tests/unit/components/SettingsIcon.test.tsx` (new)
-  - `tests/unit/components/SettingsPanel.test.tsx` (new)
-  - `tests/unit/app/practice/page.settings.test.tsx` (new)
-  - `tests/unit/app/practice/page.test.tsx` (updated existing tests)
+  - `components/SettingsIcon.tsx` (no changes)
+  - `components/SettingsPanel.tsx` (refactored from side panel to centered modal)
+  - `app/practice/page.tsx` (no changes to integration)
+  - `tests/unit/components/SettingsPanel.test.tsx` (updated for modal layout)
 - **Impact**:
   - Cleaner main interface with focus on core practice workflow
   - Settings easily accessible via standard UI pattern
   - Improved visual hierarchy and reduced cognitive load
-  - No functional changes - all features retained, just reorganized
+  - Better mobile experience with full-screen modal
+  - Enhanced accessibility with modal dialog pattern
+  - No functional changes - all features retained, just repositioned
 
 ### Back Navigation Icon (December 20, 2025)
 

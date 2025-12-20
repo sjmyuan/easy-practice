@@ -31,15 +31,15 @@ export function SettingsPanel({
       {/* Backdrop */}
       <div
         data-testid="settings-backdrop"
-        className="fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity"
+        className="fixed inset-0 z-40 bg-black bg-opacity-50 opacity-100 transition-opacity duration-300"
         onClick={onClose}
       />
 
-      {/* Side Panel */}
+      {/* Centered Modal */}
       <div
         role="dialog"
         aria-labelledby="settings-title"
-        className="fixed right-0 top-0 z-50 h-full w-96 transform bg-white shadow-2xl transition-transform duration-300 ease-in-out translate-x-0"
+        className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 transform bg-white shadow-2xl transition-all duration-300 ease-in-out opacity-100 scale-100 w-full h-full max-sm:w-full max-sm:h-full sm:max-w-lg sm:h-auto sm:rounded-2xl sm:max-h-[90vh]"
       >
         <div className="flex h-full flex-col p-6">
           {/* Header */}
