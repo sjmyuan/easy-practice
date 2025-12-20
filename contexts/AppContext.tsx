@@ -89,10 +89,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const problemSets = await databaseService.getProblemSets();
 
-      // Get the selected type before updating state
-      let selectedType = 'addition'; // default
+      // Capture the selected type synchronously
+      const currentState = { selectedType: 'addition' };
       setState((prev) => {
-        selectedType = prev.selectedType;
+        currentState.selectedType = prev.selectedType;
         return {
           ...prev,
           availableProblemSets: problemSets,
@@ -101,7 +101,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
 
       // Load the first problem after initialization
-      const problem = await problemService.getNextProblem(selectedType, []);
+      const problem = await problemService.getNextProblem(currentState.selectedType, []);
 
       if (problem && problem.id) {
         setState((prev) => ({
@@ -160,19 +160,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       
-      // Get current state values from within the setState callback to avoid dependencies
-      let selectedType: string;
-      let recentProblemIds: string[];
+      // Capture current state values synchronously
+      const currentState = { selectedType: '', recentProblemIds: [] as string[] };
       
       setState((prev) => {
-        selectedType = prev.selectedType;
-        recentProblemIds = prev.recentProblemIds;
+        currentState.selectedType = prev.selectedType;
+        currentState.recentProblemIds = prev.recentProblemIds;
         return prev;
       });
       
       const problem = await problemService.getNextProblem(
-        selectedType!,
-        recentProblemIds!
+        currentState.selectedType,
+        currentState.recentProblemIds
       );
 
       if (problem && problem.id) {
@@ -198,16 +197,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const submitAnswer = useCallback(
     async (result: 'pass' | 'fail') => {
       try {
-        // Get current problem id from state
-        let currentProblemId: string | undefined;
+        // Capture current problem id synchronously
+        const currentState = { problemId: undefined as string | undefined };
         setState((prev) => {
-          currentProblemId = prev.currentProblem?.id;
+          currentState.problemId = prev.currentProblem?.id;
           return prev;
         });
         
-        if (!currentProblemId) return;
+        if (!currentState.problemId) return;
 
-        await databaseService.recordAttempt(currentProblemId, result);
+        await databaseService.recordAttempt(currentState.problemId, result);
         await loadNextProblem();
       } catch (error) {
         console.error('Failed to submit answer:', error);

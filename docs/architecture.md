@@ -5,6 +5,20 @@
 **Date:** December 20, 2025  
 **Status:** In Progress - Epic 1 Completed
 
+## Recent Updates
+
+### Bug Fix - Date Storage (December 20, 2025)
+- Fixed "Invalid key provided" error in Next Problem button by converting Date objects to Unix timestamps (milliseconds)
+- Updated all date fields (`createdAt`, `attemptedAt`, `lastAttemptedAt`) to store numbers instead of Date objects
+- This ensures proper IndexedDB indexing support across all browsers
+- Modified `formatDate()` utility to accept timestamps and convert them for display
+
+### Bug Fix - State Variable Initialization (December 20, 2025)
+- Fixed "Invalid key provided" error when `selectedType` was undefined in database queries
+- Changed state capture pattern in `loadNextProblem()`, `submitAnswer()`, and `initializeApp()` to use initialized objects
+- Ensures variables always have valid values before being passed to database queries
+- Replaced `let` declarations with object initialization pattern for safer state access
+
 ## Implementation Status
 
 ### Completed Features (Epic 1: Parent-Focused Problem Generator)
@@ -287,7 +301,7 @@ Represents a single problem with its question and answer.
 | `problem` | string | Problem text (e.g., "5 + 7") | Required, max 200 chars |
 | `answer` | string | Correct answer (e.g., "12") | Required, max 50 chars |
 | `category` | string | Problem type | 'addition' or 'subtraction' |
-| `createdAt` | Date | When problem was created | ISO 8601 timestamp |
+| `createdAt` | number | When problem was created | Unix timestamp (milliseconds) |
 
 **Sample Data:**
 ```json
@@ -296,7 +310,7 @@ Represents a single problem with its question and answer.
   "problem": "5 + 7",
   "answer": "12",
   "category": "addition",
-  "createdAt": "2025-12-20T10:30:00.000Z"
+  "createdAt": 1703069400000
 }
 ```
 
@@ -309,7 +323,7 @@ Tracks each attempt at solving a problem.
 | `id` | string | Unique identifier (UUID) | Primary Key, auto-generated |
 | `problemId` | string | Reference to Problem | Foreign Key |
 | `result` | string | Outcome of attempt | 'pass' or 'fail' |
-| `attemptedAt` | Date | When attempt was made | ISO 8601 timestamp |
+| `attemptedAt` | number | When attempt was made | Unix timestamp (milliseconds) |
 
 **Sample Data:**
 ```json
@@ -317,7 +331,7 @@ Tracks each attempt at solving a problem.
   "id": "660e8400-e29b-41d4-a716-446655440001",
   "problemId": "p-550e8400-e29b-41d4-a716-446655440000",
   "result": "fail",
-  "attemptedAt": "2025-12-20T10:31:00.000Z"
+  "attemptedAt": 1703069460000
 }
 ```
 
@@ -331,7 +345,7 @@ Aggregated statistics for each problem to enable fast prioritization.
 | `totalAttempts` | number | Total number of attempts | ≥ 0 |
 | `passCount` | number | Number of successful attempts | ≥ 0 |
 | `failCount` | number | Number of failed attempts | ≥ 0 |
-| `lastAttemptedAt` | Date | Most recent attempt timestamp | ISO 8601 timestamp, nullable |
+| `lastAttemptedAt` | number \| null | Most recent attempt timestamp | Unix timestamp (milliseconds), nullable |
 | `lastResult` | string | Most recent attempt result | 'pass', 'fail', or null |
 | `failureRate` | number | Percentage of failed attempts | 0.0 to 1.0 (computed) |
 | `priority` | number | Calculated priority score | Higher = show sooner |
@@ -343,7 +357,7 @@ Aggregated statistics for each problem to enable fast prioritization.
   "totalAttempts": 3,
   "passCount": 1,
   "failCount": 2,
-  "lastAttemptedAt": "2025-12-20T10:35:00.000Z",
+  "lastAttemptedAt": 1703069700000,
   "lastResult": "fail",
   "failureRate": 0.67,
   "priority": 67

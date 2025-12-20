@@ -38,7 +38,7 @@ describe('AppContext', () => {
         name: 'Addition within 20',
         type: 'addition',
         enabled: true,
-        createdAt: new Date(),
+        createdAt: Date.now(),
       },
     ]);
   });
@@ -217,7 +217,7 @@ describe('AppContext', () => {
         problemSetId: 'ps1',
         problem: '5 + 3',
         answer: '8',
-        createdAt: new Date(),
+        createdAt: Date.now(),
       });
 
       const { result } = renderHook(() => useApp(), { wrapper });
@@ -243,7 +243,7 @@ describe('AppContext', () => {
         problemSetId: 'ps1',
         problem: '10 + 5',
         answer: '15',
-        createdAt: new Date(),
+        createdAt: Date.now(),
       });
 
       const { result } = renderHook(() => useApp(), { wrapper });

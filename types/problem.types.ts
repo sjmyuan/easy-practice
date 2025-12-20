@@ -6,7 +6,7 @@ export interface ProblemSet {
   type: string;
   difficulty?: string;
   enabled: boolean;
-  createdAt: Date;
+  createdAt: number; // timestamp
   metadata?: Record<string, any>;
 }
 
@@ -15,14 +15,14 @@ export interface Problem {
   problemSetId: string;
   problem: string;
   answer: string;
-  createdAt: Date;
+  createdAt: number; // timestamp
 }
 
 export interface ProblemAttempt {
   id?: string;
   problemId: string;
   result: 'pass' | 'fail';
-  attemptedAt: Date;
+  attemptedAt: number; // timestamp
 }
 
 export interface ProblemStatistics {
@@ -30,7 +30,7 @@ export interface ProblemStatistics {
   totalAttempts: number;
   passCount: number;
   failCount: number;
-  lastAttemptedAt: Date | null;
+  lastAttemptedAt: number | null; // timestamp
   lastResult: 'pass' | 'fail' | null;
   failureRate: number;
   priority: number;
@@ -44,7 +44,7 @@ export interface StruggledProblemSummary {
   failCount: number;
   totalAttempts: number;
   failureRate: number;
-  lastAttemptedAt: Date | null;
+  lastAttemptedAt: number | null; // timestamp
   priority: number;
 }
 

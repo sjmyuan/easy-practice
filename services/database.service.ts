@@ -32,7 +32,7 @@ export class DatabaseService {
             type: jsonData.problemSet.type,
             difficulty: jsonData.problemSet.difficulty,
             enabled: true,
-            createdAt: new Date(),
+            createdAt: Date.now(),
             metadata: jsonData.problemSet.metadata,
           });
 
@@ -43,7 +43,7 @@ export class DatabaseService {
               problemSetId: problemSetId,
               problem: p.problem,
               answer: p.answer,
-              createdAt: new Date(),
+              createdAt: Date.now(),
             });
 
             await db.statistics.add({
@@ -71,7 +71,7 @@ export class DatabaseService {
               type: ps.type,
               difficulty: ps.difficulty,
               enabled: true,
-              createdAt: new Date(),
+              createdAt: Date.now(),
               metadata: ps.metadata,
             });
 
@@ -82,7 +82,7 @@ export class DatabaseService {
                 problemSetId: problemSetId,
                 problem: p.problem,
                 answer: p.answer,
-                createdAt: new Date(),
+                createdAt: Date.now(),
               });
 
               await db.statistics.add({
@@ -223,7 +223,7 @@ export class DatabaseService {
         id: generateId(),
         problemId,
         result,
-        attemptedAt: new Date(),
+        attemptedAt: Date.now(),
       });
 
       // Update statistics
@@ -232,7 +232,7 @@ export class DatabaseService {
         stats.totalAttempts += 1;
         if (result === 'pass') stats.passCount += 1;
         else stats.failCount += 1;
-        stats.lastAttemptedAt = new Date();
+        stats.lastAttemptedAt = Date.now();
         stats.lastResult = result;
         stats.failureRate = stats.failCount / stats.totalAttempts;
         stats.priority = calculatePriority(stats);

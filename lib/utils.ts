@@ -47,7 +47,7 @@ export function generateId(): string {
 /**
  * Format date for display
  */
-export function formatDate(date: Date | null): string {
+export function formatDate(date: number | null): string {
   if (!date) return 'Never';
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -55,7 +55,7 @@ export function formatDate(date: Date | null): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(date);
+  }).format(new Date(date));
 }
 
 /**
