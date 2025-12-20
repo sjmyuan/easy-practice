@@ -10,7 +10,7 @@ describe('ProblemDisplay Component', () => {
     problemSetId: 'set-1',
     problem: '5 + 7',
     answer: '12',
-    createdAt: new Date(),
+    createdAt: Date.now(),
   };
 
   it('should render the problem text clearly', () => {
@@ -62,7 +62,7 @@ describe('ProblemDisplay Component', () => {
       problemSetId: 'set-1',
       problem: '15 - 8',
       answer: '7',
-      createdAt: new Date(),
+      createdAt: Date.now(),
     };
 
     render(<ProblemDisplay problem={subtractionProblem} />);

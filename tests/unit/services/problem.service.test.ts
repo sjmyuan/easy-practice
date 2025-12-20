@@ -141,8 +141,8 @@ describe('ProblemService - Session Queue Generation', () => {
       } as unknown as ReturnType<typeof db.problems.where>);
 
       // Mock statistics with different success ratios
-      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
-        if (id === 'p1') {
+      (vi.mocked(db.statistics.get).mockImplementation as any)(async (criteria: any) => {
+        if (criteria.problemId === 'p1') {
           return {
             problemId: 'p1',
             totalAttempts: 10,
@@ -154,7 +154,7 @@ describe('ProblemService - Session Queue Generation', () => {
             priority: 60,
           };
         }
-        if (id === 'p2') {
+        if (criteria.problemId === 'p2') {
           return {
             problemId: 'p2',
             totalAttempts: 10,
@@ -166,7 +166,7 @@ describe('ProblemService - Session Queue Generation', () => {
             priority: 55,
           };
         }
-        if (id === 'p3') {
+        if (criteria.problemId === 'p3') {
           return {
             problemId: 'p3',
             totalAttempts: 10,

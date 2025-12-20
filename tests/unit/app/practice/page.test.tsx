@@ -2,6 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import PracticePage from '@/app/practice/page';
+import type { AppState } from '@/contexts/AppContext';
 
 const mockInitializeApp = vi.fn();
 const mockLoadNextProblem = vi.fn();
@@ -14,45 +15,9 @@ const mockStartNewSession = vi.fn();
 const mockSelectProblemSet = vi.fn();
 const mockPush = vi.fn();
 
-let mockState: {
-  currentProblem: {
-    problem: string;
-    answer: number | string;
-    problemSetKey: string;
-  } | null;
-  selectedProblemSetKey: string;
-  isLoading: boolean;
-  isInitialized: boolean;
-  initializationError: string | null;
-  showSummary: boolean;
-  struggledProblems: Array<{
-    problemId: string;
-    problem: string;
-    answer: string;
-    category: string;
-    failCount: number;
-  }>;
-  isSessionActive: boolean;
-  sessionQueue: Array<{
-    problem: string;
-    answer: number | string;
-    problemSetKey: string;
-  }>;
-  sessionCompletedCount: number;
-  selectedProblemSetId: string | null;
-  availableProblemSets: Array<{
-    id: string;
-    name: string;
-    type: string;
-    enabled: boolean;
-    createdAt: number;
-  }>;
-  sessionStartTime: number | null;
-  sessionDuration: number | null;
-  sessionPassCount: number;
-  sessionFailCount: number;
-} = {
+let mockState: AppState = {
   currentProblem: null,
+  recentProblemIds: [],
   selectedProblemSetKey: 'addition',
   isLoading: false,
   isInitialized: true,
@@ -104,6 +69,7 @@ describe('Practice Page', () => {
     vi.clearAllMocks();
     mockState = {
       currentProblem: null,
+      recentProblemIds: [],
       selectedProblemSetKey: 'addition',
       isLoading: false,
       isInitialized: true,
@@ -115,6 +81,10 @@ describe('Practice Page', () => {
       sessionCompletedCount: 0,
       selectedProblemSetId: 'set-1',
       availableProblemSets: [],
+      sessionStartTime: null,
+      sessionDuration: null,
+      sessionPassCount: 0,
+      sessionFailCount: 0,
     };
     // Suppress console errors during tests
     console.error = vi.fn();

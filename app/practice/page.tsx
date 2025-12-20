@@ -177,7 +177,6 @@ export default function PracticePage() {
           </button>
           <ResetDataButton
             onReset={actions.resetAllData}
-            selectedType={state.selectedType}
           />
         </div>
       </div>
