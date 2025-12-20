@@ -2,7 +2,7 @@
 import { db } from '@/lib/db';
 import { databaseService } from './database.service';
 import type { Problem, ProblemSetJSON, ProblemSetManifest } from '@/types';
-import { RECENT_PROBLEMS_LIMIT, TOP_PROBLEMS_POOL } from '@/lib/constants';
+import { TOP_PROBLEMS_POOL } from '@/lib/constants';
 
 export class ProblemService {
   /**
@@ -172,11 +172,9 @@ export class ProblemService {
   }
 
   /**
-   * Generate session queue based on success ratios
-   * - Include all problems with success ratio < 90%
-   * - Include problems with success ratio >= 90% with 30% probability
-   * - If no statistics exist, include all problems
-   * - Return shuffled array of problem IDs
+   * Generate session queue with all problems in random order
+   * - Include all problems from the selected problem set
+   * - Return shuffled array of problem IDs with no duplicates
    */
   async generateSessionQueue(
     typeOrProblemSetId: string,
@@ -213,33 +211,10 @@ export class ProblemService {
 
     if (problems.length === 0) return [];
 
-    // Get statistics for each problem and determine inclusion
-    const sessionProblems: string[] = [];
-
-    for (const problem of problems) {
-      if (!problem.id) continue;
-
-      const stats = await db.statistics.get(problem.id);
-
-      // If no statistics, include all problems
-      if (!stats || stats.totalAttempts === 0) {
-        sessionProblems.push(problem.id);
-        continue;
-      }
-
-      // Calculate success ratio
-      const successRatio = stats.passCount / stats.totalAttempts;
-
-      // Include if success ratio < 0.9 (90%)
-      if (successRatio < 0.9) {
-        sessionProblems.push(problem.id);
-      } else {
-        // Include with 30% probability if success ratio >= 90%
-        if (Math.random() < 0.3) {
-          sessionProblems.push(problem.id);
-        }
-      }
-    }
+    // Collect all problem IDs
+    const sessionProblems: string[] = problems
+      .map((problem) => problem.id)
+      .filter((id): id is string => id !== undefined);
 
     // Shuffle the array to randomize order
     return this.shuffleArray(sessionProblems);

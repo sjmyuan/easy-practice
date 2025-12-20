@@ -92,7 +92,7 @@ describe('ProblemService - Session Queue Generation', () => {
       expect(queue).toContain('p3');
     });
 
-    it('should include all problems with success ratio < 90%', async () => {
+    it('should include all problems regardless of success ratios', async () => {
       const mockProblemSets = [
         {
           id: 'ps1',
@@ -143,8 +143,8 @@ describe('ProblemService - Session Queue Generation', () => {
 
       // Mock statistics with different success ratios
       (vi.mocked(db.statistics.get).mockImplementation as any)(
-        async (criteria: any) => {
-          if (criteria.problemId === 'p1') {
+        async (problemId: string) => {
+          if (problemId === 'p1') {
             return {
               problemId: 'p1',
               totalAttempts: 10,
@@ -156,7 +156,7 @@ describe('ProblemService - Session Queue Generation', () => {
               priority: 60,
             };
           }
-          if (criteria.problemId === 'p2') {
+          if (problemId === 'p2') {
             return {
               problemId: 'p2',
               totalAttempts: 10,
@@ -168,7 +168,7 @@ describe('ProblemService - Session Queue Generation', () => {
               priority: 55,
             };
           }
-          if (criteria.problemId === 'p3') {
+          if (problemId === 'p3') {
             return {
               problemId: 'p3',
               totalAttempts: 10,
@@ -186,12 +186,11 @@ describe('ProblemService - Session Queue Generation', () => {
 
       const queue = await problemService.generateSessionQueue('addition');
 
-      // Should include p1 and p2 (< 90% success)
+      // Should include all problems regardless of success ratios
+      expect(queue).toHaveLength(3);
       expect(queue).toContain('p1');
       expect(queue).toContain('p2');
-
-      // p3 might or might not be included (30% probability)
-      // We can't test the probabilistic behavior deterministically
+      expect(queue).toContain('p3');
     });
 
     it('should only include problems from enabled problem sets', async () => {

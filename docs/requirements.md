@@ -250,15 +250,13 @@ As a busy parent, I want to explicitly start a new practice session so that I ha
 - ✅ Given I tap "Start New Session," when the session starts, then a set of problems should be generated based on my child's performance history.
 - ✅ Given there are no enabled problem sets, when I tap "Start New Session," then the app should display a message indicating no problems are available.
 
-#### User Story 2: Adaptive Problem Selection ✅ COMPLETED
+#### User Story 2: Problem Selection with Randomization ✅ COMPLETED
 
-As a busy parent, I want the session to intelligently select problems based on my child's performance so that we focus on areas needing improvement.
+As a busy parent, I want all problems from the selected problem set to be included in each session so that my child practices the complete set.
 
 ##### Acceptance Criteria:
 
-- ✅ Given problems have been attempted before, when generating a session, then all problems with success ratio < 90% should be included.
-- ✅ Given problems have been attempted before, when generating a session, then problems with success ratio ≥ 90% should be included with 30% probability.
-- ✅ Given no historical data exists, when generating a session, then all problems from enabled problem sets should be included.
+- ✅ Given a session is started, when generating the problem queue, then all problems from enabled problem sets should be included.
 - ✅ Given a session is generated, when problems are presented, then they should appear in random order with no duplicates.
 
 #### User Story 3: Track Session Progress ✅ COMPLETED
