@@ -122,6 +122,12 @@ export default function PracticePage() {
                   You completed {state.sessionCompletedCount} problem
                   {state.sessionCompletedCount !== 1 ? 's' : ''}
                 </p>
+                <div className="flex justify-center">
+                  <StartSessionButton
+                    onStart={actions.startNewSession}
+                    disabled={state.isLoading}
+                  />
+                </div>
               </div>
             ) : (
               <div className="space-y-4 py-8 text-center">
