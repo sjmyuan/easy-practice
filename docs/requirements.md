@@ -207,9 +207,55 @@ As a busy parent, I want sessions to reset when I switch between addition and su
 - ✅ Given I switch types, when viewing the screen, then I should see the "Start New Session" button to begin a new session for that type.
 - ✅ Given I switch types, when I start a new session, then the problems should be from the newly selected type.
 
+### Epic 5: Problem Set Selection and Navigation
+
+[Busy Parent] wants to select a specific problem set before starting practice so that they can choose focused practice areas and easily switch between different problem types.
+
+#### User Story 1: Problem Set Selection Landing Page
+
+As a busy parent, I want a dedicated landing page where I can see and select from all available problem sets so that I can choose the specific area I want my child to practice.
+
+##### Acceptance Criteria:
+
+- Given the app is opened, when I visit the root URL ("/"), then I should see a list of all available problem sets.
+- Given I view the problem set list, when displayed, then each problem set should show its name and description.
+- Given I see the problem set options, when I select one, then the app should automatically start a session with that problem set and navigate to the practice page.
+- Given I select a problem set, when the practice page loads, then the session should start automatically without requiring a "Start Session" button click.
+
+#### User Story 2: Practice Page Navigation
+
+As a busy parent, I want the practice interface on a separate page without the type selector so that the interface is cleaner and focused on the selected problem set.
+
+##### Acceptance Criteria:
+
+- Given I selected a problem set, when I'm on the practice page ("/practice"), then I should see the problem display and answer buttons without a type selector.
+- Given I'm practicing problems, when I want to change the problem set, then I should see a "Change Problem Set" button that returns me to the landing page.
+- Given I complete a session, when viewing the completion screen, then I should see both "Start New Session" (restarts with same set) and "Change Problem Set" (returns to landing) buttons.
+
+#### User Story 3: Mid-Session Navigation
+
+As a busy parent, I want the ability to return to the landing page during an active session so that I can switch to a different problem set if needed.
+
+##### Acceptance Criteria:
+
+- Given I am in an active practice session, when I click "Change Problem Set", then I should be navigated back to the landing page.
+- Given I navigate away from an active session, when I return to the landing page, then the session should be cleared.
+- Given I select a new problem set after leaving a session, when starting the new session, then it should be independent of the previous session.
+
+#### User Story 4: Session Restart with Same Problem Set
+
+As a busy parent, I want to quickly restart a new session with the same problem set after completion so that I can continue practicing the same area without reselecting.
+
+##### Acceptance Criteria:
+
+- Given I completed a session, when I click "Start New Session", then a new session should start with the same problem set.
+- Given I start a new session with the same set, when problems are loaded, then they should be generated using the updated performance data from the previous session.
+- Given I start a new session, when viewing the practice page, then the progress indicator should reset to show the new session's progress (e.g., "1 / 15").
+
 ## Dependencies/Risks
 
 - Dependency: Local data storage (e.g., browser localStorage or IndexedDB) is required for saving performance data.
+- Dependency: Next.js App Router for implementing multiple routes (/, /practice).
 - Risk: Technical debt could arise if features are rushed without proper testing.
 - Risk: Scope creep may occur if additional features are requested mid-development.
 - Risk: Changing requirements could lead to rework and delays.

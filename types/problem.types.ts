@@ -7,7 +7,7 @@ export interface ProblemSet {
   difficulty?: string;
   enabled: boolean;
   createdAt: number; // timestamp
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Problem {
@@ -56,14 +56,14 @@ export interface ProblemSetJSON {
     description?: string;
     type: string;
     difficulty?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   };
   problemSets?: Array<{
     name: string;
     description?: string;
     type: string;
     difficulty?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     problems: Array<{
       problem: string;
       answer: string;

@@ -150,25 +150,38 @@ export class ProblemService {
    * - If no statistics exist, include all problems
    * - Return shuffled array of problem IDs
    */
-  async generateSessionQueue(type: string): Promise<string[]> {
-    // Get enabled problem sets of the selected type
-    const problemSets = await db.problemSets
-      .where('type')
-      .equals(type)
-      .and((ps) => ps.enabled)
-      .toArray();
+  async generateSessionQueue(
+    typeOrProblemSetId: string,
+    useProblemSetId: boolean = false
+  ): Promise<string[]> {
+    let problems: Problem[];
 
-    if (problemSets.length === 0) return [];
+    if (useProblemSetId) {
+      // Filter by specific problem set ID
+      problems = await db.problems
+        .where('problemSetId')
+        .equals(typeOrProblemSetId)
+        .toArray();
+    } else {
+      // Filter by type (original behavior for backward compatibility)
+      const problemSets = await db.problemSets
+        .where('type')
+        .equals(typeOrProblemSetId)
+        .and((ps) => ps.enabled)
+        .toArray();
 
-    const problemSetIds = problemSets
-      .map((ps) => ps.id)
-      .filter((id): id is string => id !== undefined);
+      if (problemSets.length === 0) return [];
 
-    // Get problems from these sets
-    const problems = await db.problems
-      .where('problemSetId')
-      .anyOf(problemSetIds)
-      .toArray();
+      const problemSetIds = problemSets
+        .map((ps) => ps.id)
+        .filter((id): id is string => id !== undefined);
+
+      // Get problems from these sets
+      problems = await db.problems
+        .where('problemSetId')
+        .anyOf(problemSetIds)
+        .toArray();
+    }
 
     if (problems.length === 0) return [];
 

@@ -426,7 +426,10 @@ describe('AppContext', () => {
         await result.current.actions.startNewSession();
       });
 
-      expect(generateSessionQueueCall).toHaveBeenCalledWith('subtraction');
+      expect(generateSessionQueueCall).toHaveBeenCalledWith(
+        'subtraction',
+        false
+      );
     });
 
     it('should handle empty session queue', async () => {

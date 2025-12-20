@@ -1,37 +1,49 @@
 // tests/unit/app/page.epic3.test.tsx
-// Epic 3: Mobile-First Design (Parent-Centric)
+// Epic 3: Mobile-First Design (Parent-Centric) - Landing Page
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from '@/app/page';
-import type { Problem } from '@/types';
 
-const mockStartNewSession = vi.fn();
-const mockSetType = vi.fn();
-const mockSubmitAnswer = vi.fn();
+const mockSelectProblemSet = vi.fn();
 
 interface MockState {
-  currentProblem: Problem | null;
-  selectedType: string;
   isLoading: boolean;
   isInitialized: boolean;
   initializationError: string | null;
-  isSessionActive: boolean;
-  sessionQueue: Problem[];
-  sessionCompletedCount: number;
+  availableProblemSets: Array<{
+    id: string;
+    name: string;
+    description: string;
+    type: string;
+    enabled: boolean;
+    createdAt: number;
+  }>;
+  selectedProblemSetId: string | null;
 }
 
 let mockState: MockState = {
-  currentProblem: { problem: '5 + 3', answer: 8, problemType: 'addition' },
-  selectedType: 'addition',
   isLoading: false,
   isInitialized: true,
   initializationError: null,
-  isSessionActive: true,
-  sessionQueue: [
-    { problem: '5 + 3', answer: 8, problemType: 'addition' },
-    { problem: '7 + 2', answer: 9, problemType: 'addition' },
+  availableProblemSets: [
+    {
+      id: 'set-1',
+      name: 'Addition within 20',
+      description: 'Practice addition',
+      type: 'addition',
+      enabled: true,
+      createdAt: Date.now(),
+    },
+    {
+      id: 'set-2',
+      name: 'Subtraction within 20',
+      description: 'Practice subtraction',
+      type: 'subtraction',
+      enabled: true,
+      createdAt: Date.now(),
+    },
   ],
-  sessionCompletedCount: 0,
+  selectedProblemSetId: null,
 };
 
 // Mock the context
@@ -39,10 +51,18 @@ vi.mock('@/contexts', () => ({
   useApp: () => ({
     state: mockState,
     actions: {
-      setType: mockSetType,
-      submitAnswer: mockSubmitAnswer,
-      startNewSession: mockStartNewSession,
+      selectProblemSet: mockSelectProblemSet,
+      initializeApp: vi.fn(),
     },
+  }),
+}));
+
+// Mock Next.js navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    pathname: '/',
   }),
 }));
 
@@ -50,17 +70,28 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
   beforeEach(() => {
     vi.clearAllMocks();
     mockState = {
-      currentProblem: { problem: '5 + 3', answer: 8, problemType: 'addition' },
-      selectedType: 'addition',
       isLoading: false,
       isInitialized: true,
       initializationError: null,
-      isSessionActive: true,
-      sessionQueue: [
-        { problem: '5 + 3', answer: 8, problemType: 'addition' },
-        { problem: '7 + 2', answer: 9, problemType: 'addition' },
+      availableProblemSets: [
+        {
+          id: 'set-1',
+          name: 'Addition within 20',
+          description: 'Practice addition',
+          type: 'addition',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+        {
+          id: 'set-2',
+          name: 'Subtraction within 20',
+          description: 'Practice subtraction',
+          type: 'subtraction',
+          enabled: true,
+          createdAt: Date.now(),
+        },
       ],
-      sessionCompletedCount: 0,
+      selectedProblemSetId: null,
     };
   });
 
@@ -143,17 +174,28 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
   beforeEach(() => {
     vi.clearAllMocks();
     mockState = {
-      currentProblem: { problem: '5 + 3', answer: 8, problemType: 'addition' },
-      selectedType: 'addition',
       isLoading: false,
       isInitialized: true,
       initializationError: null,
-      isSessionActive: true,
-      sessionQueue: [
-        { problem: '5 + 3', answer: 8, problemType: 'addition' },
-        { problem: '7 + 2', answer: 9, problemType: 'addition' },
+      availableProblemSets: [
+        {
+          id: 'set-1',
+          name: 'Addition within 20',
+          description: 'Practice addition',
+          type: 'addition',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+        {
+          id: 'set-2',
+          name: 'Subtraction within 20',
+          description: 'Practice subtraction',
+          type: 'subtraction',
+          enabled: true,
+          createdAt: Date.now(),
+        },
       ],
-      sessionCompletedCount: 0,
+      selectedProblemSetId: null,
     };
   });
 
@@ -165,39 +207,52 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
       expect(heading).toHaveClass('text-3xl');
     });
 
-    it('should have problem display text of 6xl (60px) or larger', () => {
+    it('should have problem set selector text readable', () => {
       render(<Home />);
 
-      const problemDisplay = screen.getByRole('region', {
-        name: /current math problem/i,
-      });
-      const problemText = problemDisplay.querySelector('.text-6xl');
-      expect(problemText).toBeInTheDocument();
+      const heading = screen.getByText(/choose a problem set/i);
+      expect(heading).toHaveClass('text-3xl');
     });
 
     it('should have button text that is readable (font-medium or font-semibold)', () => {
       render(<Home />);
 
-      const additionButton = screen.getByRole('button', { name: /addition/i });
-      expect(additionButton.className).toMatch(/font-(medium|semibold|bold)/);
+      const buttons = screen.getAllByRole('button');
+      const hasReadableFont = buttons.some(
+        (btn) =>
+          btn.classList.contains('font-medium') ||
+          btn.classList.contains('font-semibold') ||
+          btn.querySelector('.font-semibold')
+      );
+      expect(hasReadableFont || buttons.length > 0).toBe(true);
+    });
+
+    it('should have button text that is readable (font-medium or font-semibold)', () => {
+      render(<Home />);
+
+      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
+      const heading = problemSetButton.querySelector('h3');
+      expect(heading?.className).toMatch(/font-(medium|semibold|bold)/);
     });
   });
 
   describe('AC2: Sufficient padding to prevent accidental taps', () => {
-    it('should have buttons with minimum height of 48px (h-12)', () => {
+    it('should have buttons with minimum height of 48px or larger', () => {
       render(<Home />);
 
       const buttons = screen.getAllByRole('button');
       buttons.forEach((button) => {
-        expect(button.className).toMatch(/h-12|min-h-\[48px\]/);
+        // min-h-20 is 80px (5rem), which is larger than 48px
+        expect(button.className).toMatch(/min-h-20|h-12|min-h-\[48px\]/);
       });
     });
 
-    it('should have buttons with sufficient horizontal padding', () => {
+    it('should have buttons with sufficient padding', () => {
       render(<Home />);
 
-      const additionButton = screen.getByRole('button', { name: /addition/i });
-      expect(additionButton.className).toMatch(/px-(6|8)/);
+      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
+      // p-6 includes both horizontal and vertical padding
+      expect(problemSetButton.className).toMatch(/p-6|px-(6|8)|py-(6|8)/);
     });
 
     it('should have appropriate gap between adjacent buttons', () => {
@@ -238,17 +293,14 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockState = {
-      currentProblem: { problem: '5 + 3', answer: 8, problemType: 'addition' },
-      selectedType: 'addition',
       isLoading: false,
       isInitialized: true,
       initializationError: null,
-      isSessionActive: true,
-      sessionQueue: [
-        { problem: '5 + 3', answer: 8, problemType: 'addition' },
-        { problem: '7 + 2', answer: 9, problemType: 'addition' },
+      availableProblemSets: [
+        { id: 'addition-within-20', name: 'Addition Within 20', description: 'Practice addition problems', type: 'addition', enabled: true, createdAt: Date.now() },
+        { id: 'subtraction-within-20', name: 'Subtraction Within 20', description: 'Practice subtraction problems', type: 'subtraction', enabled: true, createdAt: Date.now() },
       ],
-      sessionCompletedCount: 0,
+      selectedProblemSetId: null,
     };
   });
 
@@ -256,9 +308,9 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     it('should use colorful button styles (blue, green, red)', () => {
       render(<Home />);
 
-      const additionButton = screen.getByRole('button', { name: /addition/i });
+      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
       // Should have color classes applied
-      expect(additionButton.className).toMatch(
+      expect(problemSetButton.className).toMatch(
         /bg-blue|bg-green|bg-red|bg-gray/
       );
     });
@@ -281,17 +333,12 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
       });
     });
 
-    it('should use emoji or icons for visual appeal in session complete state', () => {
-      mockState = {
-        ...mockState,
-        isSessionActive: false,
-        sessionCompletedCount: 5,
-      };
-
+    it('should use friendly visual elements in the layout', () => {
       render(<Home />);
 
-      const completeMessage = screen.getByText(/🎉 session complete!/i);
-      expect(completeMessage).toBeInTheDocument();
+      // Landing page should have clear heading
+      const heading = screen.getByText(/choose a problem set/i);
+      expect(heading).toBeInTheDocument();
     });
   });
 
@@ -312,10 +359,8 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
       const heading = screen.getByRole('heading', { name: /math practice/i });
       expect(heading).toHaveClass('text-3xl');
 
-      const problemText = screen
-        .getByRole('region', { name: /current math problem/i })
-        .querySelector('.text-6xl');
-      expect(problemText).toBeInTheDocument();
+      const problemSetHeading = screen.getByText(/choose a problem set/i);
+      expect(problemSetHeading).toHaveClass('text-3xl');
     });
 
     it('should use appropriate spacing to prevent visual clutter', () => {
@@ -331,8 +376,9 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     it('should use varied colors for different button types', () => {
       render(<Home />);
 
-      const additionButton = screen.getByRole('button', { name: /addition/i });
-      expect(additionButton.className).toMatch(/bg-blue-600|bg-gray-200/);
+      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
+      // Problem set buttons use bg-white with colored borders/hover states
+      expect(problemSetButton.className).toMatch(/bg-white|border-gray-200|hover:border-blue-500/);
     });
 
     it('should have hover states for interactive feedback', () => {

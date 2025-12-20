@@ -24,6 +24,7 @@ export interface AppState {
   isSessionActive: boolean;
   sessionQueue: string[]; // Array of problem IDs in the session
   sessionCompletedCount: number;
+  selectedProblemSetId: string | null; // Currently selected problem set
 
   // UI State
   selectedType: string;
@@ -44,6 +45,7 @@ export interface AppActions {
   importProblemSet: (file: File) => Promise<void>;
   loadProblemSets: () => Promise<void>;
   toggleProblemSet: (id: string, enabled: boolean) => Promise<void>;
+  selectProblemSet: (problemSetId: string) => void;
 
   // Problem Actions
   loadNextProblem: () => Promise<void>;
@@ -81,6 +83,7 @@ const initialState: AppState = {
   isSessionActive: false,
   sessionQueue: [],
   sessionCompletedCount: 0,
+  selectedProblemSetId: null,
   selectedType: 'addition',
   availableProblemSets: [],
   isLoading: false,
@@ -276,15 +279,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const selectProblemSet = useCallback((problemSetId: string) => {
+    setState((prev) => ({
+      ...prev,
+      selectedProblemSetId: problemSetId,
+      recentProblemIds: [],
+      currentProblem: null,
+      // Reset session when selecting problem set
+      isSessionActive: false,
+      sessionQueue: [],
+      sessionCompletedCount: 0,
+      // Clear struggled problems cache
+      struggledProblems: [],
+    }));
+  }, []);
+
   const startNewSession = useCallback(async () => {
     try {
       setLoading(true);
 
       // Get current state from ref
-      const { selectedType } = stateRef.current;
+      const { selectedType, selectedProblemSetId } = stateRef.current;
 
-      // Generate session queue
-      const queue = await problemService.generateSessionQueue(selectedType);
+      // Generate session queue based on selected problem set or type
+      const queue = selectedProblemSetId
+        ? await problemService.generateSessionQueue(selectedProblemSetId, true)
+        : await problemService.generateSessionQueue(selectedType, false);
 
       // If no problems in queue, don't start session
       if (queue.length === 0) {
@@ -402,6 +422,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       importProblemSet,
       loadProblemSets,
       toggleProblemSet,
+      selectProblemSet,
       loadNextProblem,
       submitAnswer,
       setType,
@@ -417,6 +438,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       importProblemSet,
       loadProblemSets,
       toggleProblemSet,
+      selectProblemSet,
       loadNextProblem,
       submitAnswer,
       setType,

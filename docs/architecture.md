@@ -36,6 +36,23 @@
 - **Added 23 new tests** for session management, queue generation, progress tracking, and type switching
 - All Epic 4 acceptance criteria met and tested
 
+### Epic 5 Implementation - Problem Set Selection and Navigation (December 20, 2025) 🚧 IN PROGRESS
+
+- **Problem Set Selection Landing Page**: New landing page at "/" for selecting problem sets
+- **Routing Structure**:
+  - `/` - Landing page with ProblemSetSelector component
+  - `/practice` - Practice page (moved from previous main page)
+- **ProblemSetSelector Component**: Displays all available problem sets with selection capability
+- **ChangeProblemSetButton Component**: Allows navigation back to landing page
+- **Auto-Start Session**: Session starts automatically upon problem set selection
+- **Session Management Updates**:
+  - Added `selectedProblemSetId` to AppContext state
+  - Session queue filtered by selected problem set
+  - "Start New Session" restarts with same problem set
+  - "Change Problem Set" returns to landing page and clears session
+- **Removed TypeSelector Component**: Replaced by problem set selection on landing page
+- All Epic 5 acceptance criteria will be tested and validated
+
 ### Design Refinement - Streamlined User Flow (December 20, 2025)
 
 - **Removed NextProblemButton from main page**: Pass/Fail buttons now automatically load the next problem

@@ -1,16 +1,17 @@
 'use client';
 
 import { useApp } from '@/contexts';
-import { TypeSelector } from '@/components/TypeSelector';
-import { ProblemDisplay } from '@/components/ProblemDisplay';
-import { AnswerButtons } from '@/components/AnswerButtons';
-import { SummaryView } from '@/components/SummaryView';
-import { ResetDataButton } from '@/components/ResetDataButton';
-import { ProgressIndicator } from '@/components/ProgressIndicator';
-import { StartSessionButton } from '@/components/StartSessionButton';
+import { ProblemSetSelector } from '@/components/ProblemSetSelector';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const { state, actions } = useApp();
+  const router = useRouter();
+
+  const handleProblemSetSelect = (problemSetId: string) => {
+    actions.selectProblemSet(problemSetId);
+    router.push('/practice');
+  };
 
   if (state.initializationError) {
     return (
@@ -45,86 +46,12 @@ export default function Home() {
           Math Practice
         </h1>
 
-        <div className="flex justify-center">
-          <TypeSelector
-            selectedType={state.selectedType}
-            onChange={actions.setType}
-          />
-        </div>
-
-        {/* Session-based UI */}
-        {state.isSessionActive ? (
-          <>
-            {/* Progress Indicator */}
-            <ProgressIndicator
-              completed={state.sessionCompletedCount}
-              total={state.sessionQueue.length}
-            />
-
-            <ProblemDisplay problem={state.currentProblem} />
-
-            {state.currentProblem && (
-              <AnswerButtons
-                onPass={() => actions.submitAnswer('pass')}
-                onFail={() => actions.submitAnswer('fail')}
-                disabled={state.isLoading}
-              />
-            )}
-          </>
-        ) : (
-          <>
-            {/* Session Complete or Not Started */}
-            {state.sessionCompletedCount > 0 ? (
-              <div className="space-y-4 py-8 text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  🎉 Session Complete!
-                </div>
-                <p className="text-gray-600">
-                  You completed {state.sessionCompletedCount} problem
-                  {state.sessionCompletedCount !== 1 ? 's' : ''}
-                </p>
-                <StartSessionButton
-                  onStart={actions.startNewSession}
-                  disabled={state.isLoading}
-                />
-              </div>
-            ) : (
-              <div className="space-y-4 py-8 text-center">
-                <p className="text-gray-600">
-                  Start a new practice session to begin
-                </p>
-                <StartSessionButton
-                  onStart={actions.startNewSession}
-                  disabled={state.isLoading}
-                />
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="flex justify-center gap-4 border-t border-gray-200 pt-4">
-          <button
-            onClick={() => {
-              actions.loadStruggledProblems();
-              actions.toggleSummary();
-            }}
-            className="h-12 rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600"
-          >
-            View Summary
-          </button>
-          <ResetDataButton
-            onReset={actions.resetAllData}
-            selectedType={state.selectedType}
-          />
-        </div>
-      </div>
-
-      {state.showSummary && (
-        <SummaryView
-          problems={state.struggledProblems}
-          onClose={actions.toggleSummary}
+        <ProblemSetSelector
+          problemSets={state.availableProblemSets}
+          onSelect={handleProblemSetSelect}
+          disabled={state.isLoading}
         />
-      )}
+      </div>
     </main>
   );
 }
