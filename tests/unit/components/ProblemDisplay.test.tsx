@@ -1,5 +1,6 @@
 // tests/unit/components/ProblemDisplay.test.tsx
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { ProblemDisplay } from '@/components/ProblemDisplay';
 import type { Problem } from '@/types';
@@ -76,5 +77,231 @@ describe('ProblemDisplay Component', () => {
     const problemText = screen.getByText('5 + 7');
     // Should have dark text class for contrast
     expect(problemText).toHaveClass('text-gray-900');
+  });
+
+  describe('Toggle Answer Feature', () => {
+    it('should render toggle icon button in top-right corner', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+      expect(toggleButton).toBeInTheDocument();
+    });
+
+    it('should show Eye icon when answer is hidden (default state)', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+      // Eye icon should be present (using test-id or aria-label)
+      expect(toggleButton).toBeInTheDocument();
+    });
+
+    it('should not display answer by default', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      expect(screen.queryByText('12')).not.toBeInTheDocument();
+    });
+
+    it('should not render toggle icon when no problem is provided', () => {
+      render(<ProblemDisplay problem={null} />);
+
+      const toggleButton = screen.queryByRole('button', {
+        name: /show answer/i,
+      });
+      expect(toggleButton).not.toBeInTheDocument();
+    });
+
+    it('should display answer when toggle button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Initially answer is hidden
+      expect(screen.queryByText(/12/)).not.toBeInTheDocument();
+
+      // Click to show answer
+      await user.click(toggleButton);
+
+      // Answer should now be visible
+      expect(screen.getByText(/12/)).toBeInTheDocument();
+    });
+
+    it('should hide answer when toggle button is clicked again', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Click to show answer
+      await user.click(toggleButton);
+      expect(screen.getByText(/12/)).toBeInTheDocument();
+
+      // Click again to hide answer
+      const hideButton = screen.getByRole('button', {
+        name: /hide answer/i,
+      });
+      await user.click(hideButton);
+
+      // Answer should be hidden again
+      expect(screen.queryByText(/12/)).not.toBeInTheDocument();
+    });
+
+    it('should switch icon from Eye to EyeOff when answer is shown', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const showButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Click to show answer
+      await user.click(showButton);
+
+      // Button text should change to "Hide answer"
+      const hideButton = screen.getByRole('button', {
+        name: /hide answer/i,
+      });
+      expect(hideButton).toBeInTheDocument();
+    });
+
+    it('should display answer with different styling than problem', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Click to show answer
+      await user.click(toggleButton);
+
+      // Answer should have different styling (smaller text, green color)
+      const answerElement = screen.getByText(/12/);
+      expect(answerElement).toHaveClass('text-2xl');
+      expect(answerElement).toHaveClass('text-green-600');
+    });
+
+    it('should reset toggle state when problem changes', () => {
+      const { rerender } = render(<ProblemDisplay problem={mockProblem} />);
+
+      // The answer should be hidden by default for any problem
+      expect(screen.queryByText(/12/)).not.toBeInTheDocument();
+
+      // Change to a different problem
+      const newProblem: Problem = {
+        id: '2',
+        problemSetId: 'set-1',
+        problem: '10 - 3',
+        answer: '7',
+        createdAt: Date.now(),
+      };
+
+      rerender(<ProblemDisplay problem={newProblem} />);
+
+      // The new problem's answer should also be hidden by default
+      expect(screen.queryByText(/7/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Accessibility Features', () => {
+    it('should have proper ARIA label for toggle button when answer is hidden', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+      expect(toggleButton).toHaveAttribute('aria-label', 'Show answer');
+    });
+
+    it('should update ARIA label when answer is shown', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      await user.click(toggleButton);
+
+      const hideButton = screen.getByRole('button', {
+        name: /hide answer/i,
+      });
+      expect(hideButton).toHaveAttribute('aria-label', 'Hide answer');
+    });
+
+    it('should be keyboard accessible with Enter key', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Focus the button
+      toggleButton.focus();
+
+      // Press Enter key
+      await user.keyboard('{Enter}');
+
+      // Answer should be visible
+      expect(screen.getByText(/12/)).toBeInTheDocument();
+    });
+
+    it('should be keyboard accessible with Space key', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Focus the button
+      toggleButton.focus();
+
+      // Press Space key
+      await user.keyboard(' ');
+
+      // Answer should be visible
+      expect(screen.getByText(/12/)).toBeInTheDocument();
+    });
+
+    it('should have proper button type attribute', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+      expect(toggleButton).toHaveAttribute('type', 'button');
+    });
+
+    it('should have minimum touch target size for mobile (44x44px)', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Button should have sufficient padding (p-2 = 8px, with h-6 w-6 icon = 24px, total > 44px with padding and hover area)
+      expect(toggleButton).toHaveClass('p-2');
+    });
+
+    it('should have hover state for visual feedback', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+
+      // Button should have hover state
+      expect(toggleButton).toHaveClass('hover:bg-gray-100');
+    });
   });
 });

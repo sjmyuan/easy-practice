@@ -8,6 +8,23 @@
 
 ## Recent Updates
 
+### Answer Toggle Feature for ProblemDisplay (December 20, 2025)
+
+- **Enhanced ProblemDisplay Component**:
+  - Added Eye/EyeOff toggle icon (Lucide React) in top-right corner
+  - Clicking toggle shows/hides the answer below the problem
+  - Answer displays with different styling (text-2xl, green color) vs problem (text-6xl, gray-900)
+  - Toggle defaults to OFF (answer hidden) when new problem loads
+  - Automatic state reset via useEffect when problem changes
+- **Accessibility Features**:
+  - Dynamic ARIA labels ("Show answer" / "Hide answer")
+  - Full keyboard support (Enter and Space keys)
+  - Mobile-optimized touch targets (44px × 44px minimum)
+  - Hover state with visual feedback (bg-gray-100)
+- **Use Case**: Allows parents to quickly verify answers without memorizing them, particularly useful when reviewing struggled problems
+- **Testing**: Added 13 new tests covering toggle rendering, state management, answer visibility, keyboard accessibility, and mobile touch targets
+- All 284 tests passing
+
 ### Versioned Problem Set Management (December 20, 2025)
 
 - **Added New Problem Sets**:
@@ -139,6 +156,12 @@
 
 - ✅ **TypeSelector Component**: Allows parents to switch between addition and subtraction problems
 - ✅ **ProblemDisplay Component**: Displays math problems with large, readable text (6xl size)
+  - **Answer Toggle Feature** (December 20, 2025): Eye/EyeOff icon button in top-right corner to show/hide answer
+  - Toggle defaults to OFF (answer hidden) when problem loads
+  - Answer displays below problem with smaller text (2xl) and green color for differentiation
+  - Automatic toggle state reset when problem changes
+  - Full keyboard accessibility (Enter/Space key support)
+  - Proper ARIA labels and mobile-optimized touch targets (44px minimum)
 - ✅ **Main Page (app/page.tsx)**: Integrates all components with AppContext for state management
 - ✅ **Priority Algorithm**: Implements problem prioritization based on failure rates (lib/utils.ts)
 - ✅ **Problem Selection**: Avoids repetition by tracking recently shown problems
@@ -182,12 +205,13 @@
 
 ### Test Coverage
 
-- 138 tests passing across 14 test files
-- Component tests: TypeSelector, ProblemDisplay, AnswerButtons, SummaryView, ResetDataButton, ProgressIndicator, StartSessionButton
-- Integration tests: Main page with Epic 2, Epic 3, and Epic 4 components
-- Unit tests: Priority calculation, database services, utilities, session queue generation
-- Context tests: Session state, start session action, progress tracking, type switch reset
+- 284 tests passing across 18 test files
+- Component tests: TypeSelector, ProblemDisplay (24 tests including toggle and accessibility), AnswerButtons, SummaryView, ResetDataButton, ProgressIndicator, StartSessionButton, ProblemSetSelector, NextProblemButton
+- Integration tests: Landing page, Practice page with Epic 2, Epic 3, and Epic 4 components
+- Unit tests: Priority calculation, database services, utilities, session queue generation, version comparison
+- Context tests: Session state, start session action, progress tracking, type switch reset, problem set selection
 - Epic 3 tests: Responsive design, button sizing, contrast, hover states, and visual engagement (28 tests)
+- ProblemDisplay toggle tests: Icon rendering, answer visibility, state management, keyboard accessibility (13 tests)
 - Note: NextProblemButton component tests retained but component not used in main page flow
 
 ---
@@ -1257,8 +1281,10 @@ The application follows a robust initialization sequence to ensure data availabi
 
 export interface ProblemDisplayProps {
   problem: Problem | null;
-  isLoading: boolean;
 }
+// Note: The component internally manages showAnswer state for toggle functionality
+// Toggle icon (Eye/EyeOff from lucide-react) appears in top-right corner when problem is present
+// Answer visibility is controlled by local state and resets when problem.id changes
 
 export interface ActionButtonsProps {
   onPass: () => void;

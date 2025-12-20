@@ -4,6 +4,32 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 ## Design Decisions
 
+### Answer Toggle Feature (December 20, 2025)
+
+**Decision**: Added a toggle icon in the ProblemDisplay component to show/hide the answer on demand.
+
+**Rationale**:
+
+- Parents need a way to quickly verify answers without having to remember them or check separately
+- Particularly useful when reviewing previously struggled problems
+- Default hidden state maintains the existing workflow where parents verbally present problems to children
+- Toggle provides flexibility for different use cases (verification, self-paced learning, review sessions)
+
+**Implementation Details**:
+
+- Eye/EyeOff icon (Lucide React) positioned in top-right corner for easy access
+- Answer displays below the problem with differentiated styling (smaller text, green color)
+- Toggle state resets automatically when a new problem loads
+- Full keyboard accessibility (Enter/Space key support) and ARIA labels
+- Mobile-optimized touch targets (44px × 44px minimum)
+
+**Impact**:
+
+- Improved parent UX by eliminating need to mentally track or look up answers
+- Maintains existing practice workflow (answer hidden by default)
+- Enhanced accessibility with proper ARIA labels and keyboard support
+- Supports multiple use cases: verification during practice, reviewing struggled problems, or allowing child to self-check
+
 ### Streamlined Workflow (December 20, 2025)
 
 **Decision**: Removed the dedicated "Next Problem" button from the main interface.
