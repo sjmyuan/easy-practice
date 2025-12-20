@@ -481,8 +481,8 @@ describe('AppContext', () => {
       ];
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
-      problemsGetCall.mockImplementation(async (id: string) => {
-        return problems.find((p) => p.id === id) || null;
+      (problemsGetCall as any).mockImplementation(async (criteria: any) => {
+        return problems.find((p) => p.id === criteria) || null;
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -541,8 +541,8 @@ describe('AppContext', () => {
       ];
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3']);
-      problemsGetCall.mockImplementation(async (id: string) => {
-        return problems.find((p) => p.id === id) || null;
+      (problemsGetCall as any).mockImplementation(async (criteria: any) => {
+        return problems.find((p) => p.id === criteria) || null;
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -597,8 +597,8 @@ describe('AppContext', () => {
       ];
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
-      problemsGetCall.mockImplementation(async (id: string) => {
-        return problems.find((p) => p.id === id) || null;
+      (problemsGetCall as any).mockImplementation(async (criteria: any) => {
+        return problems.find((p) => p.id === criteria) || null;
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -1447,9 +1447,9 @@ describe('AppContext', () => {
       };
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
-      problemsGetCall.mockImplementation((id: string) => {
+      (problemsGetCall as any).mockImplementation((criteria: any) => {
         const problems = [problem1, problem2];
-        return Promise.resolve(problems.find((p) => p.id === id) || null);
+        return Promise.resolve(problems.find((p) => p.id === criteria) || null);
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -1499,9 +1499,9 @@ describe('AppContext', () => {
       };
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
-      problemsGetCall.mockImplementation((id: string) => {
+      (problemsGetCall as any).mockImplementation((criteria: any) => {
         const problems = [problem1, problem2];
-        return Promise.resolve(problems.find((p) => p.id === id) || null);
+        return Promise.resolve(problems.find((p) => p.id === criteria) || null);
       });
       recordAttemptCall.mockResolvedValue();
 
@@ -1556,9 +1556,9 @@ describe('AppContext', () => {
       };
 
       generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3']);
-      problemsGetCall.mockImplementation((id: string) => {
+      (problemsGetCall as any).mockImplementation((criteria: any) => {
         const problems = [problem1, problem2, problem3];
-        return Promise.resolve(problems.find((p) => p.id === id) || null);
+        return Promise.resolve(problems.find((p) => p.id === criteria) || null);
       });
       recordAttemptCall.mockResolvedValue();
 
