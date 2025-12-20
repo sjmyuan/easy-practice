@@ -283,44 +283,51 @@ describe('DatabaseService', () => {
     });
 
     it('should reset multiple problem sets of the same type', async () => {
-      // Setup: Create multiple problem sets of the same type
-      const additionSet1: ProblemSetJSON = {
+      // Setup: Create multiple problem sets of different types
+      const additionSet: ProblemSetJSON = {
         version: '1.0',
         problemSet: {
-          name: 'Addition Set 1',
+          name: 'Addition Set',
           problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
-        problems: [{ problem: '1 + 1', answer: '2' }],
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '2 + 2', answer: '4' },
+        ],
       };
 
-      const additionSet2: ProblemSetJSON = {
+      const subtractionSet: ProblemSetJSON = {
         version: '1.0',
         problemSet: {
-          name: 'Addition Set 2',
-          problemSetKey: 'addition-within-20',
-          difficulty: 'hard',
+          name: 'Subtraction Set',
+          problemSetKey: 'subtraction-within-20',
+          difficulty: 'easy',
         },
-        problems: [{ problem: '50 + 50', answer: '100' }],
+        problems: [{ problem: '5 - 3', answer: '2' }],
       };
 
-      await service.importProblemsFromJSON(additionSet1);
-      await service.importProblemsFromJSON(additionSet2);
+      await service.importProblemsFromJSON(additionSet);
+      await service.importProblemsFromJSON(subtractionSet);
 
       const allProblems = await db.problems.toArray();
-      expect(allProblems.length).toBe(2);
+      expect(allProblems.length).toBe(3);
 
-      // Record attempts for both
+      // Record attempts for all
       for (const problem of allProblems) {
         await service.recordAttempt(problem.id!, 'fail');
         await service.recordAttempt(problem.id!, 'fail');
       }
 
-      // Reset all addition problems
+      // Reset only addition problems
       await service.resetStatisticsByProblemSetKey('addition-within-20');
 
-      // Verify both problem sets' statistics are reset
-      for (const problem of allProblems) {
+      // Verify addition problem statistics are reset
+      const problemSets = await db.problemSets.toArray();
+      const additionSetId = problemSets.find(ps => ps.problemSetKey === 'addition-within-20')!.id!;
+      const additionProblems = await db.problems.where('problemSetId').equals(additionSetId).toArray();
+
+      for (const problem of additionProblems) {
         const stat = await db.statistics.get(problem.id!);
         expect(stat!.totalAttempts).toBe(0);
         expect(stat!.failCount).toBe(0);
@@ -330,6 +337,16 @@ describe('DatabaseService', () => {
           .equals(problem.id!)
           .toArray();
         expect(attempts.length).toBe(0);
+      }
+
+      // Verify subtraction statistics are NOT reset
+      const subtractionSetId = problemSets.find(ps => ps.problemSetKey === 'subtraction-within-20')!.id!;
+      const subtractionProblems = await db.problems.where('problemSetId').equals(subtractionSetId).toArray();
+
+      for (const problem of subtractionProblems) {
+        const stat = await db.statistics.get(problem.id!);
+        expect(stat!.totalAttempts).toBe(2);
+        expect(stat!.failCount).toBe(2);
       }
     });
   });
@@ -503,6 +520,234 @@ describe('DatabaseService', () => {
       const struggledProblems = await service.getStruggledProblems(20, 'subtraction-within-20');
 
       expect(struggledProblems.length).toBe(0);
+    });
+  });
+
+  describe('Version field storage', () => {
+    it('should store version field when importing problem set', async () => {
+      const problemSetData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'easy',
+        },
+        problems: [{ problem: '1 + 1', answer: '2' }],
+      };
+
+      await service.importProblemsFromJSON(problemSetData);
+
+      const problemSets = await db.problemSets.toArray();
+      expect(problemSets.length).toBe(1);
+      expect(problemSets[0].version).toBe('1.0');
+    });
+
+    it('should store version field for multiple problem sets', async () => {
+      const problemSetData: ProblemSetJSON = {
+        version: '2.0',
+        problemSets: [
+          {
+            name: 'Addition Set',
+            problemSetKey: 'addition-within-20',
+            difficulty: 'easy',
+            problems: [{ problem: '1 + 1', answer: '2' }],
+          },
+          {
+            name: 'Subtraction Set',
+            problemSetKey: 'subtraction-within-20',
+            difficulty: 'easy',
+            problems: [{ problem: '5 - 3', answer: '2' }],
+          },
+        ],
+      };
+
+      await service.importProblemsFromJSON(problemSetData);
+
+      const problemSets = await db.problemSets.toArray();
+      expect(problemSets.length).toBe(2);
+      expect(problemSets[0].version).toBe('2.0');
+      expect(problemSets[1].version).toBe('2.0');
+    });
+  });
+
+  describe('Versioned import logic', () => {
+    it('should not re-import problem set with same version', async () => {
+      const problemSetData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'easy',
+        },
+        problems: [{ problem: '1 + 1', "answer": '2' }],
+      };
+
+      // Import once
+      await service.importProblemsFromJSON(problemSetData);
+      const firstImport = await db.problemSets.toArray();
+      expect(firstImport.length).toBe(1);
+
+      // Try to import same version again
+      await service.importProblemsFromJSON(problemSetData);
+      const secondImport = await db.problemSets.toArray();
+      
+      // Should still have only one problem set
+      expect(secondImport.length).toBe(1);
+    });
+
+    it('should not import problem set with lower version', async () => {
+      const problemSetV2: ProblemSetJSON = {
+        version: '2.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'easy',
+        },
+        problems: [{ problem: '1 + 1', answer: '2' }],
+      };
+
+      const problemSetV1: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'easy',
+        },
+        problems: [{ problem: '2 + 2', answer: '4' }],
+      };
+
+      // Import version 2.0
+      await service.importProblemsFromJSON(problemSetV2);
+      const firstImport = await db.problemSets.toArray();
+      expect(firstImport.length).toBe(1);
+      expect(firstImport[0].version).toBe('2.0');
+
+      // Try to import version 1.0
+      await service.importProblemsFromJSON(problemSetV1);
+      const secondImport = await db.problemSets.toArray();
+
+      // Should still have only one problem set with version 2.0
+      expect(secondImport.length).toBe(1);
+      expect(secondImport[0].version).toBe('2.0');
+    });
+
+    it('should upgrade problem set when higher version is imported', async () => {
+      const problemSetV1: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '2 + 2', answer: '4' },
+        ],
+      };
+
+      const problemSetV2: ProblemSetJSON = {
+        version: '2.0',
+        problemSet: {
+          name: 'Test Set Updated',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'medium',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '3 + 3', answer: '6' },
+        ],
+      };
+
+      // Import version 1.0
+      await service.importProblemsFromJSON(problemSetV1);
+      const firstImport = await db.problemSets.toArray();
+      expect(firstImport.length).toBe(1);
+      expect(firstImport[0].version).toBe('1.0');
+      
+      const firstProblems = await db.problems.toArray();
+      expect(firstProblems.length).toBe(2);
+
+      // Import version 2.0
+      await service.importProblemsFromJSON(problemSetV2);
+      const secondImport = await db.problemSets.toArray();
+
+      // Should still have only one problem set, but updated
+      expect(secondImport.length).toBe(1);
+      expect(secondImport[0].version).toBe('2.0');
+      expect(secondImport[0].name).toBe('Test Set Updated');
+      expect(secondImport[0].difficulty).toBe('medium');
+
+      // Problems should be replaced
+      const secondProblems = await db.problems.toArray();
+      expect(secondProblems.length).toBe(2);
+      expect(secondProblems.map(p => p.problem)).toContain('1 + 1');
+      expect(secondProblems.map(p => p.problem)).toContain('3 + 3');
+      expect(secondProblems.map(p => p.problem)).not.toContain('2 + 2');
+    });
+
+    it('should preserve statistics for matching problems when upgrading', async () => {
+      const problemSetV1: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' },
+          { problem: '2 + 2', answer: '4' },
+        ],
+      };
+
+      // Import version 1.0
+      await service.importProblemsFromJSON(problemSetV1);
+      const problems = await db.problems.toArray();
+      const problem1 = problems.find(p => p.problem === '1 + 1');
+      const problem2 = problems.find(p => p.problem === '2 + 2');
+
+      // Record attempts for both problems
+      await service.recordAttempt(problem1!.id!, 'pass');
+      await service.recordAttempt(problem1!.id!, 'pass');
+      await service.recordAttempt(problem2!.id!, 'fail');
+
+      // Verify statistics before upgrade
+      const stats1Before = await db.statistics.get(problem1!.id!);
+      expect(stats1Before!.totalAttempts).toBe(2);
+      expect(stats1Before!.passCount).toBe(2);
+
+      // Import version 2.0 with same problem
+      const problemSetV2: ProblemSetJSON = {
+        version: '2.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'addition-within-20',
+          difficulty: 'easy',
+        },
+        problems: [
+          { problem: '1 + 1', answer: '2' }, // Same problem
+          { problem: '3 + 3', answer: '6' }, // New problem
+        ],
+      };
+
+      await service.importProblemsFromJSON(problemSetV2);
+
+      // Find the problem after upgrade
+      const problemsAfter = await db.problems.toArray();
+      const problem1After = problemsAfter.find(p => p.problem === '1 + 1');
+      const problem3After = problemsAfter.find(p => p.problem === '3 + 3');
+
+      // Statistics for '1 + 1' should be preserved
+      const stats1After = await db.statistics.get(problem1After!.id!);
+      expect(stats1After!.totalAttempts).toBe(2);
+      expect(stats1After!.passCount).toBe(2);
+
+      // Statistics for '3 + 3' should be new
+      const stats3After = await db.statistics.get(problem3After!.id!);
+      expect(stats3After!.totalAttempts).toBe(0);
+
+      // '2 + 2' should no longer exist
+      const problem2After = problemsAfter.find(p => p.problem === '2 + 2');
+      expect(problem2After).toBeUndefined();
     });
   });
 });

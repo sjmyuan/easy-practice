@@ -1,6 +1,6 @@
 // services/database.service.ts - Database operations
 import { db } from '@/lib/db';
-import { generateId, calculatePriority } from '@/lib/utils';
+import { generateId, calculatePriority, compareVersions } from '@/lib/utils';
 import type {
   ProblemSet,
   Problem,
@@ -12,7 +12,7 @@ import type {
 
 export class DatabaseService {
   /**
-   * Import problems from JSON data
+   * Import problems from JSON data with version checking
    */
   async importProblemsFromJSON(jsonData: ProblemSetJSON): Promise<void> {
     await db.transaction(
@@ -20,86 +20,199 @@ export class DatabaseService {
       db.problemSets,
       db.problems,
       db.statistics,
+      db.attempts,
       async () => {
         // Handle single problem set
         if (jsonData.problemSet && jsonData.problems) {
-          const problemSetId = generateId();
-
-          await db.problemSets.add({
-            id: problemSetId,
-            name: jsonData.problemSet.name,
-            description: jsonData.problemSet.description,
-            problemSetKey: jsonData.problemSet.problemSetKey,
-            difficulty: jsonData.problemSet.difficulty,
-            enabled: true,
-            createdAt: Date.now(),
-            metadata: jsonData.problemSet.metadata,
-          });
-
-          for (const p of jsonData.problems) {
-            const problemId = generateId();
-            await db.problems.add({
-              id: problemId,
-              problemSetId: problemSetId,
-              problem: p.problem,
-              answer: p.answer,
-              createdAt: Date.now(),
-            });
-
-            await db.statistics.add({
-              problemId: problemId,
-              totalAttempts: 0,
-              passCount: 0,
-              failCount: 0,
-              lastAttemptedAt: null,
-              lastResult: null,
-              failureRate: 0,
-              priority: 50,
-            });
-          }
+          await this.importSingleProblemSet(
+            jsonData.problemSet,
+            jsonData.problems,
+            jsonData.version
+          );
         }
 
         // Handle multiple problem sets
         if (jsonData.problemSets) {
           for (const ps of jsonData.problemSets) {
-            const problemSetId = generateId();
-
-            await db.problemSets.add({
-              id: problemSetId,
-              name: ps.name,
-              description: ps.description,
-              problemSetKey: ps.problemSetKey,
-              difficulty: ps.difficulty,
-              enabled: true,
-              createdAt: Date.now(),
-              metadata: ps.metadata,
-            });
-
-            for (const p of ps.problems) {
-              const problemId = generateId();
-              await db.problems.add({
-                id: problemId,
-                problemSetId: problemSetId,
-                problem: p.problem,
-                answer: p.answer,
-                createdAt: Date.now(),
-              });
-
-              await db.statistics.add({
-                problemId: problemId,
-                totalAttempts: 0,
-                passCount: 0,
-                failCount: 0,
-                lastAttemptedAt: null,
-                lastResult: null,
-                failureRate: 0,
-                priority: 50,
-              });
-            }
+            await this.importSingleProblemSet(ps, ps.problems, jsonData.version);
           }
         }
       }
     );
+  }
+
+  /**
+   * Import a single problem set with version checking
+   */
+  private async importSingleProblemSet(
+    problemSetData: {
+      name: string;
+      description?: string;
+      problemSetKey: string;
+      difficulty?: string;
+      metadata?: Record<string, unknown>;
+    },
+    problems: Array<{ problem: string; answer: string }>,
+    version: string
+  ): Promise<void> {
+    // Check if problem set already exists
+    const existing = await db.problemSets
+      .where('problemSetKey')
+      .equals(problemSetData.problemSetKey)
+      .first();
+
+    // If exists, check version
+    if (existing) {
+      const versionComparison = compareVersions(version, existing.version);
+      
+      // Skip if same version or lower version
+      if (versionComparison <= 0) {
+        return;
+      }
+
+      // Upgrade: Replace old problem set with new one
+      await this.upgradeProblemSet(existing.id!, problemSetData, problems, version);
+    } else {
+      // New problem set: Add it
+      await this.addNewProblemSet(problemSetData, problems, version);
+    }
+  }
+
+  /**
+   * Add a new problem set
+   */
+  private async addNewProblemSet(
+    problemSetData: {
+      name: string;
+      description?: string;
+      problemSetKey: string;
+      difficulty?: string;
+      metadata?: Record<string, unknown>;
+    },
+    problems: Array<{ problem: string; answer: string }>,
+    version: string
+  ): Promise<void> {
+    const problemSetId = generateId();
+
+    await db.problemSets.add({
+      id: problemSetId,
+      name: problemSetData.name,
+      description: problemSetData.description,
+      problemSetKey: problemSetData.problemSetKey,
+      difficulty: problemSetData.difficulty,
+      enabled: true,
+      version: version,
+      createdAt: Date.now(),
+      metadata: problemSetData.metadata,
+    });
+
+    for (const p of problems) {
+      const problemId = generateId();
+      await db.problems.add({
+        id: problemId,
+        problemSetId: problemSetId,
+        problem: p.problem,
+        answer: p.answer,
+        createdAt: Date.now(),
+      });
+
+      await db.statistics.add({
+        problemId: problemId,
+        totalAttempts: 0,
+        passCount: 0,
+        failCount: 0,
+        lastAttemptedAt: null,
+        lastResult: null,
+        failureRate: 0,
+        priority: 50,
+      });
+    }
+  }
+
+  /**
+   * Upgrade an existing problem set
+   */
+  private async upgradeProblemSet(
+    problemSetId: string,
+    problemSetData: {
+      name: string;
+      description?: string;
+      problemSetKey: string;
+      difficulty?: string;
+      metadata?: Record<string, unknown>;
+    },
+    newProblems: Array<{ problem: string; answer: string }>,
+    version: string
+  ): Promise<void> {
+    // Get existing problems
+    const existingProblems = await db.problems
+      .where('problemSetId')
+      .equals(problemSetId)
+      .toArray();
+
+    // Build a map of existing statistics by problem+answer
+    const existingStatsMap = new Map<string, ProblemStatistics>();
+    for (const problem of existingProblems) {
+      const key = `${problem.problem}|${problem.answer}`;
+      const stats = await db.statistics.get(problem.id!);
+      if (stats) {
+        existingStatsMap.set(key, stats);
+      }
+    }
+
+    // Delete old problems, attempts, and statistics
+    for (const problem of existingProblems) {
+      if (problem.id) {
+        await db.statistics.delete(problem.id);
+        await db.attempts.where('problemId').equals(problem.id).delete();
+        await db.problems.delete(problem.id);
+      }
+    }
+
+    // Update problem set metadata
+    await db.problemSets.update(problemSetId, {
+      name: problemSetData.name,
+      description: problemSetData.description,
+      difficulty: problemSetData.difficulty,
+      version: version,
+      metadata: problemSetData.metadata,
+    });
+
+    // Add new problems
+    for (const p of newProblems) {
+      const problemId = generateId();
+      await db.problems.add({
+        id: problemId,
+        problemSetId: problemSetId,
+        problem: p.problem,
+        answer: p.answer,
+        createdAt: Date.now(),
+      });
+
+      // Check if this problem existed before
+      const key = `${p.problem}|${p.answer}`;
+      const oldStats = existingStatsMap.get(key);
+
+      if (oldStats) {
+        // Preserve old statistics
+        await db.statistics.add({
+          ...oldStats,
+          problemId: problemId,
+        });
+      } else {
+        // Create new statistics
+        await db.statistics.add({
+          problemId: problemId,
+          totalAttempts: 0,
+          passCount: 0,
+          failCount: 0,
+          lastAttemptedAt: null,
+          lastResult: null,
+          failureRate: 0,
+          priority: 50,
+        });
+      }
+    }
   }
 
   /**

@@ -20,8 +20,3 @@ export const DEFAULT_PRIORITY = 50;
 export const MASTERY_THRESHOLD = 3; // Number of passes to consider mastered
 export const RECENT_PROBLEMS_LIMIT = 5; // How many recent problems to exclude
 export const TOP_PROBLEMS_POOL = 10; // Select from top N priority problems
-
-export const PROBLEM_SET_PATHS = {
-  ADDITION: '/problem-sets/addition-within-20.json',
-  SUBTRACTION: '/problem-sets/subtraction-within-20.json',
-} as const;

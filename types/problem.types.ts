@@ -6,6 +6,7 @@ export interface ProblemSet {
   problemSetKey: string;
   difficulty?: string;
   enabled: boolean;
+  version?: string;
   createdAt: number; // timestamp
   metadata?: Record<string, unknown>;
 }
@@ -73,4 +74,17 @@ export interface ProblemSetJSON {
     problem: string;
     answer: string;
   }>;
+}
+
+// Manifest Format
+export interface ProblemSetManifestEntry {
+  problemSetKey: string;
+  version: string;
+  path: string;
+  name: string;
+  description?: string;
+}
+
+export interface ProblemSetManifest {
+  problemSets: ProblemSetManifestEntry[];
 }

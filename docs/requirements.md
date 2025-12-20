@@ -265,6 +265,55 @@ As a busy parent, I want to quickly restart a new session with the same problem 
 - Given I start a new session with the same set, when problems are loaded, then they should be generated using the updated performance data from the previous session.
 - Given I start a new session, when viewing the practice page, then the progress indicator should reset to show the new session's progress (e.g., "1 / 15").
 
+### Feature: Versioned Problem Set Management ✅ COMPLETED
+
+[System/Developers] want automatic problem set discovery and version management so that new problem sets can be added easily and updates can be deployed without data loss.
+
+#### User Story 1: Manifest-Based Problem Set Discovery ✅ COMPLETED
+
+As a system, I want to automatically discover all available problem sets from a manifest file so that new sets can be added without code changes.
+
+##### Acceptance Criteria:
+
+- ✅ Given the app initializes, when loading problem sets, then it should read from `/public/problem-sets/manifest.json`.
+- ✅ Given the manifest lists problem sets, when loading, then the system should fetch and import each problem set from its specified path.
+- ✅ Given a problem set file is missing or fails to load, when loading other sets, then the system should continue loading remaining sets gracefully.
+- ✅ Given all problem sets are loaded, when displayed in the selector, then only successfully loaded sets should be available.
+
+#### User Story 2: Version-Based Import Control ✅ COMPLETED
+
+As a system, I want to check problem set versions before importing so that I can prevent duplicate imports and ensure only newer versions are loaded.
+
+##### Acceptance Criteria:
+
+- ✅ Given a problem set is being imported, when checking for existing data, then the system should compare version numbers using semantic versioning.
+- ✅ Given a problem set with the same version exists, when attempting import, then the system should skip the import.
+- ✅ Given a problem set with a lower version is being imported, when checking versions, then the system should skip the import.
+- ✅ Given a problem set with a higher version is being imported, when checking versions, then the system should proceed with the upgrade.
+
+#### User Story 3: Smart Problem Set Upgrades ✅ COMPLETED
+
+As a system, I want to preserve user statistics for matching problems during upgrades so that progress is not lost when problem sets are updated.
+
+##### Acceptance Criteria:
+
+- ✅ Given a problem set upgrade is detected, when replacing problems, then all old problems should be deleted along with their attempts.
+- ✅ Given new problems are being added, when checking for matches, then problems with identical text and answer should preserve their statistics.
+- ✅ Given a problem exists in both old and new versions, when upgrading, then the statistics (attempts, passes, fails, priority) should carry over.
+- ✅ Given new problems are added that don't match old ones, when importing, then they should receive fresh statistics (0 attempts, default priority).
+- ✅ Given old problems are removed in the new version, when upgrading, then their statistics should be deleted permanently.
+
+#### User Story 4: Extended Problem Set Library ✅ COMPLETED
+
+As a busy parent, I want additional problem sets for simpler problems so that I can choose age-appropriate difficulty for my child.
+
+##### Acceptance Criteria:
+
+- ✅ Given the app loads, when viewing problem sets, then I should see "Addition within 10" as an option.
+- ✅ Given the app loads, when viewing problem sets, then I should see "Subtraction within 10" as an option.
+- ✅ Given I select "Addition within 10", when practicing, then all addition problems should have sums from 0 to 10.
+- ✅ Given I select "Subtraction within 10", when practicing, then all subtraction problems should have minuends from 0 to 10 with non-negative results.
+
 ## Dependencies/Risks
 
 - Dependency: Local data storage (e.g., browser localStorage or IndexedDB) is required for saving performance data.

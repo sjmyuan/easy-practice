@@ -78,3 +78,27 @@ export function formatDuration(milliseconds: number): string {
   
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
+
+/**
+ * Compare two semantic version strings
+ * @returns 1 if version1 > version2, -1 if version1 < version2, 0 if equal
+ */
+export function compareVersions(version1: string | undefined, version2: string | undefined): number {
+  if (version1 === undefined && version2 === undefined) return 0;
+  if (version1 === undefined) return -1;
+  if (version2 === undefined) return 1;
+
+  const v1Parts = version1.split('.').map(Number);
+  const v2Parts = version2.split('.').map(Number);
+  const maxLength = Math.max(v1Parts.length, v2Parts.length);
+
+  for (let i = 0; i < maxLength; i++) {
+    const v1Part = v1Parts[i] || 0;
+    const v2Part = v2Parts[i] || 0;
+
+    if (v1Part > v2Part) return 1;
+    if (v1Part < v2Part) return -1;
+  }
+
+  return 0;
+}

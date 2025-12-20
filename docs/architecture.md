@@ -8,6 +8,35 @@
 
 ## Recent Updates
 
+### Versioned Problem Set Management (December 20, 2025)
+
+- **Added New Problem Sets**:
+  - `addition-within-10.json` (66 problems: sums 0-10)
+  - `subtraction-within-10.json` (66 problems: minuends 0-10)
+- **Manifest-Based Problem Set Discovery**:
+  - Created `/public/problem-sets/manifest.json` listing all problem sets with versions and paths
+  - App auto-discovers problem sets from manifest instead of hardcoded paths
+  - Removed hardcoded `PROBLEM_SET_PATHS` constant
+- **Versioned Import Logic**:
+  - Added `version` field to `ProblemSet` type
+  - Implemented `compareVersions()` utility for semantic version comparison
+  - Problem sets only import/upgrade if version is higher than existing
+  - Version checking prevents duplicate imports and accidental downgrades
+- **Smart Problem Set Upgrades**:
+  - When upgrading (higher version detected), old problems are replaced with new ones
+  - Statistics preserved for matching problems (same problem text and answer)
+  - New problems get fresh statistics
+  - Removed problems lose their statistics
+- **Enhanced Problem Service**:
+  - Added `loadManifest()` method to fetch problem set manifest
+  - Updated `loadDefaultProblemSets()` to iterate through manifest entries
+  - Graceful error handling: continues loading other sets if one fails
+- **Type Definitions**:
+  - Added `ProblemSetManifest` and `ProblemSetManifestEntry` types
+  - Updated `ProblemSet` interface with optional `version` field
+- **Complete Test Coverage**: Added 23 new tests covering version comparison, manifest loading, and versioned import scenarios
+- All functionality tested and validated with 256 passing tests
+
 ### Epic 3 Implementation - Mobile-First Design (December 20, 2025)
 
 - **Enhanced Button Styling for Mobile**: All buttons now use consistent h-12 height (48px minimum) for easy tapping on mobile devices

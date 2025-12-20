@@ -366,4 +366,39 @@ describe('ProblemService - Session Queue Generation', () => {
       expect(queue).toEqual([]);
     });
   });
+
+  describe('loadManifest', () => {
+    it('should fetch and parse manifest file', async () => {
+      const mockManifest = {
+        problemSets: [
+          {
+            problemSetKey: 'addition-within-20',
+            version: '1.0',
+            path: '/problem-sets/addition-within-20.json',
+            name: 'Addition within 20',
+            description: 'Practice addition with sums up to 20',
+          },
+        ],
+      };
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockManifest,
+      });
+
+      const manifest = await problemService.loadManifest();
+
+      expect(manifest).toEqual(mockManifest);
+      expect(global.fetch).toHaveBeenCalledWith('/problem-sets/manifest.json');
+    });
+
+    it('should throw error when manifest fetch fails', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      });
+
+      await expect(problemService.loadManifest()).rejects.toThrow('Failed to load manifest');
+    });
+  });
 });

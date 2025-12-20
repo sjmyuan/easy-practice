@@ -1,0 +1,32 @@
+{
+  "problemSets": [
+    {
+      "problemSetKey": "addition-within-10",
+      "version": "1.0",
+      "path": "/problem-sets/addition-within-10.json",
+      "name": "Addition within 10",
+      "description": "Practice addition with sums up to 10"
+    },
+    {
+      "problemSetKey": "addition-within-20",
+      "version": "1.0",
+      "path": "/problem-sets/addition-within-20.json",
+      "name": "Addition within 20",
+      "description": "Practice addition with sums up to 20"
+    },
+    {
+      "problemSetKey": "subtraction-within-10",
+      "version": "1.0",
+      "path": "/problem-sets/subtraction-within-10.json",
+      "name": "Subtraction within 10",
+      "description": "Practice subtraction with minuends up to 10 and non-negative results"
+    },
+    {
+      "problemSetKey": "subtraction-within-20",
+      "version": "1.0",
+      "path": "/problem-sets/subtraction-within-20.json",
+      "name": "Subtraction within 20",
+      "description": "Practice subtraction with minuends up to 20 and non-negative results"
+    }
+  ]
+}

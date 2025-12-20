@@ -1,14 +1,29 @@
 // services/problem.service.ts - Problem selection and management
 import { db } from '@/lib/db';
 import { databaseService } from './database.service';
-import type { Problem, ProblemSetJSON } from '@/types';
+import type { Problem, ProblemSetJSON, ProblemSetManifest } from '@/types';
 import {
   RECENT_PROBLEMS_LIMIT,
   TOP_PROBLEMS_POOL,
-  PROBLEM_SET_PATHS,
 } from '@/lib/constants';
 
 export class ProblemService {
+  /**
+   * Load manifest file listing all available problem sets
+   */
+  async loadManifest(): Promise<ProblemSetManifest> {
+    try {
+      const response = await fetch('/problem-sets/manifest.json');
+      if (!response.ok) {
+        throw new Error(`Failed to load manifest: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to load manifest:', error);
+      throw new Error('Failed to load manifest');
+    }
+  }
+
   /**
    * Load problem set from file
    */
@@ -19,17 +34,28 @@ export class ProblemService {
   }
 
   /**
-   * Load default problem sets from public folder
+   * Load default problem sets from public folder using manifest
    */
   async loadDefaultProblemSets(): Promise<void> {
     try {
-      const additionResponse = await fetch(PROBLEM_SET_PATHS.ADDITION);
-      const additionData: ProblemSetJSON = await additionResponse.json();
-      await databaseService.importProblemsFromJSON(additionData);
+      // Load manifest
+      const manifest = await this.loadManifest();
 
-      const subtractionResponse = await fetch(PROBLEM_SET_PATHS.SUBTRACTION);
-      const subtractionData: ProblemSetJSON = await subtractionResponse.json();
-      await databaseService.importProblemsFromJSON(subtractionData);
+      // Import each problem set from manifest
+      for (const entry of manifest.problemSets) {
+        try {
+          const response = await fetch(entry.path);
+          if (!response.ok) {
+            console.warn(`Failed to load problem set from ${entry.path}: ${response.status}`);
+            continue;
+          }
+          const jsonData: ProblemSetJSON = await response.json();
+          await databaseService.importProblemsFromJSON(jsonData);
+        } catch (error) {
+          console.error(`Error loading problem set ${entry.name}:`, error);
+          // Continue with other problem sets even if one fails
+        }
+      }
     } catch (error) {
       console.error('Failed to load default problem sets:', error);
       throw new Error('Failed to initialize problem sets');
