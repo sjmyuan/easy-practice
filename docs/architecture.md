@@ -1,9 +1,26 @@
 # Software Architecture Design Document
 ## Math Practice App for Parents
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Date:** December 20, 2025  
-**Status:** Final
+**Status:** In Progress - Epic 1 Completed
+
+## Implementation Status
+
+### Completed Features (Epic 1: Parent-Focused Problem Generator)
+- ✅ **TypeSelector Component**: Allows parents to switch between addition and subtraction problems
+- ✅ **ProblemDisplay Component**: Displays math problems with large, readable text (6xl size)
+- ✅ **NextProblemButton Component**: Triggers loading of new problems with loading states
+- ✅ **Main Page (app/page.tsx)**: Integrates all components with AppContext for state management
+- ✅ **Priority Algorithm**: Implements problem prioritization based on failure rates (lib/utils.ts)
+- ✅ **Problem Selection**: Avoids repetition by tracking recently shown problems
+- ✅ **Responsive Design**: Mobile-first layout with proper touch targets (48px minimum height)
+
+### Test Coverage
+- 34 tests passing across 6 test files
+- Component tests: TypeSelector, ProblemDisplay, NextProblemButton
+- Integration tests: Main page rendering and interaction
+- Unit tests: Priority calculation, database services, utilities
 
 ---
 

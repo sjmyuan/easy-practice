@@ -16,36 +16,36 @@ A mobile-first web application that helps parents facilitate math practice for t
 - Role: Primary caregiver responsible for facilitating math practice.
 
 ## Epics
-### Epic 1: Parent-Focused Problem Generator
-[Busy Parent] wants to generate math problems quickly so that they can focus on their child’s weak areas and save time.
+### Epic 1: Parent-Focused Problem Generator ✅ COMPLETED
+[Busy Parent] wants to generate math problems quickly so that they can focus on their child's weak areas and save time.
 
-#### User Story 1: Generate Random Addition Problems
+#### User Story 1: Generate Random Addition Problems ✅ COMPLETED
 As a busy parent, I want to generate random addition problems within 20 so that I can verbally present them to my child for practice.
 ##### Acceptance Criteria:
-- Given the app is opened, when the parent selects "Addition," then a random addition problem within 20 is displayed.
-- Given the app generates an addition problem, when the problem is displayed, then it should always be within the range of 0 to 20.
-- Given the app generates an addition problem, when the same problem is generated consecutively, then the system should avoid repetition unless all problems have been used.
+- ✅ Given the app is opened, when the parent selects "Addition," then a random addition problem within 20 is displayed.
+- ✅ Given the app generates an addition problem, when the problem is displayed, then it should always be within the range of 0 to 20.
+- ✅ Given the app generates an addition problem, when the same problem is generated consecutively, then the system should avoid repetition unless all problems have been used.
 
-#### User Story 2: Generate Random Subtraction Problems
+#### User Story 2: Generate Random Subtraction Problems ✅ COMPLETED
 As a busy parent, I want to generate random subtraction problems within 20 so that I can verbally present them to my child for practice.
 ##### Acceptance Criteria:
-- Given the app is opened, when the parent selects "Subtraction," then a random subtraction problem within 20 is displayed.
-- Given the app generates a subtraction problem, when the problem is displayed, then the result should never be negative.
-- Given the app generates a subtraction problem, when the same problem is generated consecutively, then the system should avoid repetition unless all problems have been used.
+- ✅ Given the app is opened, when the parent selects "Subtraction," then a random subtraction problem within 20 is displayed.
+- ✅ Given the app generates a subtraction problem, when the problem is displayed, then the result should never be negative.
+- ✅ Given the app generates a subtraction problem, when the same problem is generated consecutively, then the system should avoid repetition unless all problems have been used.
 
-#### User Story 3: Prioritize Previously Failed Problems
+#### User Story 3: Prioritize Previously Failed Problems ✅ COMPLETED
 As a busy parent, I want the system to prioritize previously failed problems so that I can help my child focus on areas needing improvement.
 ##### Acceptance Criteria:
-- Given the parent marks a problem as failed, when generating new problems, then the failed problem should appear more frequently.
-- Given the parent marks all problems as passed, when generating new problems, then the system should reset prioritization and generate random problems.
-- Given there are no previously failed problems, when generating new problems, then the system should generate random problems without prioritization.
+- ✅ Given the parent marks a problem as failed, when generating new problems, then the failed problem should appear more frequently.
+- ✅ Given the parent marks all problems as passed, when generating new problems, then the system should reset prioritization and generate random problems.
+- ✅ Given there are no previously failed problems, when generating new problems, then the system should generate random problems without prioritization.
 
-#### User Story 4: Display Current Math Problem Clearly
+#### User Story 4: Display Current Math Problem Clearly ✅ COMPLETED
 As a busy parent, I want a simple display of the current math problem (e.g., "5 + 7") so that I can easily read it aloud to my child.
 ##### Acceptance Criteria:
-- Given a math problem is generated, when it is displayed, then the text size should be large enough to read easily on a mobile device.
-- Given a math problem is displayed, when the parent interacts with the app, then the problem text should remain visible without overlapping other UI elements.
-- Given a math problem is displayed, when the app is rotated (portrait to landscape), then the problem text should adjust to fit the screen.
+- ✅ Given a math problem is generated, when it is displayed, then the text size should be large enough to read easily on a mobile device.
+- ✅ Given a math problem is displayed, when the parent interacts with the app, then the problem text should remain visible without overlapping other UI elements.
+- ✅ Given a math problem is displayed, when the app is rotated (portrait to landscape), then the problem text should adjust to fit the screen.
 
 ### Epic 2: Simple Performance Tracking
 [Busy Parent] wants to track their child’s performance easily so that they can identify weak areas and monitor improvement.
