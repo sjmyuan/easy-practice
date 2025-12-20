@@ -196,7 +196,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons - P
     it('should have heading text of 3xl (30px) or larger', () => {
       render(<PracticePage />);
 
-      const heading = screen.getByRole('heading', { level: 1 });
+      const heading = screen.getByRole('button', { name: /return to landing page/i });
       expect(heading).toHaveClass('text-3xl');
     });
 
@@ -254,7 +254,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons - P
     it('should use high contrast colors for primary text', () => {
       render(<PracticePage />);
 
-      const heading = screen.getByRole('heading', { level: 1 });
+      const heading = screen.getByRole('button', { name: /return to landing page/i });
       expect(heading).toHaveClass('text-gray-900');
     });
 
@@ -351,7 +351,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
     it('should maintain clear visual hierarchy with font sizes', () => {
       render(<PracticePage />);
 
-      const heading = screen.getByRole('heading', { level: 1 });
+      const heading = screen.getByRole('button', { name: /return to landing page/i });
       expect(heading).toHaveClass('text-3xl');
 
       const problemText = screen.getByText('5 + 3');

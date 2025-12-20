@@ -83,9 +83,13 @@ export default function PracticePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-center text-3xl font-bold text-gray-900">
+        <button
+          onClick={handleChangeProblemSet}
+          className="w-full text-center text-3xl font-bold text-gray-900 transition-colors hover:text-blue-600"
+          aria-label="Return to landing page"
+        >
           Math Practice
-        </h1>
+        </button>
 
         {/* Session-based UI */}
         {state.isSessionActive ? (
@@ -105,16 +109,6 @@ export default function PracticePage() {
                 disabled={state.isLoading}
               />
             )}
-
-            {/* Change Problem Set button during session */}
-            <div className="flex justify-center border-t border-gray-200 pt-4">
-              <button
-                onClick={handleChangeProblemSet}
-                className="h-12 rounded-lg bg-gray-500 px-6 font-medium text-white transition-colors hover:bg-gray-600"
-              >
-                Change Problem Set
-              </button>
-            </div>
           </>
         ) : (
           <>
@@ -128,18 +122,6 @@ export default function PracticePage() {
                   You completed {state.sessionCompletedCount} problem
                   {state.sessionCompletedCount !== 1 ? 's' : ''}
                 </p>
-                <div className="flex justify-center gap-4">
-                  <StartSessionButton
-                    onStart={actions.startNewSession}
-                    disabled={state.isLoading}
-                  />
-                  <button
-                    onClick={handleChangeProblemSet}
-                    className="h-12 rounded-lg bg-gray-500 px-8 font-semibold text-white transition-colors hover:bg-gray-600"
-                  >
-                    Change Problem Set
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="space-y-4 py-8 text-center">

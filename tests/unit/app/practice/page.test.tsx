@@ -190,7 +190,7 @@ describe('Practice Page', () => {
     expect(screen.getByText(/you completed 5 problems/i)).toBeInTheDocument();
   });
 
-  it('should have Change Problem Set button during session', () => {
+  it('should have clickable Math Practice heading that navigates to landing', () => {
     mockState = {
       ...mockState,
       isSessionActive: true,
@@ -206,20 +206,9 @@ describe('Practice Page', () => {
 
     render(<PracticePage />);
 
-    expect(screen.getByText(/change problem set/i)).toBeInTheDocument();
-  });
-
-  it('should have Change Problem Set button after session complete', () => {
-    mockState = {
-      ...mockState,
-      isSessionActive: false,
-      sessionCompletedCount: 5,
-    };
-
-    render(<PracticePage />);
-
-    const changeButtons = screen.getAllByText(/change problem set/i);
-    expect(changeButtons.length).toBeGreaterThan(0);
+    const heading = screen.getByRole('button', { name: /return to landing page/i });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveTextContent('Math Practice');
   });
 
   it('should be responsive on mobile viewports', () => {
