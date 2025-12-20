@@ -97,7 +97,7 @@ describe('Practice Page', () => {
   it('should render the practice page', () => {
     render(<PracticePage />);
 
-    expect(screen.getByText(/math practice/i)).toBeInTheDocument();
+    expect(screen.getByText(/easy practice/i)).toBeInTheDocument();
   });
 
   it('should redirect to landing if no problem set selected', async () => {
@@ -185,7 +185,7 @@ describe('Practice Page', () => {
     expect(screen.getByText(/session complete/i)).toBeInTheDocument();
   });
 
-  it('should have clickable Math Practice heading that navigates to landing', () => {
+  it('should have clickable Easy Practice heading that navigates to landing', () => {
     mockState = {
       ...mockState,
       isSessionActive: true,
@@ -201,9 +201,11 @@ describe('Practice Page', () => {
 
     render(<PracticePage />);
 
-    const heading = screen.getByRole('button', { name: /return to landing page/i });
+    const heading = screen.getByRole('button', {
+      name: /return to landing page/i,
+    });
     expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Math Practice');
+    expect(heading).toHaveTextContent('Easy Practice');
   });
 
   it('should display selected problem set name as page title', () => {
@@ -225,7 +227,9 @@ describe('Practice Page', () => {
 
     render(<PracticePage />);
 
-    const heading = screen.getByRole('button', { name: /return to landing page/i });
+    const heading = screen.getByRole('button', {
+      name: /return to landing page/i,
+    });
     expect(heading).toHaveTextContent('Addition within 10');
   });
 

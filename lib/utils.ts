@@ -75,7 +75,7 @@ export function formatDuration(milliseconds: number): string {
   const seconds = totalSeconds % 60;
 
   const pad = (num: number) => num.toString().padStart(2, '0');
-  
+
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
@@ -83,7 +83,10 @@ export function formatDuration(milliseconds: number): string {
  * Compare two semantic version strings
  * @returns 1 if version1 > version2, -1 if version1 < version2, 0 if equal
  */
-export function compareVersions(version1: string | undefined, version2: string | undefined): number {
+export function compareVersions(
+  version1: string | undefined,
+  version2: string | undefined
+): number {
   if (version1 === undefined && version2 === undefined) return 0;
   if (version1 === undefined) return -1;
   if (version2 === undefined) return 1;

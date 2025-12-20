@@ -8,7 +8,10 @@ interface TypeSelectorProps {
   onChange: (problemSetKey: string) => void;
 }
 
-export function TypeSelector({ selectedProblemSetKey, onChange }: TypeSelectorProps) {
+export function TypeSelector({
+  selectedProblemSetKey,
+  onChange,
+}: TypeSelectorProps) {
   const handleClick = (problemSetKey: string) => {
     if (problemSetKey !== selectedProblemSetKey) {
       onChange(problemSetKey);

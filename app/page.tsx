@@ -43,7 +43,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
         <h1 className="text-center text-3xl font-bold text-gray-900">
-          Math Practice
+          Easy Practice
         </h1>
 
         <ProblemSetSelector

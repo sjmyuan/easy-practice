@@ -34,7 +34,11 @@ export class DatabaseService {
         // Handle multiple problem sets
         if (jsonData.problemSets) {
           for (const ps of jsonData.problemSets) {
-            await this.importSingleProblemSet(ps, ps.problems, jsonData.version);
+            await this.importSingleProblemSet(
+              ps,
+              ps.problems,
+              jsonData.version
+            );
           }
         }
       }
@@ -64,14 +68,19 @@ export class DatabaseService {
     // If exists, check version
     if (existing) {
       const versionComparison = compareVersions(version, existing.version);
-      
+
       // Skip if same version or lower version
       if (versionComparison <= 0) {
         return;
       }
 
       // Upgrade: Replace old problem set with new one
-      await this.upgradeProblemSet(existing.id!, problemSetData, problems, version);
+      await this.upgradeProblemSet(
+        existing.id!,
+        problemSetData,
+        problems,
+        version
+      );
     } else {
       // New problem set: Add it
       await this.addNewProblemSet(problemSetData, problems, version);
@@ -220,7 +229,10 @@ export class DatabaseService {
    */
   async getProblemSets(problemSetKey?: string): Promise<ProblemSet[]> {
     if (problemSetKey) {
-      return await db.problemSets.where('problemSetKey').equals(problemSetKey).toArray();
+      return await db.problemSets
+        .where('problemSetKey')
+        .equals(problemSetKey)
+        .toArray();
     }
     return await db.problemSets.toArray();
   }

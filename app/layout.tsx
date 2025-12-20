@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Math Practice App',
-  description: 'A mobile-first math practice app for parents and children',
+  title: 'Easy Practice',
+  description: 'A mobile-first practice app for parents and children',
 };
 
 export default function RootLayout({

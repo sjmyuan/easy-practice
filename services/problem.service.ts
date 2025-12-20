@@ -2,10 +2,7 @@
 import { db } from '@/lib/db';
 import { databaseService } from './database.service';
 import type { Problem, ProblemSetJSON, ProblemSetManifest } from '@/types';
-import {
-  RECENT_PROBLEMS_LIMIT,
-  TOP_PROBLEMS_POOL,
-} from '@/lib/constants';
+import { RECENT_PROBLEMS_LIMIT, TOP_PROBLEMS_POOL } from '@/lib/constants';
 
 export class ProblemService {
   /**
@@ -46,7 +43,9 @@ export class ProblemService {
         try {
           const response = await fetch(entry.path);
           if (!response.ok) {
-            console.warn(`Failed to load problem set from ${entry.path}: ${response.status}`);
+            console.warn(
+              `Failed to load problem set from ${entry.path}: ${response.status}`
+            );
             continue;
           }
           const jsonData: ProblemSetJSON = await response.json();
@@ -121,7 +120,10 @@ export class ProblemService {
   /**
    * Get ordered problem queue for display
    */
-  async getOrderedProblemQueue(problemSetKey: string, limit = 10): Promise<Problem[]> {
+  async getOrderedProblemQueue(
+    problemSetKey: string,
+    limit = 10
+  ): Promise<Problem[]> {
     const problemSets = await db.problemSets
       .where('problemSetKey')
       .equals(problemSetKey)

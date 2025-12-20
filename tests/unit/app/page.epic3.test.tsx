@@ -203,7 +203,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     it('should have heading text of 3xl (30px) or larger', () => {
       render(<Home />);
 
-      const heading = screen.getByRole('heading', { name: /math practice/i });
+      const heading = screen.getByRole('heading', { name: /easy practice/i });
       expect(heading).toHaveClass('text-3xl');
     });
 
@@ -230,7 +230,9 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     it('should have button text that is readable (font-medium or font-semibold)', () => {
       render(<Home />);
 
-      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
+      const problemSetButton = screen.getByRole('button', {
+        name: /addition within 20/i,
+      });
       const heading = problemSetButton.querySelector('h3');
       expect(heading?.className).toMatch(/font-(medium|semibold|bold)/);
     });
@@ -250,7 +252,9 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     it('should have buttons with sufficient padding', () => {
       render(<Home />);
 
-      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
+      const problemSetButton = screen.getByRole('button', {
+        name: /addition within 20/i,
+      });
       // p-6 includes both horizontal and vertical padding
       expect(problemSetButton.className).toMatch(/p-6|px-(6|8)|py-(6|8)/);
     });
@@ -269,7 +273,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     it('should use high contrast colors for primary text', () => {
       render(<Home />);
 
-      const heading = screen.getByRole('heading', { name: /math practice/i });
+      const heading = screen.getByRole('heading', { name: /easy practice/i });
       expect(heading).toHaveClass('text-gray-900');
     });
 
@@ -297,8 +301,22 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
       isInitialized: true,
       initializationError: null,
       availableProblemSets: [
-        { id: 'addition-within-20', name: 'Addition Within 20', description: 'Practice addition problems', type: 'addition', enabled: true, createdAt: Date.now() },
-        { id: 'subtraction-within-20', name: 'Subtraction Within 20', description: 'Practice subtraction problems', type: 'subtraction', enabled: true, createdAt: Date.now() },
+        {
+          id: 'addition-within-20',
+          name: 'Addition Within 20',
+          description: 'Practice addition problems',
+          type: 'addition',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+        {
+          id: 'subtraction-within-20',
+          name: 'Subtraction Within 20',
+          description: 'Practice subtraction problems',
+          type: 'subtraction',
+          enabled: true,
+          createdAt: Date.now(),
+        },
       ],
       selectedProblemSetId: null,
     };
@@ -308,7 +326,9 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     it('should use colorful button styles (blue, green, red)', () => {
       render(<Home />);
 
-      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
+      const problemSetButton = screen.getByRole('button', {
+        name: /addition within 20/i,
+      });
       // Should have color classes applied
       expect(problemSetButton.className).toMatch(
         /bg-blue|bg-green|bg-red|bg-gray/
@@ -356,7 +376,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     it('should maintain clear visual hierarchy with font sizes', () => {
       render(<Home />);
 
-      const heading = screen.getByRole('heading', { name: /math practice/i });
+      const heading = screen.getByRole('heading', { name: /easy practice/i });
       expect(heading).toHaveClass('text-3xl');
 
       const problemSetHeading = screen.getByText(/choose a problem set/i);
@@ -376,9 +396,13 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     it('should use varied colors for different button types', () => {
       render(<Home />);
 
-      const problemSetButton = screen.getByRole('button', { name: /addition within 20/i });
+      const problemSetButton = screen.getByRole('button', {
+        name: /addition within 20/i,
+      });
       // Problem set buttons use bg-white with colored borders/hover states
-      expect(problemSetButton.className).toMatch(/bg-white|border-gray-200|hover:border-blue-500/);
+      expect(problemSetButton.className).toMatch(
+        /bg-white|border-gray-200|hover:border-blue-500/
+      );
     });
 
     it('should have hover states for interactive feedback', () => {

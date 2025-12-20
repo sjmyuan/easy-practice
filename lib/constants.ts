@@ -1,9 +1,9 @@
 // lib/constants.ts - Application constants
 
 export const APP_CONFIG = {
-  name: 'Math Practice App',
+  name: 'Easy Practice',
   version: '1.0.0',
-  description: 'Mobile-first math practice for children ages 3-9',
+  description: 'Mobile-first practice app for children ages 3-9',
 };
 
 export const PROBLEM_TYPES = {

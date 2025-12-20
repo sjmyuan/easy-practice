@@ -67,7 +67,7 @@ export default function PracticePage() {
   const selectedProblemSet = state.availableProblemSets.find(
     (ps) => ps.id === state.selectedProblemSetId
   );
-  const pageTitle = selectedProblemSet?.name || 'Math Practice';
+  const pageTitle = selectedProblemSet?.name || 'Easy Practice';
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
@@ -107,18 +107,20 @@ export default function PracticePage() {
                 <div className="text-2xl font-bold text-green-600">
                   🎉 Session Complete!
                 </div>
-                
+
                 {/* Session Duration */}
                 {state.sessionDuration !== null && (
                   <div className="text-xl font-semibold text-gray-700">
                     Duration: {formatDuration(state.sessionDuration)}
                   </div>
                 )}
-                
+
                 {/* Session Statistics */}
                 <div className="mx-auto grid max-w-md grid-cols-3 gap-4 text-center">
                   <div className="rounded-lg bg-green-50 p-3">
-                    <div className="text-sm font-medium text-green-600">Pass</div>
+                    <div className="text-sm font-medium text-green-600">
+                      Pass
+                    </div>
                     <div className="text-2xl font-bold text-green-700">
                       {state.sessionPassCount}
                     </div>
@@ -130,13 +132,15 @@ export default function PracticePage() {
                     </div>
                   </div>
                   <div className="rounded-lg bg-blue-50 p-3">
-                    <div className="text-sm font-medium text-blue-600">Total</div>
+                    <div className="text-sm font-medium text-blue-600">
+                      Total
+                    </div>
                     <div className="text-2xl font-bold text-blue-700">
                       {state.sessionCompletedCount}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-center gap-4">
                   <div className="flex w-full max-w-xs flex-col gap-3">
                     <StartSessionButton
@@ -152,9 +156,7 @@ export default function PracticePage() {
                     >
                       View Summary
                     </button>
-                    <ResetDataButton
-                      onReset={actions.resetAllData}
-                    />
+                    <ResetDataButton onReset={actions.resetAllData} />
                   </div>
                 </div>
               </div>
@@ -175,9 +177,7 @@ export default function PracticePage() {
                     >
                       View Summary
                     </button>
-                    <ResetDataButton
-                      onReset={actions.resetAllData}
-                    />
+                    <ResetDataButton onReset={actions.resetAllData} />
                   </div>
                 </div>
               </div>

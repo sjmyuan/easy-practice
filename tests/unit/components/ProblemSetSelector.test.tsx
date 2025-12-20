@@ -35,10 +35,7 @@ describe('ProblemSetSelector', () => {
   describe('Rendering', () => {
     it('should render the component title', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
       );
 
       expect(screen.getByText('Choose a Problem Set')).toBeInTheDocument();
@@ -46,10 +43,7 @@ describe('ProblemSetSelector', () => {
 
     it('should render all enabled problem sets', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
       );
 
       expect(screen.getByText('Addition within 20')).toBeInTheDocument();
@@ -58,10 +52,7 @@ describe('ProblemSetSelector', () => {
 
     it('should not render disabled problem sets', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
       );
 
       expect(screen.queryByText('Mixed Operations')).not.toBeInTheDocument();
@@ -69,10 +60,7 @@ describe('ProblemSetSelector', () => {
 
     it('should render problem set descriptions', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
       );
 
       expect(
@@ -86,9 +74,7 @@ describe('ProblemSetSelector', () => {
     it('should render empty state when no problem sets available', () => {
       render(<ProblemSetSelector problemSets={[]} onSelect={vi.fn()} />);
 
-      expect(
-        screen.getByText('No problem sets available')
-      ).toBeInTheDocument();
+      expect(screen.getByText('No problem sets available')).toBeInTheDocument();
     });
 
     it('should render empty state when all problem sets are disabled', () => {
@@ -97,11 +83,11 @@ describe('ProblemSetSelector', () => {
         enabled: false,
       }));
 
-      render(<ProblemSetSelector problemSets={disabledSets} onSelect={vi.fn()} />);
+      render(
+        <ProblemSetSelector problemSets={disabledSets} onSelect={vi.fn()} />
+      );
 
-      expect(
-        screen.getByText('No problem sets available')
-      ).toBeInTheDocument();
+      expect(screen.getByText('No problem sets available')).toBeInTheDocument();
     });
   });
 
@@ -111,10 +97,7 @@ describe('ProblemSetSelector', () => {
       const onSelect = vi.fn();
 
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={onSelect}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
       );
 
       const additionButton = screen.getByRole('button', {
@@ -131,10 +114,7 @@ describe('ProblemSetSelector', () => {
       const onSelect = vi.fn();
 
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={onSelect}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
       );
 
       const subtractionButton = screen.getByRole('button', {
@@ -169,10 +149,7 @@ describe('ProblemSetSelector', () => {
   describe('Styling and Accessibility', () => {
     it('should have proper button styling for mobile touch targets', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
       );
 
       const buttons = screen.getAllByRole('button');
@@ -184,10 +161,7 @@ describe('ProblemSetSelector', () => {
 
     it('should have accessible button labels', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
       );
 
       const additionButton = screen.getByRole('button', {
@@ -218,10 +192,7 @@ describe('ProblemSetSelector', () => {
 
     it('should have hover states for interactive feedback', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
       );
 
       const buttons = screen.getAllByRole('button');
@@ -266,16 +237,13 @@ describe('ProblemSetSelector', () => {
       const onSelect = vi.fn();
 
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={onSelect}
-        />
+        <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
       );
 
       const additionButton = screen.getByRole('button', {
         name: /Addition within 20/i,
       });
-      
+
       await user.click(additionButton);
       await user.click(additionButton);
 

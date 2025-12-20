@@ -207,8 +207,12 @@ describe('DatabaseService', () => {
 
       // Get problem sets before reset
       const problemSets = await db.problemSets.toArray();
-      const additionSet = problemSets.find((ps) => ps.problemSetKey === 'addition-within-20');
-      const subtractionSet = problemSets.find((ps) => ps.problemSetKey === 'subtraction-within-20');
+      const additionSet = problemSets.find(
+        (ps) => ps.problemSetKey === 'addition-within-20'
+      );
+      const subtractionSet = problemSets.find(
+        (ps) => ps.problemSetKey === 'subtraction-within-20'
+      );
 
       // Reset only addition problems
       await service.resetStatisticsByProblemSetId(additionSet!.id!);
@@ -325,14 +329,21 @@ describe('DatabaseService', () => {
 
       // Get problem sets before reset
       const problemSets = await db.problemSets.toArray();
-      const additionSetId = problemSets.find(ps => ps.problemSetKey === 'addition-within-20')!.id!;
-      const subtractionSetId = problemSets.find(ps => ps.problemSetKey === 'subtraction-within-20')!.id!;
+      const additionSetId = problemSets.find(
+        (ps) => ps.problemSetKey === 'addition-within-20'
+      )!.id!;
+      const subtractionSetId = problemSets.find(
+        (ps) => ps.problemSetKey === 'subtraction-within-20'
+      )!.id!;
 
       // Reset only addition problems
       await service.resetStatisticsByProblemSetId(additionSetId);
 
       // Verify addition problem statistics are reset
-      const additionProblems = await db.problems.where('problemSetId').equals(additionSetId).toArray();
+      const additionProblems = await db.problems
+        .where('problemSetId')
+        .equals(additionSetId)
+        .toArray();
 
       for (const problem of additionProblems) {
         const stat = await db.statistics.get(problem.id!);
@@ -347,7 +358,10 @@ describe('DatabaseService', () => {
       }
 
       // Verify subtraction statistics are NOT reset
-      const subtractionProblems = await db.problems.where('problemSetId').equals(subtractionSetId).toArray();
+      const subtractionProblems = await db.problems
+        .where('problemSetId')
+        .equals(subtractionSetId)
+        .toArray();
 
       for (const problem of subtractionProblems) {
         const stat = await db.statistics.get(problem.id!);
@@ -447,10 +461,15 @@ describe('DatabaseService', () => {
 
       // Get the addition problem set ID
       const problemSets = await db.problemSets.toArray();
-      const additionSetId = problemSets.find(ps => ps.problemSetKey === 'addition-within-20')!.id!;
+      const additionSetId = problemSets.find(
+        (ps) => ps.problemSetKey === 'addition-within-20'
+      )!.id!;
 
       // Get struggled problems filtered by addition problem set ID
-      const struggledProblems = await service.getStruggledProblems(20, additionSetId);
+      const struggledProblems = await service.getStruggledProblems(
+        20,
+        additionSetId
+      );
 
       expect(struggledProblems.length).toBe(2);
       struggledProblems.forEach((problem) => {
@@ -500,10 +519,15 @@ describe('DatabaseService', () => {
 
       // Get the subtraction problem set ID
       const problemSets = await db.problemSets.toArray();
-      const subtractionSetId = problemSets.find(ps => ps.problemSetKey === 'subtraction-within-20')!.id!;
+      const subtractionSetId = problemSets.find(
+        (ps) => ps.problemSetKey === 'subtraction-within-20'
+      )!.id!;
 
       // Get struggled problems filtered by subtraction problem set ID
-      const struggledProblems = await service.getStruggledProblems(20, subtractionSetId);
+      const struggledProblems = await service.getStruggledProblems(
+        20,
+        subtractionSetId
+      );
 
       expect(struggledProblems.length).toBe(2);
       struggledProblems.forEach((problem) => {
@@ -531,7 +555,10 @@ describe('DatabaseService', () => {
       await service.recordAttempt(problems[0].id!, 'fail');
 
       // Try to get subtraction struggled problems
-      const struggledProblems = await service.getStruggledProblems(20, 'subtraction-within-20');
+      const struggledProblems = await service.getStruggledProblems(
+        20,
+        'subtraction-within-20'
+      );
 
       expect(struggledProblems.length).toBe(0);
     });
@@ -593,7 +620,7 @@ describe('DatabaseService', () => {
           problemSetKey: 'addition-within-20',
           difficulty: 'easy',
         },
-        problems: [{ problem: '1 + 1', "answer": '2' }],
+        problems: [{ problem: '1 + 1', answer: '2' }],
       };
 
       // Import once
@@ -604,7 +631,7 @@ describe('DatabaseService', () => {
       // Try to import same version again
       await service.importProblemsFromJSON(problemSetData);
       const secondImport = await db.problemSets.toArray();
-      
+
       // Should still have only one problem set
       expect(secondImport.length).toBe(1);
     });
@@ -677,7 +704,7 @@ describe('DatabaseService', () => {
       const firstImport = await db.problemSets.toArray();
       expect(firstImport.length).toBe(1);
       expect(firstImport[0].version).toBe('1.0');
-      
+
       const firstProblems = await db.problems.toArray();
       expect(firstProblems.length).toBe(2);
 
@@ -694,9 +721,9 @@ describe('DatabaseService', () => {
       // Problems should be replaced
       const secondProblems = await db.problems.toArray();
       expect(secondProblems.length).toBe(2);
-      expect(secondProblems.map(p => p.problem)).toContain('1 + 1');
-      expect(secondProblems.map(p => p.problem)).toContain('3 + 3');
-      expect(secondProblems.map(p => p.problem)).not.toContain('2 + 2');
+      expect(secondProblems.map((p) => p.problem)).toContain('1 + 1');
+      expect(secondProblems.map((p) => p.problem)).toContain('3 + 3');
+      expect(secondProblems.map((p) => p.problem)).not.toContain('2 + 2');
     });
 
     it('should preserve statistics for matching problems when upgrading', async () => {
@@ -716,8 +743,8 @@ describe('DatabaseService', () => {
       // Import version 1.0
       await service.importProblemsFromJSON(problemSetV1);
       const problems = await db.problems.toArray();
-      const problem1 = problems.find(p => p.problem === '1 + 1');
-      const problem2 = problems.find(p => p.problem === '2 + 2');
+      const problem1 = problems.find((p) => p.problem === '1 + 1');
+      const problem2 = problems.find((p) => p.problem === '2 + 2');
 
       // Record attempts for both problems
       await service.recordAttempt(problem1!.id!, 'pass');
@@ -747,8 +774,8 @@ describe('DatabaseService', () => {
 
       // Find the problem after upgrade
       const problemsAfter = await db.problems.toArray();
-      const problem1After = problemsAfter.find(p => p.problem === '1 + 1');
-      const problem3After = problemsAfter.find(p => p.problem === '3 + 3');
+      const problem1After = problemsAfter.find((p) => p.problem === '1 + 1');
+      const problem3After = problemsAfter.find((p) => p.problem === '3 + 3');
 
       // Statistics for '1 + 1' should be preserved
       const stats1After = await db.statistics.get(problem1After!.id!);
@@ -760,7 +787,7 @@ describe('DatabaseService', () => {
       expect(stats3After!.totalAttempts).toBe(0);
 
       // '2 + 2' should no longer exist
-      const problem2After = problemsAfter.find(p => p.problem === '2 + 2');
+      const problem2After = problemsAfter.find((p) => p.problem === '2 + 2');
       expect(problem2After).toBeUndefined();
     });
   });

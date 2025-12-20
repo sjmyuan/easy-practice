@@ -7,7 +7,12 @@ import { TypeSelector } from '@/components/TypeSelector';
 describe('TypeSelector Component', () => {
   it('should render Addition and Subtraction buttons', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
+    render(
+      <TypeSelector
+        selectedProblemSetKey="addition-within-20"
+        onChange={mockOnChange}
+      />
+    );
 
     expect(
       screen.getByRole('button', { name: /addition/i })
@@ -19,7 +24,12 @@ describe('TypeSelector Component', () => {
 
   it('should highlight the selected problem set', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
+    render(
+      <TypeSelector
+        selectedProblemSetKey="addition-within-20"
+        onChange={mockOnChange}
+      />
+    );
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
     const subtractionButton = screen.getByRole('button', {
@@ -34,7 +44,12 @@ describe('TypeSelector Component', () => {
   it('should call onChange when a different problem set is selected', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
+    render(
+      <TypeSelector
+        selectedProblemSetKey="addition-within-20"
+        onChange={mockOnChange}
+      />
+    );
 
     const subtractionButton = screen.getByRole('button', {
       name: /subtraction/i,
@@ -48,7 +63,12 @@ describe('TypeSelector Component', () => {
   it('should not call onChange when clicking the already selected problem set', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
+    render(
+      <TypeSelector
+        selectedProblemSetKey="addition-within-20"
+        onChange={mockOnChange}
+      />
+    );
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
     await user.click(additionButton);
@@ -58,7 +78,12 @@ describe('TypeSelector Component', () => {
 
   it('should be accessible with proper ARIA labels', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
+    render(
+      <TypeSelector
+        selectedProblemSetKey="addition-within-20"
+        onChange={mockOnChange}
+      />
+    );
 
     const additionButton = screen.getByRole('button', { name: /addition/i });
     const subtractionButton = screen.getByRole('button', {
@@ -71,7 +96,12 @@ describe('TypeSelector Component', () => {
 
   it('should have large enough touch targets for mobile', () => {
     const mockOnChange = vi.fn();
-    render(<TypeSelector selectedProblemSetKey="addition-within-20" onChange={mockOnChange} />);
+    render(
+      <TypeSelector
+        selectedProblemSetKey="addition-within-20"
+        onChange={mockOnChange}
+      />
+    );
 
     const buttons = screen.getAllByRole('button');
 

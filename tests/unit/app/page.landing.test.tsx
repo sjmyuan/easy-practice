@@ -183,7 +183,7 @@ describe('Landing Page (app/page.tsx)', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Math Practice')).toBeInTheDocument();
+        expect(screen.getByText('Easy Practice')).toBeInTheDocument();
       });
     });
   });
@@ -235,11 +235,11 @@ describe('Landing Page (app/page.tsx)', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Math Practice')).toBeInTheDocument();
+        expect(screen.getByText('Easy Practice')).toBeInTheDocument();
       });
 
       const h1 = screen.getByRole('heading', { level: 1 });
-      expect(h1).toHaveTextContent('Math Practice');
+      expect(h1).toHaveTextContent('Easy Practice');
 
       const h2 = screen.getByRole('heading', { level: 2 });
       expect(h2).toHaveTextContent('Choose a Problem Set');

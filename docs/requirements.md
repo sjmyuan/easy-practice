@@ -1,6 +1,6 @@
-# Project: Math Practice App for Parents
+# Project: Easy Practice for Parents
 
-A mobile-first web application that helps parents facilitate math practice for their children (ages 3-9) by generating random addition and subtraction problems within 20. The app prioritizes previously failed problems and provides simple performance tracking.
+A mobile-first web application that helps parents facilitate practice for their children (ages 3-9) by generating random addition and subtraction problems within 20. The app prioritizes previously failed problems and provides simple performance tracking.
 
 ## Design Decisions
 
@@ -35,7 +35,7 @@ A mobile-first web application that helps parents facilitate math practice for t
   - A simple, distraction-free interface with one-tap actions for generating problems and marking results.
   - Fast loading times and seamless mobile-first experience.
   - Visual engagement for the child, even though they won’t interact directly with the app.
-- Role: Primary caregiver responsible for facilitating math practice.
+- Role: Primary caregiver responsible for facilitating practice.
 
 ## Epics
 

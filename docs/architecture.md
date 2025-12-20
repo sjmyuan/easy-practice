@@ -1,6 +1,6 @@
 # Software Architecture Design Document
 
-## Math Practice App for Parents
+## Easy Practice for Parents
 
 **Version:** 1.5.0  
 **Date:** December 20, 2025  
@@ -207,7 +207,7 @@
 
 ### 1.1 Overview
 
-The Math Practice App is a **mobile-first web application** designed as a **Single Page Application (SPA)** with a **local-first architecture**. The application runs entirely in the browser with no backend server, storing all data locally using IndexedDB.
+The Easy Practice app is a **mobile-first web application** designed as a **Single Page Application (SPA)** with a **local-first architecture**. The application runs entirely in the browser with no backend server, storing all data locally using IndexedDB.
 
 ### 1.2 Module Division
 
@@ -229,10 +229,10 @@ The system follows a **layered architecture** with clear separation of concerns:
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-Person(parent, "Parent", "Primary user who facilitates math practice")
+Person(parent, "Parent", "Primary user who facilitates practice")
 Person(child, "Child (3-9 years)", "Indirect user, answers problems verbally")
 
-System(mathApp, "Math Practice App", "Mobile-first web app for generating and tracking math problems")
+System(mathApp, "Easy Practice", "Mobile-first web app for generating and tracking problems")
 
 System_Ext(browser, "Web Browser", "Chrome, Safari, Firefox on mobile/desktop")
 
@@ -251,7 +251,7 @@ Rel(mathApp, browser, "Runs in")
 
 Person(parent, "Parent", "Uses app to generate problems")
 
-System_Boundary(mathApp, "Math Practice App") {
+System_Boundary(mathApp, "Easy Practice") {
     Container(spa, "Single Page Application", "JavaScript/TypeScript, React/Next.js", "Provides UI for problem generation and tracking")
     ContainerDb(localStorage, "Local Storage", "Browser localStorage/IndexedDB", "Stores performance data locally")
 }
@@ -454,13 +454,13 @@ The application uses **IndexedDB** for local data persistence with three core en
 
 Represents a single problem with its question and answer.
 
-| Field       | Type   | Description                  | Constraints                   |
-| ----------- | ------ | ---------------------------- | ----------------------------- |
-| `id`        | string | Unique identifier (UUID)     | Primary Key, auto-generated   |
-| `problem`   | string | Problem text (e.g., "5 + 7") | Required, max 200 chars       |
-| `answer`    | string | Correct answer (e.g., "12")  | Required, max 50 chars        |
-| `category`  | string | Problem type                 | 'addition-within-20' or 'subtraction-within-20'   |
-| `createdAt` | number | When problem was created     | Unix timestamp (milliseconds) |
+| Field       | Type   | Description                  | Constraints                                     |
+| ----------- | ------ | ---------------------------- | ----------------------------------------------- |
+| `id`        | string | Unique identifier (UUID)     | Primary Key, auto-generated                     |
+| `problem`   | string | Problem text (e.g., "5 + 7") | Required, max 200 chars                         |
+| `answer`    | string | Correct answer (e.g., "12")  | Required, max 50 chars                          |
+| `category`  | string | Problem type                 | 'addition-within-20' or 'subtraction-within-20' |
+| `createdAt` | number | When problem was created     | Unix timestamp (milliseconds)                   |
 
 **Sample Data:**
 

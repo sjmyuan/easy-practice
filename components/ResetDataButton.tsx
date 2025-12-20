@@ -8,7 +8,10 @@ interface ResetDataButtonProps {
   selectedProblemSetKey?: string;
 }
 
-export function ResetDataButton({ onReset, selectedProblemSetKey }: ResetDataButtonProps) {
+export function ResetDataButton({
+  onReset,
+  selectedProblemSetKey,
+}: ResetDataButtonProps) {
   const handleClick = () => {
     const message = selectedProblemSetKey
       ? `Are you sure you want to reset all performance data for ${selectedProblemSetKey} problems? This action cannot be undone.`

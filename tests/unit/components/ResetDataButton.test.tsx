@@ -108,7 +108,10 @@ describe('ResetDataButton Component', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(
-      <ResetDataButton onReset={mockOnReset} selectedProblemSetKey="addition-within-20" />
+      <ResetDataButton
+        onReset={mockOnReset}
+        selectedProblemSetKey="addition-within-20"
+      />
     );
 
     const button = screen.getByRole('button', { name: /reset data/i });
@@ -148,7 +151,10 @@ describe('ResetDataButton Component', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(
-      <ResetDataButton onReset={mockOnReset} selectedProblemSetKey="subtraction-within-20" />
+      <ResetDataButton
+        onReset={mockOnReset}
+        selectedProblemSetKey="subtraction-within-20"
+      />
     );
 
     const button = screen.getByRole('button', { name: /reset data/i });

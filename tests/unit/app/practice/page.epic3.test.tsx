@@ -19,9 +19,21 @@ interface MockState {
   sessionQueue: string[];
   sessionCompletedCount: number;
   selectedProblemSetId: string | null;
-  availableProblemSets: Array<{ id: string; name: string; type: string; enabled: boolean; createdAt: number }>;
+  availableProblemSets: Array<{
+    id: string;
+    name: string;
+    type: string;
+    enabled: boolean;
+    createdAt: number;
+  }>;
   showSummary: boolean;
-  struggledProblems: Array<{ problemId: string; problem: string; answer: string; category: string; failCount: number }>;
+  struggledProblems: Array<{
+    problemId: string;
+    problem: string;
+    answer: string;
+    category: string;
+    failCount: number;
+  }>;
 }
 
 let mockState: MockState = {
@@ -196,7 +208,9 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons - P
     it('should have heading text of 3xl (30px) or larger', () => {
       render(<PracticePage />);
 
-      const heading = screen.getByRole('button', { name: /return to landing page/i });
+      const heading = screen.getByRole('button', {
+        name: /return to landing page/i,
+      });
       expect(heading).toHaveClass('text-3xl');
     });
 
@@ -225,7 +239,9 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons - P
       render(<PracticePage />);
 
       const buttons = screen.getAllByRole('button');
-      const hasMinHeight = buttons.some((btn) => btn.classList.contains('h-12'));
+      const hasMinHeight = buttons.some((btn) =>
+        btn.classList.contains('h-12')
+      );
       expect(hasMinHeight).toBe(true);
     });
 
@@ -254,7 +270,9 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons - P
     it('should use high contrast colors for primary text', () => {
       render(<PracticePage />);
 
-      const heading = screen.getByRole('button', { name: /return to landing page/i });
+      const heading = screen.getByRole('button', {
+        name: /return to landing page/i,
+      });
       expect(heading).toHaveClass('text-gray-900');
     });
 
@@ -324,7 +342,9 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
       render(<PracticePage />);
 
       const buttons = screen.getAllByRole('button');
-      const hasRounded = buttons.some((btn) => btn.classList.contains('rounded-lg'));
+      const hasRounded = buttons.some((btn) =>
+        btn.classList.contains('rounded-lg')
+      );
       expect(hasRounded).toBe(true);
     });
 
@@ -351,7 +371,9 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
     it('should maintain clear visual hierarchy with font sizes', () => {
       render(<PracticePage />);
 
-      const heading = screen.getByRole('button', { name: /return to landing page/i });
+      const heading = screen.getByRole('button', {
+        name: /return to landing page/i,
+      });
       expect(heading).toHaveClass('text-3xl');
 
       const problemText = screen.getByText('5 + 3');
@@ -380,7 +402,8 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
       const main = screen.getByRole('main');
       const hasVariedColors =
         main.querySelector('.bg-blue-500') &&
-        (main.querySelector('.bg-green-500') || main.querySelector('.bg-red-500'));
+        (main.querySelector('.bg-green-500') ||
+          main.querySelector('.bg-red-500'));
       expect(hasVariedColors).toBeTruthy();
     });
 
@@ -390,7 +413,8 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
       const buttons = screen.getAllByRole('button');
       const hasHoverStates = buttons.some(
         (btn) =>
-          btn.className.includes('hover:bg-') || btn.className.includes('hover:')
+          btn.className.includes('hover:bg-') ||
+          btn.className.includes('hover:')
       );
       expect(hasHoverStates).toBe(true);
     });

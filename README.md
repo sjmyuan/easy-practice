@@ -1,6 +1,6 @@
-# Math Practice App
+# Easy Practice
 
-A mobile-first web application that helps parents facilitate math practice for their children (ages 3-9) by generating random addition and subtraction problems within 20. The app prioritizes previously failed problems and provides simple performance tracking.
+A mobile-first web application that helps parents facilitate practice for their children (ages 3-9) by generating random addition and subtraction problems within 20. The app prioritizes previously failed problems and provides simple performance tracking.
 
 ## Features
 

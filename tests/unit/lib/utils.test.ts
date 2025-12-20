@@ -1,6 +1,11 @@
 // tests/unit/lib/utils.test.ts
 import { describe, it, expect } from 'vitest';
-import { calculatePriority, formatPercentage, cn, compareVersions } from '@/lib/utils';
+import {
+  calculatePriority,
+  formatPercentage,
+  cn,
+  compareVersions,
+} from '@/lib/utils';
 
 describe('Utils', () => {
   describe('calculatePriority', () => {

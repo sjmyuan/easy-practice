@@ -141,45 +141,47 @@ describe('ProblemService - Session Queue Generation', () => {
       } as unknown as ReturnType<typeof db.problems.where>);
 
       // Mock statistics with different success ratios
-      (vi.mocked(db.statistics.get).mockImplementation as any)(async (criteria: any) => {
-        if (criteria.problemId === 'p1') {
-          return {
-            problemId: 'p1',
-            totalAttempts: 10,
-            passCount: 7, // 70% success rate
-            failCount: 3,
-            lastAttemptedAt: Date.now(),
-            lastResult: 'pass',
-            failureRate: 0.3,
-            priority: 60,
-          };
+      (vi.mocked(db.statistics.get).mockImplementation as any)(
+        async (criteria: any) => {
+          if (criteria.problemId === 'p1') {
+            return {
+              problemId: 'p1',
+              totalAttempts: 10,
+              passCount: 7, // 70% success rate
+              failCount: 3,
+              lastAttemptedAt: Date.now(),
+              lastResult: 'pass',
+              failureRate: 0.3,
+              priority: 60,
+            };
+          }
+          if (criteria.problemId === 'p2') {
+            return {
+              problemId: 'p2',
+              totalAttempts: 10,
+              passCount: 8, // 80% success rate
+              failCount: 2,
+              lastAttemptedAt: Date.now(),
+              lastResult: 'pass',
+              failureRate: 0.2,
+              priority: 55,
+            };
+          }
+          if (criteria.problemId === 'p3') {
+            return {
+              problemId: 'p3',
+              totalAttempts: 10,
+              passCount: 10, // 100% success rate
+              failCount: 0,
+              lastAttemptedAt: Date.now(),
+              lastResult: 'pass',
+              failureRate: 0,
+              priority: 50,
+            };
+          }
+          return null;
         }
-        if (criteria.problemId === 'p2') {
-          return {
-            problemId: 'p2',
-            totalAttempts: 10,
-            passCount: 8, // 80% success rate
-            failCount: 2,
-            lastAttemptedAt: Date.now(),
-            lastResult: 'pass',
-            failureRate: 0.2,
-            priority: 55,
-          };
-        }
-        if (criteria.problemId === 'p3') {
-          return {
-            problemId: 'p3',
-            totalAttempts: 10,
-            passCount: 10, // 100% success rate
-            failCount: 0,
-            lastAttemptedAt: Date.now(),
-            lastResult: 'pass',
-            failureRate: 0,
-            priority: 50,
-          };
-        }
-        return null;
-      });
+      );
 
       const queue = await problemService.generateSessionQueue('addition');
 
@@ -398,7 +400,9 @@ describe('ProblemService - Session Queue Generation', () => {
         status: 404,
       });
 
-      await expect(problemService.loadManifest()).rejects.toThrow('Failed to load manifest');
+      await expect(problemService.loadManifest()).rejects.toThrow(
+        'Failed to load manifest'
+      );
     });
   });
 });
