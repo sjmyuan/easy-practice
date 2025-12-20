@@ -268,7 +268,7 @@ export class DatabaseService {
    */
   async getStruggledProblems(limit = 20): Promise<StruggledProblemSummary[]> {
     const stats = await db.statistics
-      .where('failCount')
+      .where('failureRate')
       .above(0)
       .reverse()
       .sortBy('priority');
