@@ -22,24 +22,6 @@ export default function PracticePage() {
     }
   }, [state.isInitialized, state.selectedProblemSetId, router]);
 
-  // Auto-start session when problem set is selected
-  useEffect(() => {
-    if (
-      state.isInitialized &&
-      state.selectedProblemSetId &&
-      !state.isSessionActive &&
-      state.sessionCompletedCount === 0
-    ) {
-      actions.startNewSession();
-    }
-  }, [
-    state.isInitialized,
-    state.selectedProblemSetId,
-    state.isSessionActive,
-    state.sessionCompletedCount,
-    actions,
-  ]);
-
   const handleChangeProblemSet = () => {
     // Clear session and navigate back to landing
     actions.selectProblemSet('');
@@ -81,6 +63,12 @@ export default function PracticePage() {
     );
   }
 
+  // Get selected problem set name for display
+  const selectedProblemSet = state.availableProblemSets.find(
+    (ps) => ps.id === state.selectedProblemSetId
+  );
+  const pageTitle = selectedProblemSet?.name || 'Math Practice';
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
@@ -89,7 +77,7 @@ export default function PracticePage() {
           className="w-full text-center text-3xl font-bold text-gray-900 transition-colors hover:text-blue-600"
           aria-label="Return to landing page"
         >
-          Math Practice
+          {pageTitle}
         </button>
 
         {/* Session-based UI */}
@@ -158,7 +146,12 @@ export default function PracticePage() {
               </div>
             ) : (
               <div className="space-y-4 py-8 text-center">
-                <p className="text-gray-600">Loading session...</p>
+                <div className="flex justify-center">
+                  <StartSessionButton
+                    onStart={actions.startNewSession}
+                    disabled={state.isLoading}
+                  />
+                </div>
               </div>
             )}
           </>

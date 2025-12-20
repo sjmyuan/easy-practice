@@ -151,8 +151,23 @@ describe('Practice Page', () => {
 
     render(<PracticePage />);
 
-    // Should show loading initially (auto-start will trigger)
-    expect(screen.getByText(/loading session/i)).toBeInTheDocument();
+    // Should show the Start New Session button, not auto-start
+    expect(screen.getByText(/start new session/i)).toBeInTheDocument();
+  });
+
+  it('should NOT auto-start session when problem set is selected', () => {
+    mockState = {
+      ...mockState,
+      isSessionActive: false,
+      sessionCompletedCount: 0,
+      selectedProblemSetId: 'set-1',
+      isInitialized: true,
+    };
+
+    render(<PracticePage />);
+
+    // Should NOT call startNewSession automatically
+    expect(mockStartNewSession).not.toHaveBeenCalled();
   });
 
   it('should display session complete message after completion', () => {
@@ -189,6 +204,29 @@ describe('Practice Page', () => {
     const heading = screen.getByRole('button', { name: /return to landing page/i });
     expect(heading).toBeInTheDocument();
     expect(heading).toHaveTextContent('Math Practice');
+  });
+
+  it('should display selected problem set name as page title', () => {
+    mockState = {
+      ...mockState,
+      isSessionActive: false,
+      sessionCompletedCount: 0,
+      selectedProblemSetId: 'set-1',
+      availableProblemSets: [
+        {
+          id: 'set-1',
+          name: 'Addition within 10',
+          problemSetKey: 'addition-within-10',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ],
+    };
+
+    render(<PracticePage />);
+
+    const heading = screen.getByRole('button', { name: /return to landing page/i });
+    expect(heading).toHaveTextContent('Addition within 10');
   });
 
   it('should be responsive on mobile viewports', () => {
