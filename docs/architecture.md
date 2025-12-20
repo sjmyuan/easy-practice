@@ -2,11 +2,44 @@
 
 ## Easy Practice for Parents
 
-**Version:** 1.5.0  
+**Version:** 1.5.1  
 **Date:** December 20, 2025  
 **Status:** In Progress - Epics 1, 2, 3, & 4 Completed
 
 ## Recent Updates
+
+### Back Navigation Icon (December 20, 2025)
+
+- **Practice Page Navigation Enhancement**:
+  - Added chevron-left back icon (Lucide React) in top-left corner
+  - Replaces previous clickable title functionality
+  - Title is now a non-interactive `<h1>` heading (improved semantic structure)
+  - Back icon positioned absolutely with `left-0` positioning
+- **Visual Design**:
+  - Icon size: h-8 w-8 (32px)
+  - Hover effects: scale-110 transform and color change to blue-600
+  - Smooth transitions with `transition-all` class
+  - Gray-600 default color with blue-600 hover state
+- **Accessibility**:
+  - ARIA label: "Back to landing page"
+  - Full keyboard support (button element)
+  - Clear visual affordance with hover feedback
+- **User Experience**:
+  - Clears selected problem set and navigates to landing page
+  - Intuitive left-positioned back navigation (standard UI pattern)
+  - No confirmation dialog for quick navigation
+- **Layout Structure**:
+  - Relative container wraps both back button and heading
+  - Heading centered with Flexbox
+  - Back button positioned absolutely to avoid layout shift
+- **Testing**:
+  - 4 new focused tests covering back icon rendering, navigation behavior, hover effects, and title changes
+  - Updated 3 existing Epic 3 tests to query heading by role instead of button
+  - All 308 tests passing
+- **Components Modified**:
+  - `app/practice/page.tsx` (refactored header structure)
+  - `tests/unit/app/practice/page.test.tsx` (new back icon tests)
+  - `tests/unit/app/practice/page.epic3.test.tsx` (updated heading queries)
 
 ### Session Timer Component (December 20, 2025)
 

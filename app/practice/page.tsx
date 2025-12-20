@@ -11,6 +11,7 @@ import { SessionTimer } from '@/components/SessionTimer';
 import { formatDuration } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { ChevronLeft } from 'lucide-react';
 
 export default function PracticePage() {
   const { state, actions } = useApp();
@@ -73,13 +74,18 @@ export default function PracticePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
-        <button
-          onClick={handleChangeProblemSet}
-          className="w-full text-center text-3xl font-bold text-gray-900 transition-colors hover:text-blue-600"
-          aria-label="Return to landing page"
-        >
-          {pageTitle}
-        </button>
+        <div className="relative flex items-center justify-center">
+          <button
+            onClick={handleChangeProblemSet}
+            className="absolute left-0 rounded-lg p-2 text-gray-600 transition-all hover:scale-110 hover:text-blue-600"
+            aria-label="Back to landing page"
+          >
+            <ChevronLeft className="h-8 w-8" />
+          </button>
+          <h1 className="text-center text-3xl font-bold text-gray-900">
+            {pageTitle}
+          </h1>
+        </div>
 
         {/* Session-based UI */}
         {state.isSessionActive ? (

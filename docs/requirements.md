@@ -4,6 +4,35 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 ## Design Decisions
 
+### Back Navigation Icon (December 20, 2025)
+
+**Decision**: Added a back navigation icon in the practice page to replace the clickable title functionality.
+
+**Rationale**:
+
+- Standard UI pattern: back navigation is typically located in the top-left corner
+- Improves semantic HTML structure (title is now a proper `<h1>` heading, not a button)
+- Clear visual affordance with chevron-left icon
+- Better separation of concerns: navigation vs. information display
+- Maintains single-tap navigation while following established UX patterns
+
+**Implementation Details**:
+
+- Chevron-left icon (Lucide React) positioned absolutely in top-left corner
+- Icon size: 32px (h-8 w-8) for clear visibility
+- Hover effects: scale transform (110%) and color change to blue-600
+- Smooth transitions using `transition-all` class
+- ARIA label: "Back to landing page" for accessibility
+- No confirmation dialog for quick navigation flow
+
+**Impact**:
+
+- Improved usability with standard back navigation pattern
+- Better semantic HTML structure (h1 for title)
+- Enhanced visual hierarchy (navigation separate from title)
+- Maintains efficient workflow with single-tap back navigation
+- Better accessibility with proper ARIA labels and keyboard support
+
 ### Session Timer Feature (December 20, 2025)
 
 **Decision**: Added a real-time session timer that displays elapsed time during active practice sessions.

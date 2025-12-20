@@ -1,5 +1,6 @@
 // tests/unit/app/practice/page.test.tsx
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import PracticePage from '@/app/practice/page';
 import type { AppState } from '@/contexts/AppContext';
@@ -185,7 +186,7 @@ describe('Practice Page', () => {
     expect(screen.getByText(/session complete/i)).toBeInTheDocument();
   });
 
-  it('should have clickable Easy Practice heading that navigates to landing', () => {
+  it('should render back icon button that navigates to landing', () => {
     mockState = {
       ...mockState,
       isSessionActive: true,
@@ -201,14 +202,52 @@ describe('Practice Page', () => {
 
     render(<PracticePage />);
 
-    const heading = screen.getByRole('button', {
-      name: /return to landing page/i,
+    const backButton = screen.getByRole('button', {
+      name: /back to landing page/i,
     });
-    expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Easy Practice');
+    expect(backButton).toBeInTheDocument();
   });
 
-  it('should display selected problem set name as page title', () => {
+  it('should navigate to landing page when back icon is clicked', async () => {
+    mockState = {
+      ...mockState,
+      isSessionActive: true,
+      currentProblem: {
+        id: 'p1',
+        problem: '5 + 3',
+        answer: '8',
+        problemSetId: 'set-1',
+        createdAt: Date.now(),
+      },
+      sessionQueue: ['p1', 'p2'],
+    };
+
+    const user = userEvent.setup();
+    render(<PracticePage />);
+
+    const backButton = screen.getByRole('button', {
+      name: /back to landing page/i,
+    });
+    
+    await user.click(backButton);
+
+    expect(mockSelectProblemSet).toHaveBeenCalledWith('');
+    expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('should show back icon with hover effects', () => {
+    render(<PracticePage />);
+
+    const backButton = screen.getByRole('button', {
+      name: /back to landing page/i,
+    });
+    
+    expect(backButton).toHaveClass('transition-all');
+    expect(backButton).toHaveClass('hover:scale-110');
+    expect(backButton).toHaveClass('hover:text-blue-600');
+  });
+
+  it('should render page title as non-clickable text', () => {
     mockState = {
       ...mockState,
       isSessionActive: false,
@@ -227,11 +266,12 @@ describe('Practice Page', () => {
 
     render(<PracticePage />);
 
-    const heading = screen.getByRole('button', {
-      name: /return to landing page/i,
-    });
+    const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('Addition within 10');
+    expect(heading).not.toHaveAttribute('onClick');
   });
+
+
 
   it('should be responsive on mobile viewports', () => {
     render(<PracticePage />);
