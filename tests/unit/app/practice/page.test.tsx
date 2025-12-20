@@ -14,6 +14,7 @@ const mockToggleSummary = vi.fn();
 const mockResetAllData = vi.fn();
 const mockStartNewSession = vi.fn();
 const mockSelectProblemSet = vi.fn();
+const mockSetProblemCoverage = vi.fn();
 const mockPush = vi.fn();
 
 let mockState: AppState = {
@@ -34,6 +35,7 @@ let mockState: AppState = {
   sessionDuration: null,
   sessionPassCount: 0,
   sessionFailCount: 0,
+  problemCoverage: 100,
 };
 
 // Mock the context
@@ -50,6 +52,7 @@ vi.mock('@/contexts', () => ({
       resetAllData: mockResetAllData,
       startNewSession: mockStartNewSession,
       selectProblemSet: mockSelectProblemSet,
+      setProblemCoverage: mockSetProblemCoverage,
     },
   }),
 }));
@@ -86,6 +89,7 @@ describe('Practice Page', () => {
       sessionDuration: null,
       sessionPassCount: 0,
       sessionFailCount: 0,
+      problemCoverage: 100,
     };
     // Suppress console errors during tests
     console.error = vi.fn();
@@ -461,7 +465,7 @@ describe('Practice Page', () => {
       expect(screen.getByText(/view summary/i)).toBeInTheDocument();
     });
 
-    it('should show Reset Data button when session is not active (before start)', () => {
+    it('should NOT show Reset Data button in main view when session is not active', () => {
       mockState = {
         ...mockState,
         isSessionActive: false,
@@ -470,7 +474,8 @@ describe('Practice Page', () => {
 
       render(<PracticePage />);
 
-      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+      // Settings panel is closed by default, so Reset Data button should not be visible
+      expect(screen.queryByRole('button', { name: /reset data/i })).not.toBeInTheDocument();
     });
 
     it('should show View Summary button when session is complete', () => {
@@ -486,7 +491,7 @@ describe('Practice Page', () => {
       expect(screen.getByText(/view summary/i)).toBeInTheDocument();
     });
 
-    it('should show Reset Data button when session is complete', () => {
+    it('should NOT show Reset Data button in main view when session is complete', () => {
       mockState = {
         ...mockState,
         isSessionActive: false,
@@ -496,7 +501,8 @@ describe('Practice Page', () => {
 
       render(<PracticePage />);
 
-      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+      // Settings panel is closed by default, so Reset Data button should not be visible
+      expect(screen.queryByRole('button', { name: /reset data/i })).not.toBeInTheDocument();
     });
 
     it('should hide View Summary button when session is active', () => {
@@ -536,10 +542,12 @@ describe('Practice Page', () => {
 
       render(<PracticePage />);
 
-      expect(screen.queryByText(/reset data/i)).not.toBeInTheDocument();
+      // Settings icon itself should not be visible during active session
+      expect(screen.queryByRole('button', { name: /settings/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /reset data/i })).not.toBeInTheDocument();
     });
 
-    it('should show all three buttons together when session is not active', () => {
+    it('should show only Start and View Summary buttons in main view when session is not active', () => {
       mockState = {
         ...mockState,
         isSessionActive: false,
@@ -548,12 +556,14 @@ describe('Practice Page', () => {
 
       render(<PracticePage />);
 
+      // Only Start and View Summary buttons should be visible in main view
       expect(screen.getByText(/start new session/i)).toBeInTheDocument();
       expect(screen.getByText(/view summary/i)).toBeInTheDocument();
-      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+      // Reset Data button is now in settings panel, not main view
+      expect(screen.queryByRole('button', { name: /reset data/i })).not.toBeInTheDocument();
     });
 
-    it('should show all three buttons together when session is complete', () => {
+    it('should show only Start and View Summary buttons in main view when session is complete', () => {
       mockState = {
         ...mockState,
         isSessionActive: false,
@@ -563,9 +573,91 @@ describe('Practice Page', () => {
 
       render(<PracticePage />);
 
+      // Only Start and View Summary buttons should be visible in main view
       expect(screen.getByText(/start new session/i)).toBeInTheDocument();
       expect(screen.getByText(/view summary/i)).toBeInTheDocument();
-      expect(screen.getByText(/reset data/i)).toBeInTheDocument();
+      // Reset Data button is now in settings panel, not main view
+      expect(screen.queryByRole('button', { name: /reset data/i })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Problem Coverage Slider', () => {
+    it('should NOT display problem coverage slider in main view when session is not active', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        availableProblemSets: [
+          {
+            id: 'ps1',
+            name: 'Addition within 20',
+            problemSetKey: 'addition-within-20',
+            enabled: true,
+            createdAt: Date.now(),
+          },
+        ],
+        problemCoverage: 100,
+      };
+
+      render(<PracticePage />);
+
+      // Settings panel is closed by default, so slider should not be visible in main view
+      expect(screen.queryByText('Problem Coverage')).not.toBeInTheDocument();
+    });
+
+    it('should not display problem coverage slider when session is active', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: true,
+        currentProblem: {
+          id: 'p1',
+          problem: '5 + 3',
+          answer: '8',
+          problemSetId: 'set-1',
+          createdAt: Date.now(),
+        },
+        sessionQueue: ['p1', 'p2', 'p3'],
+        problemCoverage: 80,
+      };
+
+      render(<PracticePage />);
+
+      expect(screen.queryByText('Problem Coverage')).not.toBeInTheDocument();
+    });
+
+    it('should NOT show slider in main view - slider is now in settings panel', async () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        problemCoverage: 100,
+      };
+
+      render(<PracticePage />);
+
+      // Slider should NOT be present in main view (it's in settings panel now)
+      const slider = screen.queryByRole('slider');
+      expect(slider).not.toBeInTheDocument();
+    });
+
+    it('should NOT show slider in main view - use settings panel to access it', () => {
+      mockState = {
+        ...mockState,
+        isSessionActive: false,
+        availableProblemSets: [
+          {
+            id: 'ps1',
+            name: 'Addition within 20',
+            problemSetKey: 'addition-within-20',
+            enabled: true,
+            createdAt: Date.now(),
+          },
+        ],
+        problemCoverage: 50,
+      };
+
+      render(<PracticePage />);
+
+      // Slider should NOT be present in main view (it's in settings panel now)
+      expect(screen.queryByRole('slider')).not.toBeInTheDocument();
     });
   });
 });

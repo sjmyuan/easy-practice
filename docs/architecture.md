@@ -8,6 +8,65 @@
 
 ## Recent Updates
 
+### Settings Panel (December 20, 2025)
+
+- **New Settings Panel Feature**:
+  - Added settings icon (gear icon from Lucide React) in top-right corner of practice page header
+  - Settings icon only visible when `isSessionActive === false` (pre-session and post-session states)
+  - Clicking icon opens a side panel that slides in from the right with smooth CSS transitions
+- **Settings Panel Components**:
+  - **SettingsIcon** (`components/SettingsIcon.tsx`):
+    - Gear icon button with hover effects (scale-110, color change to blue-600)
+    - ARIA label: "Settings"
+    - Positioned absolutely in top-right corner opposite back button
+  - **SettingsPanel** (`components/SettingsPanel.tsx`):
+    - Slide-in panel from right side (w-96 width, fixed positioning)
+    - Backdrop overlay (z-40) with semi-transparent black background
+    - Panel content (z-50) with white background and shadow
+    - Close button (X icon) in panel header
+    - Contains Problem Coverage Slider and Reset Data Button
+    - Smooth transition animations for panel and backdrop
+- **UI Reorganization**:
+  - Removed Problem Coverage Slider from main practice page view
+  - Removed Reset Data Button from main practice page view
+  - These controls now only accessible via settings panel
+  - Main view now shows only Start Session and View Summary buttons
+- **Layout Structure**:
+  - Practice page header uses relative positioning container
+  - Back button (left-0) and settings icon (right-0) positioned absolutely
+  - Title centered between them using flexbox
+  - Settings icon hidden during active sessions to prevent accidental configuration changes
+- **State Management**:
+  - Local state `isSettingsOpen` in practice page controls panel visibility
+  - Panel closes when:
+    - User clicks backdrop overlay
+    - User clicks close button (X) in panel header
+    - Component unmounts
+- **Accessibility**:
+  - Settings icon: ARIA label "Settings"
+  - Settings panel: role="dialog", aria-labelledby="settings-title"
+  - Close button: ARIA label "Close settings"
+  - Full keyboard navigation support
+- **Testing**:
+  - 5 tests for SettingsIcon component
+  - 15 tests for SettingsPanel component
+  - 10 integration tests for practice page with settings
+  - Updated 7 existing tests to reflect UI changes (controls moved to settings)
+  - All 366 tests passing
+- **Components Modified**:
+  - `components/SettingsIcon.tsx` (new)
+  - `components/SettingsPanel.tsx` (new)
+  - `app/practice/page.tsx` (integrated settings icon and panel, removed inline controls)
+  - `tests/unit/components/SettingsIcon.test.tsx` (new)
+  - `tests/unit/components/SettingsPanel.test.tsx` (new)
+  - `tests/unit/app/practice/page.settings.test.tsx` (new)
+  - `tests/unit/app/practice/page.test.tsx` (updated existing tests)
+- **Impact**:
+  - Cleaner main interface with focus on core practice workflow
+  - Settings easily accessible via standard UI pattern
+  - Improved visual hierarchy and reduced cognitive load
+  - No functional changes - all features retained, just reorganized
+
 ### Back Navigation Icon (December 20, 2025)
 
 - **Practice Page Navigation Enhancement**:

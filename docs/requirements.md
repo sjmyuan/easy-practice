@@ -4,6 +4,42 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 ## Design Decisions
 
+### Settings Panel (December 20, 2025)
+
+**Decision**: Added a settings panel accessible via a settings icon on the practice page to consolidate configuration controls.
+
+**Rationale**:
+
+- Declutters the main practice interface by moving infrequently used controls (Problem Coverage slider and Reset Data button) to a dedicated settings panel
+- Maintains focus on the primary workflow (displaying problems and marking answers)
+- Follows standard UI patterns with settings icon in top-right corner
+- Provides clear separation between practice actions and configuration options
+- Accessible only when no session is active, preventing accidental changes during practice
+
+**Implementation Details**:
+
+- Settings icon (gear icon from Lucide React) positioned absolutely in top-right corner of practice page header
+- Icon only visible when `isSessionActive === false` (both pre-session and post-session states)
+- Clicking icon opens a side panel that slides in from the right with smooth animation
+- Side panel includes:
+  - Close button (X icon) in panel header
+  - Problem Coverage Slider
+  - Reset Data Button
+- Click on backdrop (overlay) closes the panel
+- Panel width: 384px (w-96) on larger screens, responsive on mobile
+- Smooth CSS transitions for panel slide-in/out animation
+- Z-index management: backdrop (z-40), panel (z-50)
+- Full keyboard accessibility with proper ARIA labels
+
+**Impact**:
+
+- Cleaner main interface with fewer visible controls
+- Improved focus on core practice workflow
+- Settings remain easily accessible via standard UI pattern (settings icon)
+- No impact on existing functionality - all features retained, just reorganized
+- Better visual hierarchy separating practice actions from configuration
+- Reduced cognitive load during active practice sessions
+
 ### Back Navigation Icon (December 20, 2025)
 
 **Decision**: Added a back navigation icon in the practice page to replace the clickable title functionality.
@@ -98,6 +134,34 @@ A mobile-first web application that helps parents facilitate practice for their 
 - Simplifies the user interface and reduces cognitive load
 - Aligns with the "one-tap actions" usability need from the Busy Parent persona
 - Streamlines the workflow: Display problem → Mark Pass/Fail → Next problem loads automatically
+
+### Problem Coverage Slider (December 20, 2025)
+
+**Decision**: Added a Problem Coverage slider to allow parents to control what percentage of problems to practice based on priority.
+
+**Rationale**:
+
+- Parents with limited time need to focus on the most challenging problems
+- Higher-priority problems (those with more failures or higher failure rates) should be practiced more frequently
+- Provides flexibility for different practice session lengths and goals
+- Helps maintain engagement by preventing sessions from becoming too long
+
+**Implementation Details**:
+
+- Slider with discrete steps: 30%, 50%, 80%, 100% (default)
+- Positioned on practice page, visible only when session is not active
+- Shows real-time feedback: percentage and estimated problem count
+- Coverage selection filters problems by priority (highest first)
+- Coverage resets to 100% after starting a session
+- Mobile-friendly with large touch targets and clear visual design
+
+**Impact**:
+
+- Enhanced flexibility for time-constrained practice sessions
+- Focus on struggling concepts through priority-based filtering
+- Improved parent control over practice scope and intensity
+- Maintains full-coverage option (100%) as the default
+- No impact on existing functionality when using 100% coverage
 
 **Impact**:
 
@@ -258,6 +322,19 @@ As a busy parent, I want all problems from the selected problem set to be includ
 
 - ✅ Given a session is started, when generating the problem queue, then all problems from enabled problem sets should be included.
 - ✅ Given a session is generated, when problems are presented, then they should appear in random order with no duplicates.
+
+#### User Story 2.1: Problem Coverage Selection ✅ COMPLETED
+
+As a busy parent, I want to control what percentage of problems my child practices based on difficulty, so I can focus on the most challenging problems when time is limited.
+
+##### Acceptance Criteria:
+
+- ✅ Given I am on the practice page before starting a session, when viewing the interface, then I should see a Problem Coverage slider with preset values (30%, 50%, 80%, 100%).
+- ✅ Given I adjust the Problem Coverage slider, when I change the value, then I should see the selected percentage and the estimated number of problems to be practiced.
+- ✅ Given I set the Problem Coverage to less than 100%, when the session starts, then only the top X% of problems sorted by priority (highest priority first) should be included in the session.
+- ✅ Given I set the Problem Coverage to 100%, when the session starts, then all problems should be included as before.
+- ✅ Given I start a session with a coverage value, when the session starts, then the coverage should reset to 100% for the next session.
+- ✅ Given a session is active, when viewing the interface, then the Problem Coverage slider should not be visible.
 
 #### User Story 3: Track Session Progress ✅ COMPLETED
 

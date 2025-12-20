@@ -35,6 +35,7 @@ export interface AppState {
   availableProblemSets: ProblemSet[];
   isLoading: boolean;
   showSummary: boolean;
+  problemCoverage: number; // Percentage of problems to include (30, 50, 80, 100)
 
   // Statistics
   struggledProblems: StruggledProblemSummary[];
@@ -60,6 +61,9 @@ export interface AppActions {
 
   // Problem Set Key Selection Actions
   setProblemSetKey: (problemSetKey: string) => void;
+
+  // Problem Coverage Actions
+  setProblemCoverage: (coverage: number) => void;
 
   // Summary Actions
   loadStruggledProblems: () => Promise<void>;
@@ -99,6 +103,7 @@ const initialState: AppState = {
   struggledProblems: [],
   isInitialized: false,
   initializationError: null,
+  problemCoverage: 100,
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -315,6 +320,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setProblemCoverage = useCallback((coverage: number) => {
+    setState((prev) => ({ ...prev, problemCoverage: coverage }));
+  }, []);
+
   const selectProblemSet = useCallback((problemSetId: string) => {
     setState((prev) => {
       // Find the selected problem set to get its problemSetKey
@@ -352,14 +361,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       // Get current state from ref
-      const { selectedProblemSetKey, selectedProblemSetId } = stateRef.current;
+      const { selectedProblemSetKey, selectedProblemSetId, problemCoverage } =
+        stateRef.current;
 
       // Generate session queue based on selected problem set or problemSetKey
       const queue = selectedProblemSetId
-        ? await problemService.generateSessionQueue(selectedProblemSetId, true)
+        ? await problemService.generateSessionQueue(
+            selectedProblemSetId,
+            true,
+            problemCoverage
+          )
         : await problemService.generateSessionQueue(
             selectedProblemSetKey,
-            false
+            false,
+            problemCoverage
           );
 
       // If no problems in queue, don't start session
@@ -374,6 +389,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           sessionDuration: null,
           sessionPassCount: 0,
           sessionFailCount: 0,
+          problemCoverage: 100, // Reset to default
         }));
         return;
       }
@@ -397,6 +413,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionDuration: null, // Reset duration for new session
         sessionPassCount: 0, // Reset counts for new session
         sessionFailCount: 0,
+        problemCoverage: 100, // Reset to default after starting session
       }));
     } catch (error) {
       console.error('Failed to start new session:', error);
@@ -502,6 +519,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       loadNextProblem,
       submitAnswer,
       setProblemSetKey,
+      setProblemCoverage,
       startNewSession,
       loadStruggledProblems,
       toggleSummary,
@@ -518,6 +536,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       loadNextProblem,
       submitAnswer,
       setProblemSetKey,
+      setProblemCoverage,
       startNewSession,
       loadStruggledProblems,
       toggleSummary,

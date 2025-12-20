@@ -367,6 +367,305 @@ describe('ProblemService - Session Queue Generation', () => {
 
       expect(queue).toEqual([]);
     });
+
+    it('should filter to top 30% of problems when coverage is 30', async () => {
+      const mockProblemSets = [
+        {
+          id: 'ps1',
+          name: 'Addition',
+          problemSetKey: 'addition-within-20',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ];
+
+      // Create 10 problems
+      const mockProblems = Array.from({ length: 10 }, (_, i) => ({
+        id: `p${i + 1}`,
+        problemSetId: 'ps1',
+        problem: `${i} + ${i}`,
+        answer: `${i * 2}`,
+        createdAt: Date.now(),
+      }));
+
+      // Mock statistics with different priorities
+      const mockStats = mockProblems.map((p, i) => ({
+        problemId: p.id!,
+        priority: 100 - i * 10, // Descending priority
+        totalAttempts: 10,
+        passCount: 5,
+        failCount: 5,
+        lastAttemptedAt: Date.now(),
+        lastResult: 'pass' as const,
+        failureRate: 0.5,
+      }));
+
+      vi.mocked(db.problemSets.where).mockReturnValue({
+        equals: vi.fn().mockReturnValue({
+          and: vi.fn().mockReturnValue({
+            toArray: vi.fn().mockResolvedValue(mockProblemSets),
+          }),
+        }),
+      } as unknown as ReturnType<typeof db.problemSets.where>);
+
+      vi.mocked(db.problems.where).mockReturnValue({
+        anyOf: vi.fn().mockReturnValue({
+          toArray: vi.fn().mockResolvedValue(mockProblems),
+        }),
+      } as unknown as ReturnType<typeof db.problems.where>);
+
+      // Mock statistics calls
+      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+        const stat = mockStats.find((s) => s.problemId === id);
+        return stat || null;
+      });
+
+      const queue = await problemService.generateSessionQueue(
+        'addition-within-20',
+        false,
+        30
+      );
+
+      // 30% of 10 problems = 3 problems
+      expect(queue).toHaveLength(3);
+    });
+
+    it('should filter to top 50% of problems when coverage is 50', async () => {
+      const mockProblemSets = [
+        {
+          id: 'ps1',
+          name: 'Addition',
+          problemSetKey: 'addition-within-20',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ];
+
+      const mockProblems = Array.from({ length: 10 }, (_, i) => ({
+        id: `p${i + 1}`,
+        problemSetId: 'ps1',
+        problem: `${i} + ${i}`,
+        answer: `${i * 2}`,
+        createdAt: Date.now(),
+      }));
+
+      const mockStats = mockProblems.map((p, i) => ({
+        problemId: p.id!,
+        priority: 100 - i * 10,
+        totalAttempts: 10,
+        passCount: 5,
+        failCount: 5,
+        lastAttemptedAt: Date.now(),
+        lastResult: 'pass' as const,
+        failureRate: 0.5,
+      }));
+
+      vi.mocked(db.problemSets.where).mockReturnValue({
+        equals: vi.fn().mockReturnValue({
+          and: vi.fn().mockReturnValue({
+            toArray: vi.fn().mockResolvedValue(mockProblemSets),
+          }),
+        }),
+      } as unknown as ReturnType<typeof db.problemSets.where>);
+
+      vi.mocked(db.problems.where).mockReturnValue({
+        anyOf: vi.fn().mockReturnValue({
+          toArray: vi.fn().mockResolvedValue(mockProblems),
+        }),
+      } as unknown as ReturnType<typeof db.problems.where>);
+
+      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+        const stat = mockStats.find((s) => s.problemId === id);
+        return stat || null;
+      });
+
+      const queue = await problemService.generateSessionQueue(
+        'addition-within-20',
+        false,
+        50
+      );
+
+      // 50% of 10 problems = 5 problems
+      expect(queue).toHaveLength(5);
+    });
+
+    it('should filter to top 80% of problems when coverage is 80', async () => {
+      const mockProblemSets = [
+        {
+          id: 'ps1',
+          name: 'Addition',
+          problemSetKey: 'addition-within-20',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ];
+
+      const mockProblems = Array.from({ length: 10 }, (_, i) => ({
+        id: `p${i + 1}`,
+        problemSetId: 'ps1',
+        problem: `${i} + ${i}`,
+        answer: `${i * 2}`,
+        createdAt: Date.now(),
+      }));
+
+      const mockStats = mockProblems.map((p, i) => ({
+        problemId: p.id!,
+        priority: 100 - i * 10,
+        totalAttempts: 10,
+        passCount: 5,
+        failCount: 5,
+        lastAttemptedAt: Date.now(),
+        lastResult: 'pass' as const,
+        failureRate: 0.5,
+      }));
+
+      vi.mocked(db.problemSets.where).mockReturnValue({
+        equals: vi.fn().mockReturnValue({
+          and: vi.fn().mockReturnValue({
+            toArray: vi.fn().mockResolvedValue(mockProblemSets),
+          }),
+        }),
+      } as unknown as ReturnType<typeof db.problemSets.where>);
+
+      vi.mocked(db.problems.where).mockReturnValue({
+        anyOf: vi.fn().mockReturnValue({
+          toArray: vi.fn().mockResolvedValue(mockProblems),
+        }),
+      } as unknown as ReturnType<typeof db.problems.where>);
+
+      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+        const stat = mockStats.find((s) => s.problemId === id);
+        return stat || null;
+      });
+
+      const queue = await problemService.generateSessionQueue(
+        'addition-within-20',
+        false,
+        80
+      );
+
+      // 80% of 10 problems = 8 problems
+      expect(queue).toHaveLength(8);
+    });
+
+    it('should include all problems when coverage is 100', async () => {
+      const mockProblemSets = [
+        {
+          id: 'ps1',
+          name: 'Addition',
+          problemSetKey: 'addition-within-20',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ];
+
+      const mockProblems = Array.from({ length: 10 }, (_, i) => ({
+        id: `p${i + 1}`,
+        problemSetId: 'ps1',
+        problem: `${i} + ${i}`,
+        answer: `${i * 2}`,
+        createdAt: Date.now(),
+      }));
+
+      const mockStats = mockProblems.map((p, i) => ({
+        problemId: p.id!,
+        priority: 100 - i * 10,
+        totalAttempts: 10,
+        passCount: 5,
+        failCount: 5,
+        lastAttemptedAt: Date.now(),
+        lastResult: 'pass' as const,
+        failureRate: 0.5,
+      }));
+
+      vi.mocked(db.problemSets.where).mockReturnValue({
+        equals: vi.fn().mockReturnValue({
+          and: vi.fn().mockReturnValue({
+            toArray: vi.fn().mockResolvedValue(mockProblemSets),
+          }),
+        }),
+      } as unknown as ReturnType<typeof db.problemSets.where>);
+
+      vi.mocked(db.problems.where).mockReturnValue({
+        anyOf: vi.fn().mockReturnValue({
+          toArray: vi.fn().mockResolvedValue(mockProblems),
+        }),
+      } as unknown as ReturnType<typeof db.problems.where>);
+
+      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+        const stat = mockStats.find((s) => s.problemId === id);
+        return stat || null;
+      });
+
+      const queue = await problemService.generateSessionQueue(
+        'addition-within-20',
+        false,
+        100
+      );
+
+      // 100% of 10 problems = 10 problems
+      expect(queue).toHaveLength(10);
+    });
+
+    it('should prioritize problems with higher priority when filtering', async () => {
+      const mockProblemSets = [
+        {
+          id: 'ps1',
+          name: 'Addition',
+          problemSetKey: 'addition-within-20',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ];
+
+      // Create problems with specific priorities
+      const mockProblems = [
+        { id: 'p1', problemSetId: 'ps1', problem: '1+1', answer: '2', createdAt: Date.now() },
+        { id: 'p2', problemSetId: 'ps1', problem: '2+2', answer: '4', createdAt: Date.now() },
+        { id: 'p3', problemSetId: 'ps1', problem: '3+3', answer: '6', createdAt: Date.now() },
+        { id: 'p4', problemSetId: 'ps1', problem: '4+4', answer: '8', createdAt: Date.now() },
+      ];
+
+      // Assign priorities: p3 > p1 > p4 > p2
+      const mockStats = [
+        { problemId: 'p1', priority: 70, totalAttempts: 10, passCount: 5, failCount: 5, lastAttemptedAt: Date.now(), lastResult: 'fail' as const, failureRate: 0.5 },
+        { problemId: 'p2', priority: 40, totalAttempts: 10, passCount: 8, failCount: 2, lastAttemptedAt: Date.now(), lastResult: 'pass' as const, failureRate: 0.2 },
+        { problemId: 'p3', priority: 90, totalAttempts: 10, passCount: 3, failCount: 7, lastAttemptedAt: Date.now(), lastResult: 'fail' as const, failureRate: 0.7 },
+        { problemId: 'p4', priority: 60, totalAttempts: 10, passCount: 6, failCount: 4, lastAttemptedAt: Date.now(), lastResult: 'pass' as const, failureRate: 0.4 },
+      ];
+
+      vi.mocked(db.problemSets.where).mockReturnValue({
+        equals: vi.fn().mockReturnValue({
+          and: vi.fn().mockReturnValue({
+            toArray: vi.fn().mockResolvedValue(mockProblemSets),
+          }),
+        }),
+      } as unknown as ReturnType<typeof db.problemSets.where>);
+
+      vi.mocked(db.problems.where).mockReturnValue({
+        anyOf: vi.fn().mockReturnValue({
+          toArray: vi.fn().mockResolvedValue(mockProblems),
+        }),
+      } as unknown as ReturnType<typeof db.problems.where>);
+
+      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+        const stat = mockStats.find((s) => s.problemId === id);
+        return stat || null;
+      });
+
+      const queue = await problemService.generateSessionQueue(
+        'addition-within-20',
+        false,
+        50 // Take top 50% (2 out of 4 problems)
+      );
+
+      // Should include top 2 problems by priority: p3 and p1
+      expect(queue).toHaveLength(2);
+      expect(queue).toContain('p3');
+      expect(queue).toContain('p1');
+      expect(queue).not.toContain('p2');
+      expect(queue).not.toContain('p4');
+    });
   });
 
   describe('loadManifest', () => {

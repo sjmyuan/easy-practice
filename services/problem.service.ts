@@ -175,10 +175,14 @@ export class ProblemService {
    * Generate session queue with all problems in random order
    * - Include all problems from the selected problem set
    * - Return shuffled array of problem IDs with no duplicates
+   * @param typeOrProblemSetId - problemSetKey or problemSetId
+   * @param useProblemSetId - if true, use problemSetId; otherwise use problemSetKey
+   * @param coverage - percentage of problems to include (30, 50, 80, 100)
    */
   async generateSessionQueue(
     typeOrProblemSetId: string,
-    useProblemSetId: boolean = false
+    useProblemSetId: boolean = false,
+    coverage: number = 100
   ): Promise<string[]> {
     let problems: Problem[];
 
@@ -211,8 +215,33 @@ export class ProblemService {
 
     if (problems.length === 0) return [];
 
+    // Apply coverage filter if less than 100%
+    let filteredProblems = problems;
+    if (coverage < 100) {
+      // Get statistics for all problems to sort by priority
+      const problemsWithStats = await Promise.all(
+        problems.map(async (p) => {
+          const stats = await db.statistics.get(p.id!);
+          return { problem: p, stats };
+        })
+      );
+
+      // Sort by priority (highest first)
+      problemsWithStats.sort(
+        (a, b) => (b.stats?.priority || 0) - (a.stats?.priority || 0)
+      );
+
+      // Calculate number of problems to include
+      const problemCount = Math.round((problems.length * coverage) / 100);
+
+      // Take top X% of problems
+      filteredProblems = problemsWithStats
+        .slice(0, problemCount)
+        .map(({ problem }) => problem);
+    }
+
     // Collect all problem IDs
-    const sessionProblems: string[] = problems
+    const sessionProblems: string[] = filteredProblems
       .map((problem) => problem.id)
       .filter((id): id is string => id !== undefined);
 

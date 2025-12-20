@@ -430,7 +430,8 @@ describe('AppContext', () => {
 
       expect(generateSessionQueueCall).toHaveBeenCalledWith(
         'subtraction',
-        false
+        false,
+        100
       );
     });
 
@@ -1673,6 +1674,127 @@ describe('AppContext', () => {
       // Counts should not change
       expect(result.current.state.sessionPassCount).toBe(initialPassCount);
       expect(result.current.state.sessionFailCount).toBe(initialFailCount);
+    });
+  });
+
+  describe('Problem Coverage State Management', () => {
+    it('should initialize with default problem coverage of 100', async () => {
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      expect(result.current.state.problemCoverage).toBe(100);
+    });
+
+    it('should update problem coverage when setProblemCoverage is called', async () => {
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Update to 80%
+      act(() => {
+        result.current.actions.setProblemCoverage(80);
+      });
+
+      expect(result.current.state.problemCoverage).toBe(80);
+
+      // Update to 50%
+      act(() => {
+        result.current.actions.setProblemCoverage(50);
+      });
+
+      expect(result.current.state.problemCoverage).toBe(50);
+
+      // Update to 30%
+      act(() => {
+        result.current.actions.setProblemCoverage(30);
+      });
+
+      expect(result.current.state.problemCoverage).toBe(30);
+    });
+
+    it('should reset problem coverage to 100 when starting a new session', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
+      problemsGetCall.mockResolvedValue(problem);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Set coverage to 50%
+      act(() => {
+        result.current.actions.setProblemCoverage(50);
+      });
+
+      expect(result.current.state.problemCoverage).toBe(50);
+
+      // Start new session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      // Coverage should reset to 100
+      expect(result.current.state.problemCoverage).toBe(100);
+    });
+
+    it('should pass problem coverage to generateSessionQueue', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2']);
+      problemsGetCall.mockResolvedValue(problem);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Set coverage to 80%
+      act(() => {
+        result.current.actions.setProblemCoverage(80);
+      });
+
+      // Start new session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      // Verify generateSessionQueue was called with coverage parameter
+      expect(generateSessionQueueCall).toHaveBeenCalledWith(
+        'addition-within-20',
+        false,
+        80
+      );
     });
   });
 });

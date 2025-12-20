@@ -4,18 +4,53 @@ import { useApp } from '@/contexts';
 import { ProblemDisplay } from '@/components/ProblemDisplay';
 import { AnswerButtons } from '@/components/AnswerButtons';
 import { SummaryView } from '@/components/SummaryView';
-import { ResetDataButton } from '@/components/ResetDataButton';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { StartSessionButton } from '@/components/StartSessionButton';
 import { SessionTimer } from '@/components/SessionTimer';
+import { SettingsIcon } from '@/components/SettingsIcon';
+import { SettingsPanel } from '@/components/SettingsPanel';
 import { formatDuration } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { db } from '@/lib/db';
 
 export default function PracticePage() {
   const { state, actions } = useApp();
   const router = useRouter();
+  const [totalProblems, setTotalProblems] = useState(20); // Default fallback
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Get total problem count for selected problem set
+  useEffect(() => {
+    const loadProblemCount = async () => {
+      if (!state.selectedProblemSetKey) return;
+
+      const problemSets = await db.problemSets
+        .where('problemSetKey')
+        .equals(state.selectedProblemSetKey)
+        .and((ps) => ps.enabled)
+        .toArray();
+
+      if (problemSets.length === 0) {
+        setTotalProblems(0);
+        return;
+      }
+
+      const problemSetIds = problemSets
+        .map((ps) => ps.id)
+        .filter((id): id is string => id !== undefined);
+
+      const count = await db.problems
+        .where('problemSetId')
+        .anyOf(problemSetIds)
+        .count();
+
+      setTotalProblems(count);
+    };
+
+    loadProblemCount();
+  }, [state.selectedProblemSetKey]);
 
   // Redirect to landing if no problem set is selected
   useEffect(() => {
@@ -85,6 +120,11 @@ export default function PracticePage() {
           <h1 className="text-center text-3xl font-bold text-gray-900">
             {pageTitle}
           </h1>
+          {!state.isSessionActive && (
+            <div className="absolute right-0">
+              <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
+            </div>
+          )}
         </div>
 
         {/* Session-based UI */}
@@ -169,7 +209,6 @@ export default function PracticePage() {
                     >
                       View Summary
                     </button>
-                    <ResetDataButton onReset={actions.resetAllData} />
                   </div>
                 </div>
               </div>
@@ -190,7 +229,6 @@ export default function PracticePage() {
                     >
                       View Summary
                     </button>
-                    <ResetDataButton onReset={actions.resetAllData} />
                   </div>
                 </div>
               </div>
@@ -205,6 +243,16 @@ export default function PracticePage() {
           onClose={actions.toggleSummary}
         />
       )}
+
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        problemCoverage={state.problemCoverage}
+        onProblemCoverageChange={actions.setProblemCoverage}
+        totalProblems={totalProblems}
+        onResetData={actions.resetAllData}
+        selectedProblemSetKey={state.selectedProblemSetKey}
+      />
     </main>
   );
 }
