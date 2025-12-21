@@ -4,6 +4,51 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 ## Design Decisions
 
+### Single Page Application (SPA) Architecture (December 29, 2025)
+
+**Decision**: Refactored the application from a multi-page architecture to a Single Page Application (SPA) by merging the practice page functionality into the landing page, eliminating client-side navigation.
+
+**Rationale**:
+
+- Simplifies the application architecture by consolidating all views into a single page
+- Eliminates unnecessary page transitions and routing complexity
+- Improves user experience with instant view transitions via conditional rendering
+- Reduces cognitive overhead by maintaining a single entry point
+- Aligns with the app's simple workflow: select problem set → configure → practice → review
+- Better state management with all views sharing the same React component tree
+- Easier to test and maintain with fewer moving parts
+
+**Implementation Details**:
+
+- Merged `app/practice/page.tsx` functionality into `app/page.tsx`
+- Removed all `useRouter()` and `router.push()` calls
+- Implemented view selection via conditional rendering based on `state.selectedProblemSetId` and session state
+- View hierarchy:
+  - **LandingView**: Shown when `selectedProblemSetId === null` (problem set selection)
+  - **PracticeSessionView**: Shown when `isSessionActive === true` (active practice session)
+  - **SessionCompleteView**: Shown when `sessionCompletedCount > 0` (post-session results)
+  - **PreSessionView**: Shown when problem set is selected but no active session (pre-session configuration)
+- Extracted 6 reusable view components:
+  - `ErrorView`: Centralized error display with retry functionality
+  - `LoadingView`: Consistent loading state presentation
+  - `LandingView`: Problem set selection interface
+  - `PreSessionView`: Pre-session controls (start session, view summary, settings)
+  - `SessionCompleteView`: Post-session statistics and actions
+  - `PracticeSessionView`: Active session interface (timer, progress, problem display, answer buttons)
+- Removed practice page directory: `app/practice/`
+- Updated all navigation actions to use state changes instead of routing
+- Maintained all existing functionality including settings panel, summary view, and session management
+
+**Impact**:
+
+- Single entry point at `/` for the entire application
+- Instant view transitions without page reloads
+- Simplified codebase with improved maintainability
+- Better code organization with dedicated view components
+- No change to user-facing functionality or behavior
+- Improved testability with clearer component boundaries
+- All 322 tests maintained and passing after refactor
+
 ### Settings Panel (December 20, 2025)
 
 **Decision**: Added a settings panel accessible via a settings icon on the practice page to consolidate configuration controls, implemented as a centered modal dialog overlay.

@@ -1,5 +1,5 @@
 // tests/unit/app/page.test.tsx
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import Home from '@/app/page';
@@ -109,17 +109,36 @@ describe('Home Page (Landing)', () => {
     expect(screen.getByText('Subtraction within 20')).toBeInTheDocument();
   });
 
-  it('should navigate to practice page when problem set is selected', async () => {
+  it('should show practice view when problem set is selected', async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    
+    // Start with no selected problem set
+    mockState.selectedProblemSetId = null;
+    
+    const { rerender } = render(<Home />);
 
     const additionButton = screen.getByRole('button', {
       name: /addition within 20/i,
     });
+    
+    // Mock the state change that would happen after selection
+    mockSelectProblemSet.mockImplementation((id: string) => {
+      mockState.selectedProblemSetId = id;
+    });
+    
     await user.click(additionButton);
 
     expect(mockSelectProblemSet).toHaveBeenCalledWith('set-1');
-    expect(mockPush).toHaveBeenCalledWith('/practice');
+    // Should not navigate - stays on same page (SPA behavior)
+    expect(mockPush).not.toHaveBeenCalled();
+    
+    // Rerender with updated state
+    rerender(<Home />);
+    
+    // Should show practice view
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /start new session/i })).toBeInTheDocument();
+    });
   });
 
   it('should display problem display area when session is active', () => {

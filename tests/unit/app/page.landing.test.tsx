@@ -115,7 +115,7 @@ describe('Landing Page (app/page.tsx)', () => {
   });
 
   describe('Problem Set Selection', () => {
-    it('should navigate to practice page when a problem set is selected', async () => {
+    it('should show practice view when a problem set is selected', async () => {
       const user = userEvent.setup();
 
       render(
@@ -133,7 +133,13 @@ describe('Landing Page (app/page.tsx)', () => {
       });
       await user.click(additionButton);
 
-      expect(mockPush).toHaveBeenCalledWith('/practice');
+      // Should not navigate - stays on same page (SPA behavior)
+      expect(mockPush).not.toHaveBeenCalled();
+      
+      // Should show practice view with Start Session button
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /start new session/i })).toBeInTheDocument();
+      });
     });
 
     it('should store selected problem set ID in context', async () => {
@@ -154,8 +160,13 @@ describe('Landing Page (app/page.tsx)', () => {
       });
       await user.click(additionButton);
 
-      // Context update will be verified in integration tests
-      expect(mockPush).toHaveBeenCalledWith('/practice');
+      // Should not navigate - stays on same page (SPA behavior)
+      expect(mockPush).not.toHaveBeenCalled();
+      
+      // Should show practice view instead of landing view
+      await waitFor(() => {
+        expect(screen.queryByText('Choose a Problem Set')).not.toBeInTheDocument();
+      });
     });
   });
 

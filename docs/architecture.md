@@ -2,11 +2,85 @@
 
 ## Easy Practice for Parents
 
-**Version:** 1.5.1  
-**Date:** December 20, 2025  
+**Version:** 1.6.0  
+**Date:** December 29, 2025  
 **Status:** In Progress - Epics 1, 2, 3, & 4 Completed
 
 ## Recent Updates
+
+### Single Page Application (SPA) Architecture Refactor (December 29, 2025)
+
+- **Architecture Change**:
+  - Converted from multi-page to Single Page Application (SPA) architecture
+  - Merged `app/practice/page.tsx` functionality into `app/page.tsx`
+  - Eliminated client-side routing in favor of conditional rendering
+  - Removed all `useRouter()` and `router.push()` calls
+- **View Management**:
+  - All views now rendered conditionally within `app/page.tsx` based on application state
+  - View selection logic:
+    - `selectedProblemSetId === null` → **LandingView** (problem set selection)
+    - `isSessionActive === true` → **PracticeSessionView** (active session)
+    - `sessionCompletedCount > 0` → **SessionCompleteView** (post-session results)
+    - Default (problem set selected, no active session) → **PreSessionView** (pre-session controls)
+- **New View Components**:
+  - **ErrorView** (`components/ErrorView.tsx`):
+    - Reusable error display component extracted from duplicated page code
+    - Props: `message` (error text), `onRetry` (retry callback)
+    - Displays error message with retry button
+    - Consistent error styling across all views
+    - 5 tests covering rendering, retry action, and accessibility
+  - **LoadingView** (`components/LoadingView.tsx`):
+    - Reusable loading state component
+    - Simple centered "Loading..." text with proper styling
+    - Consistent loading presentation across the app
+    - 4 tests covering rendering and accessibility
+  - **LandingView** (`components/LandingView.tsx`):
+    - Problem set selection interface (original landing page content)
+    - Props: `problemSets`, `onSelect`, `isLoading`
+    - Renders ProblemSetSelector component
+    - Centered layout with title and problem set grid
+    - 5 tests covering rendering, selection, and disabled states
+  - **PreSessionView** (`components/PreSessionView.tsx`):
+    - Pre-session controls view shown after problem set selection
+    - Contains StartSessionButton and "View Summary" button
+    - Settings icon integration for accessing settings panel
+    - Vertical layout with proper spacing
+    - 6 tests covering rendering, button interactions, and settings
+  - **SessionCompleteView** (`components/SessionCompleteView.tsx`):
+    - Post-session statistics and action buttons
+    - Displays: session duration, pass/fail/total stats grid
+    - Actions: "Start New Session" and "View Summary" buttons
+    - Responsive grid layout for statistics
+    - 8 tests covering all display scenarios and interactions
+  - **PracticeSessionView** (`components/PracticeSessionView.tsx`):
+    - Active session interface component
+    - Integrates: SessionTimer, ProgressIndicator, ProblemDisplay, AnswerButtons
+    - Full-screen practice layout
+    - 7 tests covering rendering, timer, progress, and answer marking
+- **Component Organization**:
+  - Extracted 6 dedicated view components for better separation of concerns
+  - Each view component has focused responsibility
+  - Improved code reusability and testability
+  - Clearer component hierarchy and data flow
+- **Removed Files**:
+  - `app/practice/page.tsx` - merged into `app/page.tsx`
+  - `tests/unit/app/practice/` directory - tests migrated to main page tests
+- **Navigation Changes**:
+  - Back navigation now uses `actions.selectProblemSet('')` to clear selection
+  - No page transitions - instant view changes via React state
+  - Maintains browser history with single route `/`
+- **Testing**:
+  - All 322 tests maintained and passing after refactor
+  - Updated navigation tests to verify SPA behavior (no `router.push()` calls)
+  - Added comprehensive tests for all new view components
+  - Test coverage: ErrorView (5), LoadingView (4), LandingView (5), PreSessionView (6), SessionCompleteView (8), PracticeSessionView (7)
+- **Impact**:
+  - Simplified application architecture with single entry point
+  - Improved performance with instant view transitions
+  - Better state management with unified component tree
+  - Easier maintenance with clearer component boundaries
+  - No user-facing functionality changes
+  - All existing features preserved (settings, summary, sessions, etc.)
 
 ### Settings Panel (December 20, 2025)
 

@@ -1,57 +1,166 @@
 'use client';
 
 import { useApp } from '@/contexts';
-import { ProblemSetSelector } from '@/components/ProblemSetSelector';
-import { useRouter } from 'next/navigation';
+import { ErrorView } from '@/components/ErrorView';
+import { LoadingView } from '@/components/LoadingView';
+import { LandingView } from '@/components/LandingView';
+import { PreSessionView } from '@/components/PreSessionView';
+import { SessionCompleteView } from '@/components/SessionCompleteView';
+import { PracticeSessionView } from '@/components/PracticeSessionView';
+import { SummaryView } from '@/components/SummaryView';
+import { SettingsIcon } from '@/components/SettingsIcon';
+import { SettingsPanel } from '@/components/SettingsPanel';
+import { ChevronLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { db } from '@/lib/db';
 
 export default function Home() {
   const { state, actions } = useApp();
-  const router = useRouter();
+  const [totalProblems, setTotalProblems] = useState(20); // Default fallback
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const handleProblemSetSelect = (problemSetId: string) => {
-    actions.selectProblemSet(problemSetId);
-    router.push('/practice');
+  // Get total problem count for selected problem set
+  useEffect(() => {
+    const loadProblemCount = async () => {
+      if (!state.selectedProblemSetKey) return;
+
+      const problemSets = await db.problemSets
+        .where('problemSetKey')
+        .equals(state.selectedProblemSetKey)
+        .and((ps) => ps.enabled)
+        .toArray();
+
+      if (problemSets.length === 0) {
+        setTotalProblems(0);
+        return;
+      }
+
+      const problemSetIds = problemSets
+        .map((ps) => ps.id)
+        .filter((id): id is string => id !== undefined);
+
+      const count = await db.problems
+        .where('problemSetId')
+        .anyOf(problemSetIds)
+        .count();
+
+      setTotalProblems(count);
+    };
+
+    loadProblemCount();
+  }, [state.selectedProblemSetKey]);
+
+  const handleChangeProblemSet = () => {
+    // Clear session and return to landing
+    actions.selectProblemSet('');
+  };
+
+  const handleViewSummary = () => {
+    actions.loadStruggledProblems();
+    actions.toggleSummary();
   };
 
   if (state.initializationError) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="space-y-4 text-center">
-          <p className="text-xl text-red-600">
-            Error: {state.initializationError}
-          </p>
-          <button
-            onClick={() => actions.initializeApp()}
-            className="h-12 rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <ErrorView
+        message={state.initializationError}
+        onRetry={() => actions.initializeApp()}
+      />
     );
   }
 
   if (!state.isInitialized) {
+    return <LoadingView />;
+  }
+
+  // Landing view - no problem set selected
+  if (!state.selectedProblemSetId) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-xl text-gray-500">Loading...</p>
-      </div>
+      <LandingView
+        problemSets={state.availableProblemSets}
+        onSelect={(problemSetId) => actions.selectProblemSet(problemSetId)}
+        isLoading={state.isLoading}
+      />
     );
   }
+
+  // Get selected problem set name for display
+  const selectedProblemSet = state.availableProblemSets.find(
+    (ps) => ps.id === state.selectedProblemSetId
+  );
+  const pageTitle = selectedProblemSet?.name || 'Easy Practice';
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-center text-3xl font-bold text-gray-900">
-          Easy Practice
-        </h1>
+        <div className="space-y-4">
+          {/* Navigation Row */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleChangeProblemSet}
+              className="rounded-lg p-2 text-gray-600 transition-all hover:scale-110 hover:text-blue-600"
+              aria-label="Back to landing page"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+            {!state.isSessionActive && (
+              <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
+            )}
+          </div>
 
-        <ProblemSetSelector
-          problemSets={state.availableProblemSets}
-          onSelect={handleProblemSetSelect}
-          disabled={state.isLoading}
-        />
+          {/* Title Row */}
+          <h1 className="text-center text-2xl sm:text-3xl font-bold text-gray-900">
+            {pageTitle}
+          </h1>
+        </div>
+
+        {/* View-based UI */}
+        {state.isSessionActive ? (
+          <PracticeSessionView
+            sessionStartTime={state.sessionStartTime}
+            isSessionActive={state.isSessionActive}
+            sessionCompletedCount={state.sessionCompletedCount}
+            sessionQueueLength={state.sessionQueue.length}
+            currentProblem={state.currentProblem}
+            onPass={() => actions.submitAnswer('pass')}
+            onFail={() => actions.submitAnswer('fail')}
+            isLoading={state.isLoading}
+          />
+        ) : state.sessionCompletedCount > 0 ? (
+          <SessionCompleteView
+            sessionDuration={state.sessionDuration}
+            passCount={state.sessionPassCount}
+            failCount={state.sessionFailCount}
+            totalCount={state.sessionCompletedCount}
+            onStartNewSession={actions.startNewSession}
+            onViewSummary={handleViewSummary}
+            isLoading={state.isLoading}
+          />
+        ) : (
+          <PreSessionView
+            onStart={actions.startNewSession}
+            onViewSummary={handleViewSummary}
+            isLoading={state.isLoading}
+          />
+        )}
       </div>
+
+      {state.showSummary && (
+        <SummaryView
+          problems={state.struggledProblems}
+          onClose={actions.toggleSummary}
+        />
+      )}
+
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        problemCoverage={state.problemCoverage}
+        onProblemCoverageChange={actions.setProblemCoverage}
+        totalProblems={totalProblems}
+        onResetData={actions.resetAllData}
+        selectedProblemSetKey={state.selectedProblemSetKey}
+      />
     </main>
   );
 }
