@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
-import { PracticeSessionView } from '@/components/PracticeSessionView';
-import type { Problem } from '@/types';
+import { vi, describe, it, expect } from 'vitest';
+import { PracticeSessionView } from '../../../components/PracticeSessionView';
+import type { Problem } from '../../../types';
 
 const mockProblem: Problem = {
   id: '1',

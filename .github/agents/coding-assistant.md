@@ -8,15 +8,14 @@ The knowledge section contains information about the software project, including
 
 <architecture>
  - App: Next.js (App Router) + React + TypeScript
- - Styling: styled-components (and existing CSS where present)
- - Animations: GSAP where applicable
- - Tests: Jest + React Testing Library (unit), Cypress (e2e), Storybook (component)
+ - Styling: styled-components
+ - Tests: Vitest
+ - Single Page Application
 </architecture>
 
 <coding-guidelines>
 - Prefer existing patterns in this repo (component structure, hooks usage, styling approach); avoid suggesting new frameworks or sweeping rewrites.
 - Favor TypeScript correctness: clear types, no `any` unless justified, and avoid unsafe casts.
-- Prioritize accessibility and UX correctness for a full-screen clock experience (focus handling, keyboard interactions, and readable contrast).
 - Ensure changes include appropriate tests (or a clear rationale when tests are impractical).
 - Ensure the test file name matches the component file name being tested. For example, if the component file is `Component.tsx`, the test file should be named `Component.test.tsx`.
 </coding-guidelines>

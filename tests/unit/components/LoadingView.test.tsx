@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { LoadingView } from '@/components/LoadingView';
+import { describe, it, expect } from 'vitest';
+import { LoadingView } from '../../../components/LoadingView';
 
 describe('LoadingView', () => {
   it('should render loading text', () => {

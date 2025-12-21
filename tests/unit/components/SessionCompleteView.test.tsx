@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
-import { SessionCompleteView } from '@/components/SessionCompleteView';
+import { vi, describe, it, expect } from 'vitest';
+import { SessionCompleteView } from '../../../components/SessionCompleteView';
 
 describe('SessionCompleteView', () => {
   it('should render completion message', () => {

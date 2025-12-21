@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
-import { PreSessionView } from '@/components/PreSessionView';
+import { vi, describe, it, expect } from 'vitest';
+import { PreSessionView } from '../../../components/PreSessionView';
 
 describe('PreSessionView', () => {
   it('should render start session button', () => {

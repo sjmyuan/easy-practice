@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
-import { LandingView } from '@/components/LandingView';
-import type { ProblemSet } from '@/types';
+import { vi, describe, it, expect } from 'vitest';
+import { LandingView } from '../../../components/LandingView';
+import type { ProblemSet } from '../../../types';
 
 const mockProblemSets: ProblemSet[] = [
   {

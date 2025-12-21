@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
-import { ErrorView } from '@/components/ErrorView';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi, describe, it, expect } from 'vitest';
+import { ErrorView } from '../../../components/ErrorView';
 
 describe('ErrorView', () => {
   it('should render error message', () => {
