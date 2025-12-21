@@ -41,6 +41,7 @@ let mockState: AppState = {
   sessionDuration: null,
   sessionPassCount: 0,
   sessionFailCount: 0,
+  problemCoverage: 100,
 };
 
 // Mock the context
@@ -100,6 +101,7 @@ describe('Practice Page - Session Timer Integration', () => {
       sessionDuration: null,
       sessionPassCount: 0,
       sessionFailCount: 0,
+      problemCoverage: 100,
     };
   });
 

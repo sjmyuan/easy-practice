@@ -22,6 +22,13 @@ describe('PracticePage - Settings Integration', () => {
     loadStruggledProblems: vi.fn(),
     resetAllData: vi.fn(),
     setProblemCoverage: vi.fn(),
+    importProblemSet: vi.fn(),
+    loadProblemSets: vi.fn(),
+    toggleProblemSet: vi.fn(),
+    loadNextProblem: vi.fn(),
+    setProblemSetKey: vi.fn(),
+    exportData: vi.fn(),
+    importData: vi.fn(),
   };
 
   const mockState = {
@@ -31,7 +38,7 @@ describe('PracticePage - Settings Integration', () => {
     selectedProblemSetId: 'addition-within-10',
     selectedProblemSetKey: 'addition-within-10',
     availableProblemSets: [
-      { id: 'addition-within-10', name: 'Addition Within 10', key: 'addition-within-10', enabled: true },
+      { id: 'addition-within-10', name: 'Addition Within 10', key: 'addition-within-10', problemSetKey: 'addition-within-10', enabled: true, createdAt: Date.now() },
     ],
     isSessionActive: false,
     sessionStartTime: null,
@@ -44,6 +51,7 @@ describe('PracticePage - Settings Integration', () => {
     showSummary: false,
     struggledProblems: [],
     problemCoverage: 50,
+    recentProblemIds: [],
   };
 
   beforeEach(() => {
@@ -68,8 +76,7 @@ describe('PracticePage - Settings Integration', () => {
         ...mockState,
         sessionCompletedCount: 10,
         sessionPassCount: 8,
-        sessionFailCount: 2,
-      },
+        sessionFailCount: 2,        recentProblemIds: [],      },
       actions: mockActions,
     });
 
@@ -84,7 +91,8 @@ describe('PracticePage - Settings Integration', () => {
       state: {
         ...mockState,
         isSessionActive: true,
-        currentProblem: { id: '1', expression: '1+1', answer: 2, problemSetId: 'test' },
+        currentProblem: { id: '1', problem: '1+1', answer: '2', problemSetId: 'test', createdAt: Date.now() },
+        recentProblemIds: [],
       },
       actions: mockActions,
     });

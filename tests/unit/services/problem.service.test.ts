@@ -3,6 +3,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { problemService } from '@/services';
 import { db } from '@/lib/db';
+import type { ProblemStatistics } from '@/types';
 
 // Mock the database
 vi.mock('@/lib/db', () => ({
@@ -12,8 +13,7 @@ vi.mock('@/lib/db', () => ({
       toArray: vi.fn(),
     },
     statistics: {
-      get: vi.fn(),
-      toArray: vi.fn(),
+      get: vi.fn<(id: string) => Promise<ProblemStatistics | undefined>>(),
     },
     problemSets: {
       where: vi.fn(),
@@ -415,7 +415,7 @@ describe('ProblemService - Session Queue Generation', () => {
       } as unknown as ReturnType<typeof db.problems.where>);
 
       // Mock statistics calls
-      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
         const stat = mockStats.find((s) => s.problemId === id);
         return stat || null;
       });
@@ -474,7 +474,7 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
         const stat = mockStats.find((s) => s.problemId === id);
         return stat || null;
       });
@@ -533,7 +533,7 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
         const stat = mockStats.find((s) => s.problemId === id);
         return stat || null;
       });
@@ -592,7 +592,7 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
         const stat = mockStats.find((s) => s.problemId === id);
         return stat || null;
       });
@@ -648,7 +648,7 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      vi.mocked(db.statistics.get).mockImplementation(async (id: string) => {
+      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
         const stat = mockStats.find((s) => s.problemId === id);
         return stat || null;
       });
