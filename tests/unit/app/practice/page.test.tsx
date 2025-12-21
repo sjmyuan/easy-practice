@@ -660,4 +660,45 @@ describe('Practice Page', () => {
       expect(screen.queryByRole('slider')).not.toBeInTheDocument();
     });
   });
+
+  it('should keep header buttons and title accessible and non-overlapping on small screens', () => {
+    // Simulate a small viewport
+    window.innerWidth = 320;
+    window.dispatchEvent(new Event('resize'));
+
+    mockState = {
+      ...mockState,
+      isSessionActive: false,
+      sessionCompletedCount: 0,
+      selectedProblemSetId: 'set-1',
+      availableProblemSets: [
+        {
+          id: 'set-1',
+          name: 'A very long problem set name that could overflow',
+          problemSetKey: 'addition-within-10',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ],
+    };
+
+    render(<PracticePage />);
+
+    // Back button should be visible
+    const backButton = screen.getByRole('button', {
+      name: /back to landing page/i,
+    });
+    expect(backButton).toBeVisible();
+
+    // Settings button should be visible
+    const settingsButton = screen.getByLabelText(/settings/i);
+    expect(settingsButton).toBeVisible();
+
+    // Title should not overlap (should have padding or be truncated)
+    const heading = screen.getByRole('heading', { level: 1 });
+    // Should have text content
+    expect(heading).toHaveTextContent(/very long problem set/i);
+    // Should have padding or truncation class
+    expect(heading.className).toMatch(/px|truncate|ellipsis|overflow|text/);
+  });
 });
