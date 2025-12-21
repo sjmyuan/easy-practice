@@ -209,7 +209,8 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons - P
       render(<PracticePage />);
 
       const heading = screen.getByRole('heading', { level: 1 });
-      expect(heading).toHaveClass('text-3xl');
+      expect(heading).toHaveClass('text-2xl');
+      expect(heading).toHaveClass('sm:text-3xl');
     });
 
     it('should have problem display text of 6xl (60px) or larger', () => {
@@ -368,7 +369,8 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals - Practic
       render(<PracticePage />);
 
       const heading = screen.getByRole('heading', { level: 1 });
-      expect(heading).toHaveClass('text-3xl');
+      expect(heading).toHaveClass('text-2xl');
+      expect(heading).toHaveClass('sm:text-3xl');
 
       const problemText = screen.getByText('5 + 3');
       expect(problemText).toHaveClass('text-6xl');

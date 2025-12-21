@@ -109,26 +109,25 @@ export default function PracticePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
-        <div className="flex items-center justify-between gap-2 sm:gap-4 w-full relative">
-          <button
-            onClick={handleChangeProblemSet}
-            className="flex-shrink-0 rounded-lg p-2 text-gray-600 transition-all hover:scale-110 hover:text-blue-600"
-            aria-label="Back to landing page"
-            style={{ minWidth: 40 }}
-          >
-            <ChevronLeft className="h-8 w-8" />
-          </button>
-          <h1
-            className="flex-1 text-center font-bold text-gray-900 px-2 sm:px-8 text-lg sm:text-3xl truncate"
-            style={{ minWidth: 0 }}
-          >
+        <div className="space-y-4">
+          {/* Navigation Row */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleChangeProblemSet}
+              className="rounded-lg p-2 text-gray-600 transition-all hover:scale-110 hover:text-blue-600"
+              aria-label="Back to landing page"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+            {!state.isSessionActive && (
+              <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
+            )}
+          </div>
+
+          {/* Title Row */}
+          <h1 className="text-center text-2xl sm:text-3xl font-bold text-gray-900">
             {pageTitle}
           </h1>
-          {!state.isSessionActive && (
-            <div className="flex-shrink-0" style={{ minWidth: 40 }}>
-              <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
-            </div>
-          )}
         </div>
 
         {/* Session-based UI */}
