@@ -203,6 +203,46 @@ describe('ProblemSetSelector', () => {
   });
 
   describe('Edge Cases', () => {
+      it('should render problem sets in case-insensitive alphabetical order by name', () => {
+        const unorderedSets: ProblemSet[] = [
+          {
+            id: '1',
+            name: 'zebra',
+            description: 'Zebra set',
+            problemSetKey: 'zebra',
+            enabled: true,
+            createdAt: Date.now(),
+          },
+          {
+            id: '2',
+            name: 'apple',
+            description: 'Apple set',
+            problemSetKey: 'apple',
+            enabled: true,
+            createdAt: Date.now(),
+          },
+          {
+            id: '3',
+            name: 'Banana',
+            description: 'Banana set',
+            problemSetKey: 'banana',
+            enabled: true,
+            createdAt: Date.now(),
+          },
+        ];
+
+        render(
+          <ProblemSetSelector problemSets={unorderedSets} onSelect={vi.fn()} />
+        );
+
+        const buttons = screen.getAllByRole('button');
+        // Extract the heading (problem set name) from each button
+        const names = buttons.map((btn) => {
+          const heading = btn.querySelector('h3');
+          return heading ? heading.textContent?.trim() : '';
+        });
+        expect(names).toEqual(['apple', 'Banana', 'zebra']);
+      });
     it('should handle problem sets without descriptions', () => {
       const setsWithoutDesc: ProblemSet[] = [
         {

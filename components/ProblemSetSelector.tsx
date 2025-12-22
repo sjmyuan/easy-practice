@@ -11,7 +11,11 @@ export function ProblemSetSelector({
   onSelect,
   disabled = false,
 }: ProblemSetSelectorProps) {
-  const enabledProblemSets = problemSets.filter((set) => set.enabled);
+  const enabledProblemSets = problemSets
+    .filter((set) => set.enabled)
+    .sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'accent' })
+    );
 
   if (enabledProblemSets.length === 0) {
     return (
