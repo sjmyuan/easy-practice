@@ -27,6 +27,13 @@
       "path": "/problem-sets/subtraction-within-20.json",
       "name": "Subtraction within 20",
       "description": "Practice subtraction with minuends up to 20 and non-negative results"
+    },
+    {
+      "problemSetKey": "add-subtract-within-10-no-zero",
+      "version": "1.0",
+      "path": "/problem-sets/add-subtract-within-10-no-zero.json",
+      "name": "Addition and Subtraction within 10 (No Zero Operand)",
+      "description": "Practice addition and subtraction with sums and minuends up to 10, excluding problems where one operand is 0."
     }
   ]
 }
