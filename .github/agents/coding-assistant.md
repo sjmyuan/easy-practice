@@ -59,7 +59,7 @@ The skills section describes additional capabilities that you can refer to, incl
   - **Refactor**, Improve the code’s structure, readability, and performance while maintaining functionality, ensuring no tests break during the process.  
   - **Validate Refactoring**, Run the tests again after refactoring to ensure the updated code still passes all test cases without introducing regressions.
   - **Validate Linting and Formatting**, Run linting and formatting tools to ensure code quality and adherence to coding standards.
-- Summarize the plan back to the user and ask for confirmation or corrections. for example:
+- Summarize the plan back to the user. for example:
   """
   To implement the requirement of [requirement summary], the plan is as follows:
   - Step 1: Write Focused Tests for functionality A
@@ -78,7 +78,8 @@ The skills section describes additional capabilities that you can refer to, incl
   - Step 14: Validate Linting and Formatting for functionality B
   - ...
 
-Does this plan align with your expectations?
+I will update the todo list to match this plan and proceed to implement the requirement step by step as outlined.
+
 """
 </implementation-planning>
 
@@ -91,7 +92,7 @@ Does this plan align with your expectations?
   - **Refactor Code**: Modify the minimum amount of code necessary to pass the tests while achieving the refactoring objective, avoiding over-engineering or introducing unrelated changes.
   - **Verify Refactor**: Re-run all tests to confirm the refactored code passes successfully. Debug and refine as necessary to ensure correctness.
   - **Validate Linting and Formatting**: Run linting and formatting tools to ensure code quality and adherence to coding standards.
-- Summarize the complete plan to the user and request confirmation or corrections. For example:
+- Summarize the complete plan to the user. For example:
   """
   To complete the refactoring request of [refactor request summary], the plan is as follows:
   - Step 1: Write Focused Tests for refactor objective A
@@ -106,7 +107,7 @@ Does this plan align with your expectations?
   - Step 10: Validate Linting and Formatting for refactor objective B
   - ... 
   
-  Does this plan align with your expectations?
+  I will update the todo list to match this plan and proceed to refactor the code step by step as outlined.
   """
 </refactor-planning>
 
@@ -119,7 +120,7 @@ Does this plan align with your expectations?
   - **Fix Code**: Modify the minimum amount of code necessary to pass the tests while addressing the bug, avoiding over-engineering or introducing unrelated changes.
   - **Verify Fix**: Re-run all tests to confirm the fix works successfully. Debug and refine as necessary to ensure correctness.
   - **Validate Linting and Formatting**: Run linting and formatting tools to ensure code quality and adherence to coding standards.
-- Summarize the complete plan to the user and request confirmation or corrections. For example:
+- Summarize the complete plan to the user. For example:
   """
   To fix the bug of [bug summary], the plan is as follows:
   - Step 1: Write Focused Tests for issue A
@@ -133,7 +134,7 @@ Does this plan align with your expectations?
   - Step 9: Verify Fix for issue B
   - Step 10: Validate Linting and Formatting for issue B
   - ...
-  Does this plan align with your expectations?
+  I will update the todo list to match this plan and proceed to fix the bug step by step as outlined.
   """
 </bug-fixing-planning>
 
@@ -156,7 +157,7 @@ The rules section outlines decision criteria that determine which skills to appl
 
 <rule> After completing the implementation, refactor, or bug-fixing plan, update the epics, stories and ACs in requirements.md to reflect the requirement changes and update architecture.md to reflect the design changes. </rule>
 
-<rule> **ENSURE THE TODO LIST IS SAME AS THE PLAN THE USER CONFIRMED. UPDATE IT ACCORDINGLY.** </rule>
+<rule> **ENSURE THE TODO LIST IS SAME AS THE PLAN OUTLINED. UPDATE IT ACCORDINGLY.** </rule>
 
 <rule> After modifying the test code, run the test. </rule>
 <rule> After modifying the implementation code, run the test. </rule>
