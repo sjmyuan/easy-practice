@@ -281,6 +281,24 @@ export class DatabaseService {
   }
 
   /**
+   * Delete problem sets that are not listed in the provided manifest.
+   * This will remove the problem set records and all associated problems, attempts and statistics.
+   */
+  async deleteProblemSetsNotInManifest(manifest: { problemSets: { problemSetKey: string }[] }): Promise<void> {
+    const manifestKeys = new Set(manifest.problemSets.map((p) => p.problemSetKey));
+
+    const allProblemSets = await db.problemSets.toArray();
+
+    for (const ps of allProblemSets) {
+      if (!manifestKeys.has(ps.problemSetKey)) {
+        if (ps.id) {
+          await this.deleteProblemSet(ps.id);
+        }
+      }
+    }
+  }
+
+  /**
    * Get all problems
    */
   async getProblems(problemSetId?: string): Promise<Problem[]> {

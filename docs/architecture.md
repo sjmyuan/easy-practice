@@ -253,6 +253,7 @@
 - **Enhanced Problem Service**:
   - Added `loadManifest()` method to fetch problem set manifest
   - Updated `loadDefaultProblemSets()` to iterate through manifest entries
+  - Added cleanup: `loadDefaultProblemSets()` now removes problem sets in the local database that are no longer listed in the manifest
   - Graceful error handling: continues loading other sets if one fails
 - **Type Definitions**:
   - Added `ProblemSetManifest` and `ProblemSetManifestEntry` types

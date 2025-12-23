@@ -493,6 +493,7 @@ As a system, I want to automatically discover all available problem sets from a 
 - ✅ Given the manifest lists problem sets, when loading, then the system should fetch and import each problem set from its specified path.
 - ✅ Given a problem set file is missing or fails to load, when loading other sets, then the system should continue loading remaining sets gracefully.
 - ✅ Given all problem sets are loaded, when displayed in the selector, then only successfully loaded sets should be available.
+- ✅ Given a problem set previously imported is no longer present in the manifest, when loading defaults, then the system should remove that problem set and all its associated problems, statistics, and attempts from the local database.
 
 #### User Story 2: Version-Based Import Control ✅ COMPLETED
 

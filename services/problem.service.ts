@@ -55,6 +55,9 @@ export class ProblemService {
           // Continue with other problem sets even if one fails
         }
       }
+
+      // Remove any problem sets in the local DB that are no longer listed in the manifest
+      await databaseService.deleteProblemSetsNotInManifest(manifest);
     } catch (error) {
       console.error('Failed to load default problem sets:', error);
       throw new Error('Failed to initialize problem sets');

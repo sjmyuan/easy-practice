@@ -790,5 +790,83 @@ describe('DatabaseService', () => {
       const problem2After = problemsAfter.find((p) => p.problem === '2 + 2');
       expect(problem2After).toBeUndefined();
     });
+
+    describe('deleteProblemSetsNotInManifest', () => {
+      it('should remove problem sets (and associated data) not listed in manifest', async () => {
+        const removeData: ProblemSetJSON = {
+          version: '1.0',
+          problemSet: {
+            name: 'Remove Set',
+            problemSetKey: 'remove-set',
+            difficulty: 'easy',
+          },
+          problems: [{ problem: '9 + 9', answer: '18' }],
+        };
+
+        const keepData: ProblemSetJSON = {
+          version: '1.0',
+          problemSet: {
+            name: 'Keep Set',
+            problemSetKey: 'keep-set',
+            difficulty: 'easy',
+          },
+          problems: [{ problem: '1 + 1', answer: '2' }],
+        };
+
+        // Import both sets
+        await service.importProblemsFromJSON(removeData);
+        await service.importProblemsFromJSON(keepData);
+
+        // Ensure both exist
+        const allProblemSets = await db.problemSets.toArray();
+        const removeSet = allProblemSets.find(
+          (ps) => ps.problemSetKey === 'remove-set'
+        );
+        const keepSet = allProblemSets.find((ps) => ps.problemSetKey === 'keep-set'
+        );
+
+        expect(removeSet).toBeDefined();
+        expect(keepSet).toBeDefined();
+
+        // Capture problem IDs of the set to be removed
+        const removedProblems = await db.problems
+          .where('problemSetId')
+          .equals(removeSet!.id!)
+          .toArray();
+        const removedProblemIds = removedProblems.map((p) => p.id!);
+
+        // Build manifest that only includes the 'keep-set'
+        const manifest: import('@/types').ProblemSetManifest = {
+          problemSets: [
+            {
+              problemSetKey: 'keep-set',
+              version: '1.0',
+              path: '/problem-sets/keep-set.json',
+              name: 'Keep Set',
+            },
+          ],
+        };
+
+        // Run cleanup
+        await service.deleteProblemSetsNotInManifest(manifest);
+
+        // Verify 'remove-set' is gone
+        const finalProblemSets = await db.problemSets.toArray();
+        expect(finalProblemSets.some((ps) => ps.problemSetKey === 'remove-set')).toBe(false);
+        expect(finalProblemSets.some((ps) => ps.problemSetKey === 'keep-set')).toBe(true);
+
+        // Verify problems removed
+        for (const id of removedProblemIds) {
+          const p = await db.problems.get(id);
+          expect(p).toBeUndefined();
+
+          const s = await db.statistics.get(id);
+          expect(s).toBeUndefined();
+
+          const attempts = await db.attempts.where('problemId').equals(id).toArray();
+          expect(attempts.length).toBe(0);
+        }
+      });
+    });
   });
 });

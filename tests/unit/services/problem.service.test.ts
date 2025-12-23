@@ -27,6 +27,56 @@ describe('ProblemService - Session Queue Generation', () => {
     vi.clearAllMocks();
   });
 
+  describe('loadDefaultProblemSets', () => {
+    it('should import sets and then remove those not in manifest', async () => {
+      const mockManifest = {
+        problemSets: [
+          {
+            name: 'Keep Set',
+            problemSetKey: 'keep-set',
+            version: '1.0',
+            path: '/problem-sets/keep-set.json',
+          },
+        ],
+      };
+
+      // Mock fetch for manifest and for the single problem set file
+      (global as any).fetch = vi
+        .fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => mockManifest })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            version: '1.0',
+            problemSet: {
+              name: 'Keep Set',
+              problemSetKey: 'keep-set',
+            },
+            problems: [{ problem: '1 + 1', answer: '2' }],
+          }),
+        });
+
+      // Spy on database service methods
+      const { databaseService } = await import('@/services/database.service');
+      const importSpy = vi
+        .spyOn(databaseService, 'importProblemsFromJSON')
+        .mockResolvedValue();
+      const cleanupSpy = vi
+        .spyOn(databaseService, 'deleteProblemSetsNotInManifest')
+        .mockResolvedValue();
+
+      // Call the method
+      await (await import('@/services')).problemService.loadDefaultProblemSets();
+
+      expect(importSpy).toHaveBeenCalled();
+      expect(cleanupSpy).toHaveBeenCalledWith(mockManifest as any);
+
+      // Restore spies
+      importSpy.mockRestore();
+      cleanupSpy.mockRestore();
+    });
+  });
+
   describe('generateSessionQueue', () => {
     it('should include all problems when no statistics exist', async () => {
       // Mock problem sets
