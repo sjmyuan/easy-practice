@@ -109,7 +109,7 @@ export default function Home() {
           </div>
 
           {/* Title Row */}
-          <h1 className="text-center text-2xl sm:text-3xl font-bold text-gray-900">
+          <h1 className="text-center text-2xl font-bold text-gray-900 sm:text-3xl">
             {pageTitle}
           </h1>
         </div>

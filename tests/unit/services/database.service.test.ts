@@ -822,7 +822,8 @@ describe('DatabaseService', () => {
         const removeSet = allProblemSets.find(
           (ps) => ps.problemSetKey === 'remove-set'
         );
-        const keepSet = allProblemSets.find((ps) => ps.problemSetKey === 'keep-set'
+        const keepSet = allProblemSets.find(
+          (ps) => ps.problemSetKey === 'keep-set'
         );
 
         expect(removeSet).toBeDefined();
@@ -852,8 +853,12 @@ describe('DatabaseService', () => {
 
         // Verify 'remove-set' is gone
         const finalProblemSets = await db.problemSets.toArray();
-        expect(finalProblemSets.some((ps) => ps.problemSetKey === 'remove-set')).toBe(false);
-        expect(finalProblemSets.some((ps) => ps.problemSetKey === 'keep-set')).toBe(true);
+        expect(
+          finalProblemSets.some((ps) => ps.problemSetKey === 'remove-set')
+        ).toBe(false);
+        expect(
+          finalProblemSets.some((ps) => ps.problemSetKey === 'keep-set')
+        ).toBe(true);
 
         // Verify problems removed
         for (const id of removedProblemIds) {
@@ -863,7 +868,10 @@ describe('DatabaseService', () => {
           const s = await db.statistics.get(id);
           expect(s).toBeUndefined();
 
-          const attempts = await db.attempts.where('problemId').equals(id).toArray();
+          const attempts = await db.attempts
+            .where('problemId')
+            .equals(id)
+            .toArray();
           expect(attempts.length).toBe(0);
         }
       });

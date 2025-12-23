@@ -31,7 +31,7 @@ export function SettingsPanel({
       {/* Backdrop */}
       <div
         data-testid="settings-backdrop"
-        className="fixed inset-0 z-40 bg-black bg-opacity-50 opacity-100 transition-opacity duration-300"
+        className="bg-opacity-50 fixed inset-0 z-40 bg-black opacity-100 transition-opacity duration-300"
         onClick={onClose}
       />
 
@@ -39,12 +39,15 @@ export function SettingsPanel({
       <div
         role="dialog"
         aria-labelledby="settings-title"
-        className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 transform bg-white shadow-2xl transition-all duration-300 ease-in-out opacity-100 scale-100 w-full h-full max-sm:w-full max-sm:h-full sm:max-w-lg sm:h-auto sm:rounded-2xl sm:max-h-[90vh]"
+        className="fixed top-1/2 left-1/2 z-50 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-100 transform bg-white opacity-100 shadow-2xl transition-all duration-300 ease-in-out max-sm:h-full max-sm:w-full sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-2xl"
       >
         <div className="flex h-full flex-col p-6">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
-            <h2 id="settings-title" className="text-2xl font-bold text-gray-900">
+            <h2
+              id="settings-title"
+              className="text-2xl font-bold text-gray-900"
+            >
               Settings
             </h2>
             <button

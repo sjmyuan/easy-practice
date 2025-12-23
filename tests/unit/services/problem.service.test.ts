@@ -66,7 +66,9 @@ describe('ProblemService - Session Queue Generation', () => {
         .mockResolvedValue();
 
       // Call the method
-      await (await import('@/services')).problemService.loadDefaultProblemSets();
+      await (
+        await import('@/services')
+      ).problemService.loadDefaultProblemSets();
 
       expect(importSpy).toHaveBeenCalled();
       expect(cleanupSpy).toHaveBeenCalledWith(mockManifest as any);
@@ -465,10 +467,12 @@ describe('ProblemService - Session Queue Generation', () => {
       } as unknown as ReturnType<typeof db.problems.where>);
 
       // Mock statistics calls
-      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
-        const stat = mockStats.find((s) => s.problemId === id);
-        return stat || null;
-      });
+      (vi.mocked(db.statistics.get) as any).mockImplementation(
+        async (id: string) => {
+          const stat = mockStats.find((s) => s.problemId === id);
+          return stat || null;
+        }
+      );
 
       const queue = await problemService.generateSessionQueue(
         'addition-within-20',
@@ -524,10 +528,12 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
-        const stat = mockStats.find((s) => s.problemId === id);
-        return stat || null;
-      });
+      (vi.mocked(db.statistics.get) as any).mockImplementation(
+        async (id: string) => {
+          const stat = mockStats.find((s) => s.problemId === id);
+          return stat || null;
+        }
+      );
 
       const queue = await problemService.generateSessionQueue(
         'addition-within-20',
@@ -583,10 +589,12 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
-        const stat = mockStats.find((s) => s.problemId === id);
-        return stat || null;
-      });
+      (vi.mocked(db.statistics.get) as any).mockImplementation(
+        async (id: string) => {
+          const stat = mockStats.find((s) => s.problemId === id);
+          return stat || null;
+        }
+      );
 
       const queue = await problemService.generateSessionQueue(
         'addition-within-20',
@@ -642,10 +650,12 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
-        const stat = mockStats.find((s) => s.problemId === id);
-        return stat || null;
-      });
+      (vi.mocked(db.statistics.get) as any).mockImplementation(
+        async (id: string) => {
+          const stat = mockStats.find((s) => s.problemId === id);
+          return stat || null;
+        }
+      );
 
       const queue = await problemService.generateSessionQueue(
         'addition-within-20',
@@ -670,18 +680,78 @@ describe('ProblemService - Session Queue Generation', () => {
 
       // Create problems with specific priorities
       const mockProblems = [
-        { id: 'p1', problemSetId: 'ps1', problem: '1+1', answer: '2', createdAt: Date.now() },
-        { id: 'p2', problemSetId: 'ps1', problem: '2+2', answer: '4', createdAt: Date.now() },
-        { id: 'p3', problemSetId: 'ps1', problem: '3+3', answer: '6', createdAt: Date.now() },
-        { id: 'p4', problemSetId: 'ps1', problem: '4+4', answer: '8', createdAt: Date.now() },
+        {
+          id: 'p1',
+          problemSetId: 'ps1',
+          problem: '1+1',
+          answer: '2',
+          createdAt: Date.now(),
+        },
+        {
+          id: 'p2',
+          problemSetId: 'ps1',
+          problem: '2+2',
+          answer: '4',
+          createdAt: Date.now(),
+        },
+        {
+          id: 'p3',
+          problemSetId: 'ps1',
+          problem: '3+3',
+          answer: '6',
+          createdAt: Date.now(),
+        },
+        {
+          id: 'p4',
+          problemSetId: 'ps1',
+          problem: '4+4',
+          answer: '8',
+          createdAt: Date.now(),
+        },
       ];
 
       // Assign priorities: p3 > p1 > p4 > p2
       const mockStats = [
-        { problemId: 'p1', priority: 70, totalAttempts: 10, passCount: 5, failCount: 5, lastAttemptedAt: Date.now(), lastResult: 'fail' as const, failureRate: 0.5 },
-        { problemId: 'p2', priority: 40, totalAttempts: 10, passCount: 8, failCount: 2, lastAttemptedAt: Date.now(), lastResult: 'pass' as const, failureRate: 0.2 },
-        { problemId: 'p3', priority: 90, totalAttempts: 10, passCount: 3, failCount: 7, lastAttemptedAt: Date.now(), lastResult: 'fail' as const, failureRate: 0.7 },
-        { problemId: 'p4', priority: 60, totalAttempts: 10, passCount: 6, failCount: 4, lastAttemptedAt: Date.now(), lastResult: 'pass' as const, failureRate: 0.4 },
+        {
+          problemId: 'p1',
+          priority: 70,
+          totalAttempts: 10,
+          passCount: 5,
+          failCount: 5,
+          lastAttemptedAt: Date.now(),
+          lastResult: 'fail' as const,
+          failureRate: 0.5,
+        },
+        {
+          problemId: 'p2',
+          priority: 40,
+          totalAttempts: 10,
+          passCount: 8,
+          failCount: 2,
+          lastAttemptedAt: Date.now(),
+          lastResult: 'pass' as const,
+          failureRate: 0.2,
+        },
+        {
+          problemId: 'p3',
+          priority: 90,
+          totalAttempts: 10,
+          passCount: 3,
+          failCount: 7,
+          lastAttemptedAt: Date.now(),
+          lastResult: 'fail' as const,
+          failureRate: 0.7,
+        },
+        {
+          problemId: 'p4',
+          priority: 60,
+          totalAttempts: 10,
+          passCount: 6,
+          failCount: 4,
+          lastAttemptedAt: Date.now(),
+          lastResult: 'pass' as const,
+          failureRate: 0.4,
+        },
       ];
 
       vi.mocked(db.problemSets.where).mockReturnValue({
@@ -698,10 +768,12 @@ describe('ProblemService - Session Queue Generation', () => {
         }),
       } as unknown as ReturnType<typeof db.problems.where>);
 
-      (vi.mocked(db.statistics.get) as any).mockImplementation(async (id: string) => {
-        const stat = mockStats.find((s) => s.problemId === id);
-        return stat || null;
-      });
+      (vi.mocked(db.statistics.get) as any).mockImplementation(
+        async (id: string) => {
+          const stat = mockStats.find((s) => s.problemId === id);
+          return stat || null;
+        }
+      );
 
       const queue = await problemService.generateSessionQueue(
         'addition-within-20',

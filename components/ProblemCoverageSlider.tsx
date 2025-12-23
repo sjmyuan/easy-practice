@@ -39,10 +39,13 @@ export function ProblemCoverageSlider({
 
   return (
     <div className="w-full space-y-3">
-      <label htmlFor="coverage-slider" className="block text-lg font-medium text-gray-700">
+      <label
+        htmlFor="coverage-slider"
+        className="block text-lg font-medium text-gray-700"
+      >
         Problem Coverage
       </label>
-      
+
       <div className="flex items-center gap-4">
         <input
           id="coverage-slider"
@@ -53,9 +56,7 @@ export function ProblemCoverageSlider({
           value={currentStep}
           onChange={handleChange}
           aria-label="Problem coverage percentage"
-          className="h-3 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 outline-none transition-all hover:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-            [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:bg-blue-600 [&::-webkit-slider-thumb]:hover:scale-110
-            [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:bg-blue-600 [&::-moz-range-thumb]:hover:scale-110"
+          className="h-3 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 transition-all outline-none hover:bg-gray-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:hover:bg-blue-600 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:hover:bg-blue-600"
         />
       </div>
 

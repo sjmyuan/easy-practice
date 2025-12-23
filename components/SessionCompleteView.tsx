@@ -53,7 +53,10 @@ export function SessionCompleteView({
 
       <div className="flex flex-col items-center gap-4">
         <div className="flex w-full max-w-xs flex-col gap-3">
-          <StartSessionButton onStart={onStartNewSession} disabled={isLoading} />
+          <StartSessionButton
+            onStart={onStartNewSession}
+            disabled={isLoading}
+          />
           <button
             onClick={onViewSummary}
             disabled={isLoading}

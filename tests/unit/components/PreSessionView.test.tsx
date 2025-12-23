@@ -11,7 +11,7 @@ describe('PreSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(
       screen.getByRole('button', { name: /start new session/i })
     ).toBeInTheDocument();
@@ -25,7 +25,7 @@ describe('PreSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(
       screen.getByRole('button', { name: /view summary/i })
     ).toBeInTheDocument();
@@ -40,10 +40,12 @@ describe('PreSessionView', () => {
         isLoading={false}
       />
     );
-    
-    const startButton = screen.getByRole('button', { name: /start new session/i });
+
+    const startButton = screen.getByRole('button', {
+      name: /start new session/i,
+    });
     startButton.click();
-    
+
     expect(onStart).toHaveBeenCalledTimes(1);
   });
 
@@ -56,12 +58,12 @@ describe('PreSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     const viewSummaryButton = screen.getByRole('button', {
       name: /view summary/i,
     });
     viewSummaryButton.click();
-    
+
     expect(onViewSummary).toHaveBeenCalledTimes(1);
   });
 
@@ -73,12 +75,14 @@ describe('PreSessionView', () => {
         isLoading={true}
       />
     );
-    
-    const startButton = screen.getByRole('button', { name: /start new session/i });
+
+    const startButton = screen.getByRole('button', {
+      name: /start new session/i,
+    });
     const viewSummaryButton = screen.getByRole('button', {
       name: /view summary/i,
     });
-    
+
     expect(startButton).toBeDisabled();
     expect(viewSummaryButton).toBeDisabled();
   });
@@ -91,7 +95,7 @@ describe('PreSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     const buttonContainer = container.querySelector('.flex-col');
     expect(buttonContainer).toBeInTheDocument();
   });

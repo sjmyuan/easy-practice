@@ -15,7 +15,7 @@ describe('SessionCompleteView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(screen.getByText(/session complete/i)).toBeInTheDocument();
   });
 
@@ -31,7 +31,7 @@ describe('SessionCompleteView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(screen.getByText(/duration:/i)).toBeInTheDocument();
   });
 
@@ -47,7 +47,7 @@ describe('SessionCompleteView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(screen.getByText('Pass')).toBeInTheDocument();
     expect(screen.getByText('15')).toBeInTheDocument();
   });
@@ -64,7 +64,7 @@ describe('SessionCompleteView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(screen.getByText('Fail')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
   });
@@ -81,7 +81,7 @@ describe('SessionCompleteView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(screen.getByText('Total')).toBeInTheDocument();
     expect(screen.getByText('20')).toBeInTheDocument();
   });
@@ -99,10 +99,10 @@ describe('SessionCompleteView', () => {
         isLoading={false}
       />
     );
-    
+
     const button = screen.getByRole('button', { name: /start new session/i });
     button.click();
-    
+
     expect(onStartNewSession).toHaveBeenCalledTimes(1);
   });
 
@@ -119,10 +119,10 @@ describe('SessionCompleteView', () => {
         isLoading={false}
       />
     );
-    
+
     const button = screen.getByRole('button', { name: /view summary/i });
     button.click();
-    
+
     expect(onViewSummary).toHaveBeenCalledTimes(1);
   });
 
@@ -138,10 +138,14 @@ describe('SessionCompleteView', () => {
         isLoading={true}
       />
     );
-    
-    const startButton = screen.getByRole('button', { name: /start new session/i });
-    const viewSummaryButton = screen.getByRole('button', { name: /view summary/i });
-    
+
+    const startButton = screen.getByRole('button', {
+      name: /start new session/i,
+    });
+    const viewSummaryButton = screen.getByRole('button', {
+      name: /view summary/i,
+    });
+
     expect(startButton).toBeDisabled();
     expect(viewSummaryButton).toBeDisabled();
   });

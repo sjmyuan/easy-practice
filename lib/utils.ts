@@ -28,8 +28,6 @@ export function calculatePriority(stats: {
     priority += 50;
   }
 
-
-
   return Math.max(0, Math.min(100, priority));
 }
 

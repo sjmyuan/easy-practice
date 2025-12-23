@@ -27,7 +27,7 @@ describe('SettingsIcon', () => {
   it('should render Settings icon from lucide-react', () => {
     const { container } = render(<SettingsIcon onClick={vi.fn()} />);
     const svg = container.querySelector('svg');
-    
+
     expect(svg).toBeInTheDocument();
   });
 

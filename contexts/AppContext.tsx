@@ -127,7 +127,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         initializationError: null,
       }));
 
-
       // Always load default problem sets to ensure updates are applied
       await problemService.loadDefaultProblemSets();
 

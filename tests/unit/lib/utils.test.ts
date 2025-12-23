@@ -9,7 +9,6 @@ import {
 
 describe('Utils', () => {
   describe('calculatePriority', () => {
-
     it('should return 50 for new problems', () => {
       const priority = calculatePriority({
         totalAttempts: 0,
@@ -17,7 +16,6 @@ describe('Utils', () => {
       });
       expect(priority).toBe(50);
     });
-
 
     it('should return higher priority for failed problems', () => {
       const priority = calculatePriority({

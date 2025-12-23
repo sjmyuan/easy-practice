@@ -111,33 +111,35 @@ describe('Home Page (Landing)', () => {
 
   it('should show practice view when problem set is selected', async () => {
     const user = userEvent.setup();
-    
+
     // Start with no selected problem set
     mockState.selectedProblemSetId = null;
-    
+
     const { rerender } = render(<Home />);
 
     const additionButton = screen.getByRole('button', {
       name: /addition within 20/i,
     });
-    
+
     // Mock the state change that would happen after selection
     mockSelectProblemSet.mockImplementation((id: string) => {
       mockState.selectedProblemSetId = id;
     });
-    
+
     await user.click(additionButton);
 
     expect(mockSelectProblemSet).toHaveBeenCalledWith('set-1');
     // Should not navigate - stays on same page (SPA behavior)
     expect(mockPush).not.toHaveBeenCalled();
-    
+
     // Rerender with updated state
     rerender(<Home />);
-    
+
     // Should show practice view
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /start new session/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /start new session/i })
+      ).toBeInTheDocument();
     });
   });
 

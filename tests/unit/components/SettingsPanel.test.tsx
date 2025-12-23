@@ -56,10 +56,10 @@ describe('SettingsPanel', () => {
     expect(panel).toHaveClass('top-1/2');
     expect(panel).toHaveClass('-translate-x-1/2');
     expect(panel).toHaveClass('-translate-y-1/2');
-    
+
     // Check for max-width constraint (with responsive prefix)
     expect(panel).toHaveClass('sm:max-w-lg');
-    
+
     // Check for fade-in scale animation
     expect(panel).toHaveClass('opacity-100');
     expect(panel).toHaveClass('scale-100');
@@ -93,7 +93,9 @@ describe('SettingsPanel', () => {
   it('should render ResetDataButton', () => {
     render(<SettingsPanel {...defaultProps} />);
 
-    expect(screen.getByRole('button', { name: /reset data/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /reset data/i })
+    ).toBeInTheDocument();
   });
 
   it('should pass problemCoverage to ProblemCoverageSlider', () => {
@@ -174,7 +176,7 @@ describe('SettingsPanel', () => {
 
   it('should have fade-in backdrop animation', () => {
     render(<SettingsPanel {...defaultProps} />);
-    
+
     const backdrop = screen.getByTestId('settings-backdrop');
     expect(backdrop).toHaveClass('opacity-100');
   });

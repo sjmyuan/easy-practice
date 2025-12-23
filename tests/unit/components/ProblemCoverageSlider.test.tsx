@@ -44,10 +44,16 @@ describe('ProblemCoverageSlider', () => {
 
   it('should call onChange when slider value changes', () => {
     const onChange = vi.fn();
-    render(<ProblemCoverageSlider value={100} onChange={onChange} totalProblems={20} />);
+    render(
+      <ProblemCoverageSlider
+        value={100}
+        onChange={onChange}
+        totalProblems={20}
+      />
+    );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
-    
+
     // Simulate changing the slider to step 2 (80%)
     fireEvent.change(slider, { target: { value: '2' } });
 
@@ -102,13 +108,19 @@ describe('ProblemCoverageSlider', () => {
 
   it('should be keyboard accessible', () => {
     const onChange = vi.fn();
-    render(<ProblemCoverageSlider value={100} onChange={onChange} totalProblems={20} />);
+    render(
+      <ProblemCoverageSlider
+        value={100}
+        onChange={onChange}
+        totalProblems={20}
+      />
+    );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
-    
+
     // Verify slider is keyboard focusable
     expect(slider.tabIndex).toBeGreaterThanOrEqual(0);
-    
+
     // Simulate keyboard change event (ArrowLeft would decrease from step 3 to step 2)
     fireEvent.change(slider, { target: { value: '2' } });
 
@@ -118,7 +130,9 @@ describe('ProblemCoverageSlider', () => {
 
   it('should round problem count correctly', () => {
     // Test with odd number that creates decimal
-    render(<ProblemCoverageSlider {...defaultProps} totalProblems={15} value={50} />);
+    render(
+      <ProblemCoverageSlider {...defaultProps} totalProblems={15} value={50} />
+    );
 
     // 50% of 15 = 7.5, should round to 8
     expect(screen.getByText('50% (8/15 problems)')).toBeInTheDocument();

@@ -25,7 +25,7 @@ describe('PracticeSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     // SessionTimer renders a time element
     expect(screen.getByRole('time')).toBeInTheDocument();
   });
@@ -43,7 +43,7 @@ describe('PracticeSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     // Progress indicator shows "5 / 20"
     expect(screen.getByText('5', { exact: false })).toBeInTheDocument();
     expect(screen.getByText('20', { exact: false })).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('PracticeSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(screen.getByText('2 + 2')).toBeInTheDocument();
   });
 
@@ -79,9 +79,13 @@ describe('PracticeSessionView', () => {
         isLoading={false}
       />
     );
-    
-    expect(screen.getByRole('button', { name: /mark as pass/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /mark as fail/i })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: /mark as pass/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /mark as fail/i })
+    ).toBeInTheDocument();
   });
 
   it('should not render answer buttons when no problem exists', () => {
@@ -97,9 +101,13 @@ describe('PracticeSessionView', () => {
         isLoading={false}
       />
     );
-    
-    expect(screen.queryByRole('button', { name: /mark as pass/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /mark as fail/i })).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('button', { name: /mark as pass/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /mark as fail/i })
+    ).not.toBeInTheDocument();
   });
 
   it('should call onPass when pass button is clicked', () => {
@@ -116,10 +124,10 @@ describe('PracticeSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     const passButton = screen.getByRole('button', { name: /mark as pass/i });
     passButton.click();
-    
+
     expect(onPass).toHaveBeenCalledTimes(1);
   });
 
@@ -137,10 +145,10 @@ describe('PracticeSessionView', () => {
         isLoading={false}
       />
     );
-    
+
     const failButton = screen.getByRole('button', { name: /mark as fail/i });
     failButton.click();
-    
+
     expect(onFail).toHaveBeenCalledTimes(1);
   });
 });

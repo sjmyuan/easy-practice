@@ -29,7 +29,7 @@ describe('LandingView', () => {
         isLoading={false}
       />
     );
-    
+
     expect(screen.getByText('Easy Practice')).toBeInTheDocument();
   });
 
@@ -42,7 +42,7 @@ describe('LandingView', () => {
         isLoading={false}
       />
     );
-    
+
     // ProblemSetSelector should render problem set buttons
     expect(screen.getByText('Addition within 10')).toBeInTheDocument();
     expect(screen.getByText('Subtraction within 10')).toBeInTheDocument();
@@ -57,10 +57,10 @@ describe('LandingView', () => {
         isLoading={false}
       />
     );
-    
+
     const button = screen.getByText('Addition within 10');
     button.click();
-    
+
     expect(onSelect).toHaveBeenCalledWith('1');
   });
 
@@ -72,7 +72,7 @@ describe('LandingView', () => {
         isLoading={true}
       />
     );
-    
+
     const button = screen.getByRole('button', {
       name: 'Addition within 10',
     });
@@ -87,7 +87,7 @@ describe('LandingView', () => {
         isLoading={false}
       />
     );
-    
+
     const mainElement = container.querySelector('main');
     expect(mainElement).toHaveClass('flex', 'min-h-screen', 'bg-gray-50');
   });

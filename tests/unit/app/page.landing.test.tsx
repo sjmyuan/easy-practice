@@ -135,10 +135,12 @@ describe('Landing Page (app/page.tsx)', () => {
 
       // Should not navigate - stays on same page (SPA behavior)
       expect(mockPush).not.toHaveBeenCalled();
-      
+
       // Should show practice view with Start Session button
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /start new session/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: /start new session/i })
+        ).toBeInTheDocument();
       });
     });
 
@@ -162,10 +164,12 @@ describe('Landing Page (app/page.tsx)', () => {
 
       // Should not navigate - stays on same page (SPA behavior)
       expect(mockPush).not.toHaveBeenCalled();
-      
+
       // Should show practice view instead of landing view
       await waitFor(() => {
-        expect(screen.queryByText('Choose a Problem Set')).not.toBeInTheDocument();
+        expect(
+          screen.queryByText('Choose a Problem Set')
+        ).not.toBeInTheDocument();
       });
     });
   });
