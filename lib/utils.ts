@@ -14,7 +14,6 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function calculatePriority(stats: {
   totalAttempts: number;
-  passCount: number;
   failCount: number;
 }): number {
   if (stats.totalAttempts === 0) {
@@ -29,10 +28,7 @@ export function calculatePriority(stats: {
     priority += 50;
   }
 
-  // Reduce priority for mastered problems (3+ passes)
-  if (stats.passCount >= 3) {
-    priority -= 20;
-  }
+
 
   return Math.max(0, Math.min(100, priority));
 }
