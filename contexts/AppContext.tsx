@@ -127,11 +127,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         initializationError: null,
       }));
 
-      const hasProblems = await problemService.hasProblems();
 
-      if (!hasProblems) {
-        await problemService.loadDefaultProblemSets();
-      }
+      // Always load default problem sets to ensure updates are applied
+      await problemService.loadDefaultProblemSets();
 
       const problemSets = await databaseService.getProblemSets();
 

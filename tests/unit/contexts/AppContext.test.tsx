@@ -133,11 +133,9 @@ describe('AppContext', () => {
     });
 
     it('should call initialization services in correct order', async () => {
-      const hasProblemsCall = vi.mocked(problemService.hasProblems);
       const loadDefaultCall = vi.mocked(problemService.loadDefaultProblemSets);
       const getProblemSetsCall = vi.mocked(databaseService.getProblemSets);
 
-      hasProblemsCall.mockResolvedValue(false);
       loadDefaultCall.mockResolvedValue(undefined);
       getProblemSetsCall.mockResolvedValue([]);
 
@@ -148,14 +146,37 @@ describe('AppContext', () => {
       });
 
       // Verify initialization sequence
-      expect(hasProblemsCall).toHaveBeenCalled();
       expect(loadDefaultCall).toHaveBeenCalled();
       expect(getProblemSetsCall).toHaveBeenCalled();
     });
 
+      it('should only initialize once even if useEffect runs multiple times', async () => {
+        const loadDefaultCall = vi.mocked(problemService.loadDefaultProblemSets);
+        const getProblemSetsCall = vi.mocked(databaseService.getProblemSets);
+
+        loadDefaultCall.mockResolvedValue(undefined);
+        getProblemSetsCall.mockResolvedValue([]);
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Wait additional time to catch any duplicate calls
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        // Should only be called once
+        expect(loadDefaultCall).toHaveBeenCalledTimes(1);
+        expect(getProblemSetsCall).toHaveBeenCalledTimes(1);
+      });
+
     it('should only initialize once even if useEffect runs multiple times', async () => {
-      const hasProblemsCall = vi.mocked(problemService.hasProblems);
-      hasProblemsCall.mockResolvedValue(true);
+      const loadDefaultCall = vi.mocked(problemService.loadDefaultProblemSets);
+      const getProblemSetsCall = vi.mocked(databaseService.getProblemSets);
+
+      loadDefaultCall.mockResolvedValue(undefined);
+      getProblemSetsCall.mockResolvedValue([]);
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -167,17 +188,16 @@ describe('AppContext', () => {
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       // Should only be called once
-      expect(hasProblemsCall).toHaveBeenCalledTimes(1);
+      expect(loadDefaultCall).toHaveBeenCalledTimes(1);
+      expect(getProblemSetsCall).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Issue B: initializeApp called only once on mount', () => {
     it('should call initializeApp only once during mount', async () => {
-      const hasProblemsCall = vi.mocked(problemService.hasProblems);
       const loadDefaultCall = vi.mocked(problemService.loadDefaultProblemSets);
       const getProblemSetsCall = vi.mocked(databaseService.getProblemSets);
 
-      hasProblemsCall.mockResolvedValue(false);
       loadDefaultCall.mockResolvedValue(undefined);
       getProblemSetsCall.mockResolvedValue([]);
 
@@ -191,7 +211,6 @@ describe('AppContext', () => {
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       // initializeApp should only be called once (which calls these services once)
-      expect(hasProblemsCall).toHaveBeenCalledTimes(1);
       expect(loadDefaultCall).toHaveBeenCalledTimes(1);
       expect(getProblemSetsCall).toHaveBeenCalledTimes(1);
     });
