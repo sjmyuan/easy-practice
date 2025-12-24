@@ -14,7 +14,7 @@ export function StartSessionButton({
     <button
       onClick={onStart}
       disabled={disabled}
-      className="h-12 w-full rounded-lg bg-green-500 px-8 font-semibold text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+      className="h-12 w-full rounded-2xl bg-[#6ECEDA] px-8 font-semibold text-white shadow-lg transition-all hover:bg-[#5DD0C8] hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:scale-100 disabled:shadow-none"
     >
       Start New Session
     </button>

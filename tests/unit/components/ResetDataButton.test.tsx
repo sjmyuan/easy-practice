@@ -72,7 +72,8 @@ describe('ResetDataButton Component', () => {
     render(<ResetDataButton onReset={mockOnReset} />);
 
     const button = screen.getByRole('button', { name: /reset data/i });
-    expect(button).toHaveClass('bg-red-500');
+    expect(button).toHaveClass('bg-[#FF6F61]');
+    expect(button).toHaveClass('rounded-2xl');
   });
 
   it('should have warning appearance', () => {

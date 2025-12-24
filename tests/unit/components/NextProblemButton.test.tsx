@@ -57,7 +57,8 @@ describe('NextProblemButton Component', () => {
     render(<NextProblemButton onClick={mockOnClick} disabled={false} />);
 
     const button = screen.getByRole('button', { name: /next problem/i });
-    expect(button).toHaveClass('bg-blue-600');
+    expect(button).toHaveClass('bg-[#4A90E2]');
+    expect(button).toHaveClass('rounded-2xl');
   });
 
   it('should have proper type attribute', () => {

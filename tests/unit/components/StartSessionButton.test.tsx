@@ -48,8 +48,8 @@ describe('StartSessionButton', () => {
     const { container } = render(<StartSessionButton onStart={vi.fn()} />);
     const button = container.querySelector('button');
 
-    expect(button).toHaveClass('bg-green-500');
+    expect(button).toHaveClass('bg-[#6ECEDA]');
     expect(button).toHaveClass('text-white');
-    expect(button).toHaveClass('rounded-lg');
+    expect(button).toHaveClass('rounded-2xl');
   });
 });

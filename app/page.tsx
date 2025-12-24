@@ -91,8 +91,8 @@ export default function Home() {
   const pageTitle = selectedProblemSet?.name || 'Easy Practice';
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-8">
-      <div className="w-full max-w-2xl space-y-8 rounded-2xl bg-white p-8 shadow-lg">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">
+      <div className="w-full max-w-2xl space-y-8 rounded-3xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
         <div className="space-y-4">
           {/* Navigation Row */}
           <div className="flex items-center justify-between">

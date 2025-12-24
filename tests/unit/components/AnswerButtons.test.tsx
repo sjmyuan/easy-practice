@@ -114,7 +114,8 @@ describe('AnswerButtons Component', () => {
     );
 
     const passButton = screen.getByRole('button', { name: /pass/i });
-    expect(passButton).toHaveClass('bg-green-500');
+    expect(passButton).toHaveClass('bg-[#6ECEDA]');
+    expect(passButton).toHaveClass('rounded-2xl');
   });
 
   it('should display Fail button with error styling', () => {
@@ -125,7 +126,8 @@ describe('AnswerButtons Component', () => {
     );
 
     const failButton = screen.getByRole('button', { name: /fail/i });
-    expect(failButton).toHaveClass('bg-red-500');
+    expect(failButton).toHaveClass('bg-[#FF6F61]');
+    expect(failButton).toHaveClass('rounded-2xl');
   });
 
   it('should be accessible with proper ARIA labels', () => {

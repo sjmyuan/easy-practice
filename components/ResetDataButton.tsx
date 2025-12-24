@@ -27,7 +27,7 @@ export function ResetDataButton({
   return (
     <button
       onClick={handleClick}
-      className="h-12 w-full rounded-lg bg-red-500 px-6 font-medium text-white transition-colors hover:bg-red-600"
+      className="h-12 w-full rounded-2xl bg-[#FF6F61] px-6 font-medium text-white shadow-lg transition-all hover:bg-[#FF5A4F] hover:shadow-xl hover:scale-105"
       aria-label="Reset Data"
     >
       Reset Data

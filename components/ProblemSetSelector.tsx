@@ -30,7 +30,7 @@ export function ProblemSetSelector({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-center text-3xl font-bold text-gray-900">
+      <h2 className="text-center text-3xl font-bold text-gray-800">
         Choose a Problem Set
       </h2>
 
@@ -40,11 +40,11 @@ export function ProblemSetSelector({
             key={problemSet.id}
             onClick={() => onSelect(problemSet.id!)}
             disabled={disabled}
-            className="h-auto min-h-20 w-full rounded-lg border-2 border-gray-200 bg-white p-6 text-left transition-colors hover:border-blue-500 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-auto min-h-20 w-full rounded-2xl border-2 border-[#FFB7B2] bg-white p-6 text-left shadow-md transition-all hover:border-[#FF9AA2] hover:bg-[#FFF5F4] hover:shadow-xl hover:scale-102 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100"
             aria-label={problemSet.name}
           >
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-gray-900">
+              <h3 className="text-xl font-semibold text-gray-800">
                 {problemSet.name}
               </h3>
               {problemSet.description && (

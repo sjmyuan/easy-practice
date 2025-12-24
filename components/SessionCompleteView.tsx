@@ -24,7 +24,7 @@ export function SessionCompleteView({
 }: SessionCompleteViewProps) {
   return (
     <div className="space-y-4 py-8 text-center">
-      <div className="text-2xl font-bold text-green-600">
+      <div className="text-2xl font-bold text-[#6ECEDA]">
         🎉 Session Complete!
       </div>
 
@@ -37,17 +37,17 @@ export function SessionCompleteView({
 
       {/* Session Statistics */}
       <div className="mx-auto grid max-w-md grid-cols-3 gap-4 text-center">
-        <div className="rounded-lg bg-green-50 p-3">
-          <div className="text-sm font-medium text-green-600">Pass</div>
-          <div className="text-2xl font-bold text-green-700">{passCount}</div>
+        <div className="rounded-2xl bg-[#E2F0CB] p-3 shadow-md">
+          <div className="text-sm font-medium text-gray-700">Pass</div>
+          <div className="text-2xl font-bold text-gray-800">{passCount}</div>
         </div>
-        <div className="rounded-lg bg-red-50 p-3">
-          <div className="text-sm font-medium text-red-600">Fail</div>
-          <div className="text-2xl font-bold text-red-700">{failCount}</div>
+        <div className="rounded-2xl bg-[#FFB7B2] p-3 shadow-md">
+          <div className="text-sm font-medium text-gray-700">Fail</div>
+          <div className="text-2xl font-bold text-gray-800">{failCount}</div>
         </div>
-        <div className="rounded-lg bg-blue-50 p-3">
-          <div className="text-sm font-medium text-blue-600">Total</div>
-          <div className="text-2xl font-bold text-blue-700">{totalCount}</div>
+        <div className="rounded-2xl bg-[#B5EAD7] p-3 shadow-md">
+          <div className="text-sm font-medium text-gray-700">Total</div>
+          <div className="text-2xl font-bold text-gray-800">{totalCount}</div>
         </div>
       </div>
 

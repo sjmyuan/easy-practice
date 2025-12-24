@@ -19,7 +19,7 @@ export function AnswerButtons({
       <button
         onClick={onFail}
         disabled={disabled}
-        className="h-12 rounded-lg bg-red-500 px-8 font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-12 rounded-2xl bg-[#FF6F61] px-8 font-semibold text-white shadow-lg transition-all hover:bg-[#FF5A4F] hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
         aria-label="Mark as Fail"
       >
         Fail
@@ -27,7 +27,7 @@ export function AnswerButtons({
       <button
         onClick={onPass}
         disabled={disabled}
-        className="h-12 rounded-lg bg-green-500 px-8 font-semibold text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-12 rounded-2xl bg-[#6ECEDA] px-8 font-semibold text-white shadow-lg transition-all hover:bg-[#5DD0C8] hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
         aria-label="Mark as Pass"
       >
         Pass

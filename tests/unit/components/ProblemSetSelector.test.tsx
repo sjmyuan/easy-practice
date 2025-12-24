@@ -197,7 +197,7 @@ describe('ProblemSetSelector', () => {
 
       const buttons = screen.getAllByRole('button');
       buttons.forEach((button) => {
-        expect(button).toHaveClass('transition-colors');
+        expect(button.className).toMatch(/transition-(colors|all)/)
       });
     });
   });

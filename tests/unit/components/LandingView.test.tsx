@@ -89,6 +89,33 @@ describe('LandingView', () => {
     );
 
     const mainElement = container.querySelector('main');
-    expect(mainElement).toHaveClass('flex', 'min-h-screen', 'bg-gray-50');
+    expect(mainElement).toHaveClass('flex', 'min-h-screen');
+  });
+
+  it('should display logo image', () => {
+    render(
+      <LandingView
+        problemSets={mockProblemSets}
+        onSelect={() => {}}
+        isLoading={false}
+      />
+    );
+
+    const logo = screen.getByAltText('Easy Practice Logo');
+    expect(logo).toBeInTheDocument();
+    expect(logo).toHaveAttribute('src', '/logo.svg');
+  });
+
+  it('should have playful gradient background', () => {
+    const { container } = render(
+      <LandingView
+        problemSets={mockProblemSets}
+        onSelect={() => {}}
+        isLoading={false}
+      />
+    );
+
+    const mainElement = container.querySelector('main');
+    expect(mainElement).toHaveClass('bg-gradient-to-br');
   });
 });

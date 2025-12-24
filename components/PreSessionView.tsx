@@ -21,7 +21,7 @@ export function PreSessionView({
           <button
             onClick={onViewSummary}
             disabled={isLoading}
-            className="h-12 w-full rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-12 w-full rounded-2xl bg-[#4A90E2] px-6 font-medium text-white shadow-lg transition-all hover:bg-[#3A80D2] hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
           >
             View Summary
           </button>
