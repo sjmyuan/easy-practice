@@ -1,0 +1,28 @@
+<!-- Copied from app/logo.svg for favicon usage -->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9AA2"/>
+      <stop offset="25%" stop-color="#FFB7B2"/>
+      <stop offset="50%" stop-color="#FFDAC1"/>
+      <stop offset="75%" stop-color="#E2F0CB"/>
+      <stop offset="100%" stop-color="#B5EAD7"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGradient)" />
+  <circle cx="100" cy="80" r="30" fill="#FF6F61" opacity="0.6" />
+  <circle cx="700" cy="100" r="25" fill="#6ECEDA" opacity="0.6" />
+  <circle cx="120" cy="500" r="20" fill="#FFD166" opacity="0.6" />
+  <circle cx="680" cy="520" r="35" fill="#A0E7E5" opacity="0.6" />
+  <rect x="150" y="100" width="500" height="260" rx="20" fill="#4A90E2" stroke="#2C3E50" stroke-width="6"/>
+  <rect x="180" y="130" width="440" height="200" rx="15" fill="#FFFFFF" stroke="#2C3E50" stroke-width="6"/>
+  <rect x="350" y="180" width="25" height="70" fill="#FF6F61" stroke="#2C3E50" stroke-width="6"/>
+  <rect x="325" y="205" width="75" height="25" fill="#FF6F61" stroke="#2C3E50" stroke-width="6"/>
+  <rect x="425" y="220" width="75" height="25" fill="#6ECEDA" stroke="#2C3E50" stroke-width="6"/>
+  <rect x="340" y="265" width="120" height="15" fill="#FFD166" stroke="#2C3E50" stroke-width="6"/>
+  <rect x="340" y="290" width="120" height="15" fill="#FFD166" stroke="#2C3E50" stroke-width="6"/>
+  <path d="M160 420 H280 V445 H190 V470 H270 V495 H190 V520 H280 V545 H160 V420 Z" fill="#FF6F61" stroke="#2C3E50" stroke-width="6"/>
+  <path d="M305 545 L370 420 L435 545 M330 495 H410" fill="none" stroke="#6ECEDA" stroke-width="6"/>
+  <path d="M455 420 H535 V445 H475 V470 H525 V545 H455 V520 H505 V495 H455 Z" fill="#FFD166" stroke="#2C3E50" stroke-width="6"/>
+  <path d="M565 420 L605 480 L645 420 M605 480 V545" fill="none" stroke="#FF6F61" stroke-width="6"/>
+</svg>
