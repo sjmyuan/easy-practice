@@ -3,6 +3,13 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from '@/app/page';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import type { ReactNode } from 'react';
+
+// Wrapper component for tests
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <LanguageProvider>{children}</LanguageProvider>
+);
 
 const mockSelectProblemSet = vi.fn();
 
@@ -97,14 +104,14 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
 
   describe('AC1: Portrait mode - no scrolling required', () => {
     it('should use min-h-screen to ensure full viewport height coverage', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const main = screen.getByRole('main');
       expect(main).toHaveClass('min-h-screen');
     });
 
     it('should use flex layout to center content vertically', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const main = screen.getByRole('main');
       expect(main).toHaveClass('flex');
@@ -112,14 +119,14 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
     });
 
     it('should have proper padding to prevent content touching edges', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const main = screen.getByRole('main');
       expect(main).toHaveClass('p-8');
     });
 
     it('should use max-w constraint to prevent excessive width on large screens', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const container = screen.getByRole('main').querySelector('.max-w-2xl');
       expect(container).toBeInTheDocument();
@@ -128,7 +135,7 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
 
   describe('AC2: Landscape mode - dynamic layout adjustment', () => {
     it('should have flexible layout that adapts to different orientations', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const main = screen.getByRole('main');
       // Flex layout allows natural reflow in different orientations
@@ -138,7 +145,7 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
     });
 
     it('should maintain proper spacing in all orientations', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const container = screen.getByRole('main').querySelector('.space-y-8');
       expect(container).toBeInTheDocument();
@@ -147,7 +154,7 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
 
   describe('AC3: Consistent design across different screen sizes', () => {
     it('should use responsive width classes (w-full, max-w-2xl)', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const container = screen.getByRole('main').querySelector('.w-full');
       expect(container).toBeInTheDocument();
@@ -155,14 +162,14 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
     });
 
     it('should maintain consistent rounded corners', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const container = screen.getByRole('main').querySelector('.rounded-2xl');
       expect(container).toBeInTheDocument();
     });
 
     it('should maintain consistent shadow effects', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const container = screen.getByRole('main').querySelector('.shadow-2xl');
       expect(container).toBeInTheDocument();
@@ -201,21 +208,21 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
 
   describe('AC1: Text/buttons at least 16px for readability', () => {
     it('should have heading text of 3xl (30px) or larger', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const heading = screen.getByRole('heading', { name: /easy practice/i });
       expect(heading.className).toMatch(/text-(3xl|4xl)/);
     });
 
     it('should have problem set selector text readable', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const heading = screen.getByText(/choose a problem set/i);
       expect(heading).toHaveClass('text-3xl');
     });
 
     it('should have button text that is readable (font-medium or font-semibold)', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const buttons = screen.getAllByRole('button');
       const hasReadableFont = buttons.some(
@@ -228,7 +235,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     });
 
     it('should have button text that is readable (font-medium or font-semibold)', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const problemSetButton = screen.getByRole('button', {
         name: /addition within 20/i,
@@ -240,17 +247,23 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
 
   describe('AC2: Sufficient padding to prevent accidental taps', () => {
     it('should have buttons with minimum height of 48px or larger', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const buttons = screen.getAllByRole('button');
-      buttons.forEach((button) => {
+      // Filter out language selector button (small utility button in top-right)
+      // Language selector has specific styling: px-4 py-2 text-sm
+      const mainButtons = Array.from(buttons).filter(
+        (button) => !button.className.includes('px-4 py-2 text-sm')
+      );
+      
+      mainButtons.forEach((button) => {
         // min-h-20 is 80px (5rem), which is larger than 48px
         expect(button.className).toMatch(/min-h-20|h-12|min-h-\[48px\]/);
       });
     });
 
     it('should have buttons with sufficient padding', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const problemSetButton = screen.getByRole('button', {
         name: /addition within 20/i,
@@ -260,7 +273,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     });
 
     it('should have appropriate gap between adjacent buttons', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       // Find button containers
       const main = screen.getByRole('main');
@@ -271,21 +284,21 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
 
   describe('AC3: Sufficient contrast for low-light conditions', () => {
     it('should use high contrast colors for primary text', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const heading = screen.getByRole('heading', { name: /easy practice/i });
       expect(heading.className).toMatch(/text-gray-(800|900)/);
     });
 
     it('should use appropriate background colors with good contrast', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const main = screen.getByRole('main');
       expect(main.className).toMatch(/bg-(gray-50|gradient)/);
     });
 
     it('should have white background for main content card', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const container = screen.getByRole('main').querySelector('.bg-white');
       expect(container).toBeInTheDocument();
@@ -324,7 +337,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
 
   describe('AC1: Colorful visuals (illustrations, animations)', () => {
     it('should use colorful button styles (blue, green, red)', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const problemSetButton = screen.getByRole('button', {
         name: /addition within 20/i,
@@ -336,7 +349,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     });
 
     it('should include transition effects for interactivity', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const buttons = screen.getAllByRole('button');
       buttons.forEach((button) => {
@@ -345,7 +358,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     });
 
     it('should have rounded corners for a friendly appearance', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const buttons = screen.getAllByRole('button');
       buttons.forEach((button) => {
@@ -354,7 +367,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     });
 
     it('should use friendly visual elements in the layout', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       // Landing page should have clear heading
       const heading = screen.getByText(/choose a problem set/i);
@@ -364,7 +377,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
 
   describe('AC2: Visuals should not distract from parent interaction', () => {
     it('should keep animations subtle (transition-colors only)', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const buttons = screen.getAllByRole('button');
       buttons.forEach((button) => {
@@ -374,7 +387,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     });
 
     it('should maintain clear visual hierarchy with font sizes', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const heading = screen.getByRole('heading', { name: /easy practice/i });
       expect(heading.className).toMatch(/text-(3xl|4xl)/);
@@ -384,7 +397,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     });
 
     it('should use appropriate spacing to prevent visual clutter', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const main = screen.getByRole('main');
       const spacingContainer = main.querySelector('.space-y-8');
@@ -394,7 +407,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
 
   describe('AC3: Visuals remain engaging without becoming repetitive', () => {
     it('should use varied colors for different button types', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const problemSetButton = screen.getByRole('button', {
         name: /addition within 20/i,
@@ -406,7 +419,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     });
 
     it('should have hover states for interactive feedback', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       const buttons = screen.getAllByRole('button');
       buttons.forEach((button) => {
@@ -415,7 +428,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     });
 
     it('should use consistent but varied visual patterns', () => {
-      render(<Home />);
+      render(<Home />, { wrapper: Wrapper });
 
       // Shadow effects add depth
       const shadowElements = screen

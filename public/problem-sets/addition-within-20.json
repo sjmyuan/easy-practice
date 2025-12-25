@@ -1,8 +1,14 @@
 {
   "version": "1.0",
   "problemSet": {
-    "name": "Addition within 20",
-    "description": "Practice addition with sums up to 20",
+    "name": {
+      "en": "Addition within 20",
+      "zh": "20以内加法"
+    },
+    "description": {
+      "en": "Practice addition with sums up to 20",
+      "zh": "练习0-20范围内的加法"
+    },
     "problemSetKey": "addition-within-20",
     "difficulty": "easy",
     "metadata": {

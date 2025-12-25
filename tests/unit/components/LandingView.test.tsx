@@ -1,7 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 import { LandingView } from '../../../components/LandingView';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import type { ProblemSet } from '../../../types';
+import type { ReactNode } from 'react';
+
+// Wrapper component for tests
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <LanguageProvider>{children}</LanguageProvider>
+);
 
 const mockProblemSets: ProblemSet[] = [
   {
@@ -27,7 +34,8 @@ describe('LandingView', () => {
         problemSets={mockProblemSets}
         onSelect={() => {}}
         isLoading={false}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
     expect(screen.getByText('Easy Practice')).toBeInTheDocument();
@@ -40,7 +48,8 @@ describe('LandingView', () => {
         problemSets={mockProblemSets}
         onSelect={onSelect}
         isLoading={false}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
     // ProblemSetSelector should render problem set buttons
@@ -55,7 +64,8 @@ describe('LandingView', () => {
         problemSets={mockProblemSets}
         onSelect={onSelect}
         isLoading={false}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
     const button = screen.getByText('Addition within 10');
@@ -70,7 +80,8 @@ describe('LandingView', () => {
         problemSets={mockProblemSets}
         onSelect={() => {}}
         isLoading={true}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
     const button = screen.getByRole('button', {
@@ -85,7 +96,8 @@ describe('LandingView', () => {
         problemSets={mockProblemSets}
         onSelect={() => {}}
         isLoading={false}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
     const mainElement = container.querySelector('main');
@@ -98,7 +110,8 @@ describe('LandingView', () => {
         problemSets={mockProblemSets}
         onSelect={() => {}}
         isLoading={false}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
     const logo = screen.getByAltText('Easy Practice Logo');
@@ -112,7 +125,8 @@ describe('LandingView', () => {
         problemSets={mockProblemSets}
         onSelect={() => {}}
         isLoading={false}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
     const mainElement = container.querySelector('main');

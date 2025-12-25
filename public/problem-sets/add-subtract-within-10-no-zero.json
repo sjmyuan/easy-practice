@@ -1,8 +1,14 @@
 {
   "version": "1.0",
   "problemSet": {
-    "name": "Addition and Subtraction within 10 (No Zero Operand)",
-    "description": "Practice addition and subtraction with sums and minuends up to 10, excluding problems where one operand is 0.",
+    "name": {
+      "en": "Addition and Subtraction within 10 (No Zero Operand)",
+      "zh": "10以内加减法（无0）"
+    },
+    "description": {
+      "en": "Practice addition and subtraction with sums and minuends up to 10, excluding problems where one operand is 0.",
+      "zh": "练习1-10范围内的加减法，不包含0"
+    },
     "problemSetKey": "add-subtract-within-10-no-zero",
     "difficulty": "easy",
     "metadata": {

@@ -221,7 +221,7 @@ describe('AppContext', () => {
       });
 
       // Wait to ensure no additional calls
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // initializeApp should not be called again
       expect(hasProblemsCall).toHaveBeenCalledTimes(initialCallCount);
@@ -1348,7 +1348,7 @@ describe('AppContext', () => {
       expect(sessionStartTime).toBeDefined();
 
       // Wait a bit to ensure duration > 0
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Complete the session
       await act(async () => {

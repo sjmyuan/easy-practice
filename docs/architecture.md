@@ -2,11 +2,81 @@
 
 ## Easy Practice for Parents
 
-**Version:** 1.6.0  
-**Date:** December 29, 2025  
-**Status:** In Progress - Epics 1, 2, 3, & 4 Completed
+**Version:** 1.7.0  
+**Date:** December 25, 2025  
+**Status:** In Progress - Epics 1-5 Completed
 
 ## Recent Updates
+
+### Internationalization (i18n) Support (December 25, 2025)
+
+- **Language Support**:
+  - Default language: Chinese (zh)
+  - Supported languages: Chinese (zh) and English (en)
+  - Language selection persisted in browser localStorage
+  - Immediate UI updates on language switch
+- **New Language Components**:
+  - **LanguageContext** (`contexts/LanguageContext.tsx`):
+    - Context provider managing language state with localStorage persistence
+    - Exposes: `language` (current language), `setLanguage` (switch function), `t` (translation function)
+    - Initializes from localStorage on mount (client-side only to avoid hydration mismatch)
+    - Provides `getNestedValue()` for dot notation translation keys (e.g., 'common.start')
+    - Fallback mechanism: returns key if translation not found
+    - 16 tests covering initialization, switching, persistence, and translation
+  - **LanguageSelector** (`components/LanguageSelector.tsx`):
+    - Toggle button with flag icons (🇨🇳 for Chinese, 🇺🇸 for English)
+    - Displays current language label from translations
+    - Integrated into SettingsPanel for easy access
+    - Hover effects with border and background color transitions
+    - Full keyboard accessibility with proper ARIA labels
+    - 12 tests covering rendering, switching, styling, and integration
+- **Translation Resources**:
+  - **Translation Files**:
+    - `/locales/zh.json` - Chinese translations
+    - `/locales/en.json` - English translations
+    - Organized by sections: common, landing, preSession, session, sessionComplete, summary, settings, errors, loading, problemSets
+    - Comprehensive coverage of all user-visible text
+- **Bilingual Problem Sets**:
+  - **Problem Set Manifest** (`public/problem-sets/manifest.json`):
+    - Updated `name` and `description` fields to support bilingual format
+    - Format: `{ "en": "English text", "zh": "中文文本" }`
+    - All 5 problem sets updated with bilingual names and descriptions
+  - **Problem Set JSON Files**:
+    - Updated all problem set JSON files with bilingual `name` and `description`
+    - Files: addition-within-10.json, addition-within-20.json, subtraction-within-10.json, subtraction-within-20.json, add-subtract-within-10-no-zero.json
+- **Type System Updates**:
+  - **LocalizedString Type** (`types/problem.types.ts`):
+    - New type: `type LocalizedString = string | { en: string; zh: string }`
+    - Updated `ProblemSetJSON` interface to use `LocalizedString` for name/description
+    - Updated `ProblemSetManifestEntry` interface to use `LocalizedString` for name/description
+  - **Utility Functions** (`lib/utils.ts`):
+    - Added `getLocalizedString(value: LocalizedString, language: Language): string`
+    - Extracts language-specific string from LocalizedString type
+    - Handles both string and bilingual object formats
+- **Database Service Updates**:
+  - Added `normalizeLocalizedString()` helper function
+  - Converts LocalizedString to plain English string for database storage
+  - Updated `addNewProblemSet()` to normalize bilingual name/description
+  - Updated `upgradeProblemSet()` to normalize bilingual name/description
+  - Maintains backward compatibility with existing string-based problem sets
+- **UI Component Updates**:
+  - **SettingsPanel**: Added language selector section with heading and LanguageSelector component
+  - Uses `t()` function for all text: title, close button aria-label, language heading
+  - **App Layout** (`app/layout.tsx`):
+    - Wrapped AppProvider with LanguageProvider to provide i18n context globally
+    - Language context available to all components in the tree
+- **Testing**:
+  - LanguageContext: 16 tests covering initialization, switching, persistence, translations
+  - LanguageSelector: 12 tests covering rendering, switching, styling, keyboard accessibility
+  - SettingsPanel: Updated tests to include LanguageProvider wrapper
+  - All core i18n functionality verified through unit tests
+- **Impact**:
+  - Chinese parents can use the app in their native language (default)
+  - English-speaking users can switch to English via settings
+  - Language preference persists across browser sessions
+  - Problem sets display names/descriptions in selected language
+  - All UI text dynamically updates on language change
+  - Improved accessibility for international audience
 
 ### Single Page Application (SPA) Architecture Refactor (December 29, 2025)
 

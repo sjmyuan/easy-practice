@@ -1,8 +1,14 @@
 {
   "version": "1.0",
   "problemSet": {
-    "name": "Subtraction within 10",
-    "description": "Practice subtraction with minuends up to 10 and non-negative results",
+    "name": {
+      "en": "Subtraction within 10",
+      "zh": "10以内减法"
+    },
+    "description": {
+      "en": "Practice subtraction with minuends up to 10 and non-negative results",
+      "zh": "练习0-10范围内的减法"
+    },
     "problemSetKey": "subtraction-within-10",
     "difficulty": "easy",
     "metadata": {

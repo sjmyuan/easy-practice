@@ -8,7 +8,18 @@ import type {
   ProblemStatistics,
   StruggledProblemSummary,
   ProblemSetJSON,
+  LocalizedString,
 } from '@/types';
+
+/**
+ * Normalize localized string to plain English string for storage
+ */
+function normalizeLocalizedString(value: LocalizedString): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return value.en || value.zh || '';
+}
 
 export class DatabaseService {
   /**
@@ -92,8 +103,8 @@ export class DatabaseService {
    */
   private async addNewProblemSet(
     problemSetData: {
-      name: string;
-      description?: string;
+      name: LocalizedString;
+      description?: LocalizedString;
       problemSetKey: string;
       difficulty?: string;
       metadata?: Record<string, unknown>;
@@ -105,8 +116,10 @@ export class DatabaseService {
 
     await db.problemSets.add({
       id: problemSetId,
-      name: problemSetData.name,
-      description: problemSetData.description,
+      name: normalizeLocalizedString(problemSetData.name),
+      description: problemSetData.description
+        ? normalizeLocalizedString(problemSetData.description)
+        : undefined,
       problemSetKey: problemSetData.problemSetKey,
       difficulty: problemSetData.difficulty,
       enabled: true,
@@ -144,8 +157,8 @@ export class DatabaseService {
   private async upgradeProblemSet(
     problemSetId: string,
     problemSetData: {
-      name: string;
-      description?: string;
+      name: LocalizedString;
+      description?: LocalizedString;
       problemSetKey: string;
       difficulty?: string;
       metadata?: Record<string, unknown>;
@@ -180,8 +193,10 @@ export class DatabaseService {
 
     // Update problem set metadata
     await db.problemSets.update(problemSetId, {
-      name: problemSetData.name,
-      description: problemSetData.description,
+      name: normalizeLocalizedString(problemSetData.name),
+      description: problemSetData.description
+        ? normalizeLocalizedString(problemSetData.description)
+        : undefined,
       difficulty: problemSetData.difficulty,
       version: version,
       metadata: problemSetData.metadata,

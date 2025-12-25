@@ -1,0 +1,90 @@
+{
+  "common": {
+    "start": "开始",
+    "cancel": "取消",
+    "confirm": "确认",
+    "back": "返回",
+    "close": "关闭",
+    "next": "下一个",
+    "reset": "重置",
+    "settings": "设置"
+  },
+  "landing": {
+    "title": "选择练习集",
+    "subtitle": "请选择一个练习集开始练习",
+    "noProblemSets": "没有可用的练习集",
+    "selectProblemSet": "选择练习集"
+  },
+  "preSession": {
+    "startSession": "开始练习",
+    "viewSummary": "查看总结",
+    "resetData": "重置数据",
+    "settings": "设置",
+    "problemCoverage": "问题覆盖率",
+    "estimatedProblems": "预计问题数"
+  },
+  "session": {
+    "problem": "问题",
+    "progress": "进度",
+    "timer": "计时器",
+    "pass": "通过",
+    "fail": "失败",
+    "showAnswer": "显示答案",
+    "hideAnswer": "隐藏答案",
+    "answer": "答案",
+    "backToLanding": "返回主页"
+  },
+  "sessionComplete": {
+    "title": "练习完成！",
+    "congratulations": "恭喜完成本次练习！",
+    "duration": "用时",
+    "totalProblems": "总题数",
+    "passed": "通过",
+    "failed": "失败",
+    "accuracy": "正确率",
+    "startNewSession": "开始新练习",
+    "changeProblemSet": "更换练习集"
+  },
+  "summary": {
+    "title": "困难题目总结",
+    "noStruggledProblems": "没有困难题目",
+    "problem": "问题",
+    "attempts": "尝试次数",
+    "passRate": "通过率",
+    "priority": "优先级",
+    "close": "关闭"
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "chinese": "中文",
+    "english": "English",
+    "problemCoverage": "问题覆盖率",
+    "coverageDescription": "选择要练习的问题百分比（基于优先级）",
+    "resetData": "重置数据",
+    "resetDataDescription": "清除当前练习集的所有数据",
+    "resetConfirm": "确定要重置所有数据吗？此操作无法撤销。"
+  },
+  "errors": {
+    "loadingFailed": "加载失败",
+    "noProblems": "没有可用的问题",
+    "retry": "重试",
+    "genericError": "发生错误，请重试"
+  },
+  "loading": {
+    "title": "加载中...",
+    "pleaseWait": "请稍候"
+  },
+  "problemSets": {
+    "additionWithin10": "10以内加法",
+    "additionWithin10Description": "练习0-10范围内的加法",
+    "subtractionWithin10": "10以内减法",
+    "subtractionWithin10Description": "练习0-10范围内的减法",
+    "additionWithin20": "20以内加法",
+    "additionWithin20Description": "练习0-20范围内的加法",
+    "subtractionWithin20": "20以内减法",
+    "subtractionWithin20Description": "练习0-20范围内的减法",
+    "addSubtractWithin10NoZero": "10以内加减法（无0）",
+    "addSubtractWithin10NoZeroDescription": "练习1-10范围内的加减法，不包含0"
+  }
+}

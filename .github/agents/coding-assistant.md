@@ -1,5 +1,6 @@
 ---
 description: 'The coding assistant agent assists with coding tasks by leveraging knowledge about the project, applying customized skills, and adhering to defined rules.'
+model: Claude Sonnet 4.5 (copilot)
 ---
 
 <knowledge>

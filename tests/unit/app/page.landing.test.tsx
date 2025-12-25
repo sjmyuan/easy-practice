@@ -2,9 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Home from '@/app/page';
-import { AppProvider } from '@/contexts/AppContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import * as services from '@/services';
 import type { ProblemSet } from '@/types';
+import type { ReactNode } from 'react';
+
+// Wrapper component for tests
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <LanguageProvider>
+    <Wrapper>{children}</Wrapper>
+  </LanguageProvider>
+);
 
 // Mock Next.js navigation
 const mockPush = vi.fn();
@@ -64,9 +72,9 @@ describe('Landing Page (app/page.tsx)', () => {
   describe('Initialization', () => {
     it('should display loading state initially', () => {
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -74,9 +82,9 @@ describe('Landing Page (app/page.tsx)', () => {
 
     it('should display problem set selector after initialization', async () => {
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -86,9 +94,9 @@ describe('Landing Page (app/page.tsx)', () => {
 
     it('should fetch and display available problem sets', async () => {
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -103,9 +111,9 @@ describe('Landing Page (app/page.tsx)', () => {
       );
 
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -119,9 +127,9 @@ describe('Landing Page (app/page.tsx)', () => {
       const user = userEvent.setup();
 
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -148,9 +156,9 @@ describe('Landing Page (app/page.tsx)', () => {
       const user = userEvent.setup();
 
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -177,9 +185,9 @@ describe('Landing Page (app/page.tsx)', () => {
   describe('Layout and Styling', () => {
     it('should have proper page layout', async () => {
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -192,9 +200,9 @@ describe('Landing Page (app/page.tsx)', () => {
 
     it('should display app title', async () => {
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -208,9 +216,9 @@ describe('Landing Page (app/page.tsx)', () => {
       vi.mocked(services.databaseService.getProblemSets).mockResolvedValue([]);
 
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -224,9 +232,9 @@ describe('Landing Page (app/page.tsx)', () => {
       vi.mocked(services.databaseService.getProblemSets).mockResolvedValue([]);
 
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {
@@ -244,9 +252,9 @@ describe('Landing Page (app/page.tsx)', () => {
   describe('Accessibility', () => {
     it('should have proper heading hierarchy', async () => {
       render(
-        <AppProvider>
+        <Wrapper>
           <Home />
-        </AppProvider>
+        </Wrapper>
       );
 
       await waitFor(() => {

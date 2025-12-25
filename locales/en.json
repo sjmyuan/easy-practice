@@ -1,0 +1,90 @@
+{
+  "common": {
+    "start": "Start",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "close": "Close",
+    "next": "Next",
+    "reset": "Reset",
+    "settings": "Settings"
+  },
+  "landing": {
+    "title": "Select Problem Set",
+    "subtitle": "Please select a problem set to begin practice",
+    "noProblemSets": "No problem sets available",
+    "selectProblemSet": "Select Problem Set"
+  },
+  "preSession": {
+    "startSession": "Start Session",
+    "viewSummary": "View Summary",
+    "resetData": "Reset Data",
+    "settings": "Settings",
+    "problemCoverage": "Problem Coverage",
+    "estimatedProblems": "Estimated Problems"
+  },
+  "session": {
+    "problem": "Problem",
+    "progress": "Progress",
+    "timer": "Timer",
+    "pass": "Pass",
+    "fail": "Fail",
+    "showAnswer": "Show Answer",
+    "hideAnswer": "Hide Answer",
+    "answer": "Answer",
+    "backToLanding": "Back to Home"
+  },
+  "sessionComplete": {
+    "title": "Session Complete!",
+    "congratulations": "Congratulations on completing this session!",
+    "duration": "Duration",
+    "totalProblems": "Total Problems",
+    "passed": "Passed",
+    "failed": "Failed",
+    "accuracy": "Accuracy",
+    "startNewSession": "Start New Session",
+    "changeProblemSet": "Change Problem Set"
+  },
+  "summary": {
+    "title": "Struggled Problems Summary",
+    "noStruggledProblems": "No struggled problems",
+    "problem": "Problem",
+    "attempts": "Attempts",
+    "passRate": "Pass Rate",
+    "priority": "Priority",
+    "close": "Close"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "chinese": "中文",
+    "english": "English",
+    "problemCoverage": "Problem Coverage",
+    "coverageDescription": "Choose the percentage of problems to practice (based on priority)",
+    "resetData": "Reset Data",
+    "resetDataDescription": "Clear all data for the current problem set",
+    "resetConfirm": "Are you sure you want to reset all data? This action cannot be undone."
+  },
+  "errors": {
+    "loadingFailed": "Loading Failed",
+    "noProblems": "No problems available",
+    "retry": "Retry",
+    "genericError": "An error occurred, please try again"
+  },
+  "loading": {
+    "title": "Loading...",
+    "pleaseWait": "Please wait"
+  },
+  "problemSets": {
+    "additionWithin10": "Addition within 10",
+    "additionWithin10Description": "Practice addition problems from 0 to 10",
+    "subtractionWithin10": "Subtraction within 10",
+    "subtractionWithin10Description": "Practice subtraction problems from 0 to 10",
+    "additionWithin20": "Addition within 20",
+    "additionWithin20Description": "Practice addition problems from 0 to 20",
+    "subtractionWithin20": "Subtraction within 20",
+    "subtractionWithin20Description": "Practice subtraction problems from 0 to 20",
+    "addSubtractWithin10NoZero": "Add/Subtract within 10 (No Zero)",
+    "addSubtractWithin10NoZeroDescription": "Practice addition and subtraction from 1 to 10, excluding zero"
+  }
+}

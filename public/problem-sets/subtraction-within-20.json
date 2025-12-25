@@ -1,8 +1,14 @@
 {
   "version": "1.0",
   "problemSet": {
-    "name": "Subtraction within 20",
-    "description": "Practice subtraction with minuends up to 20 and non-negative results",
+    "name": {
+      "en": "Subtraction within 20",
+      "zh": "20以内减法"
+    },
+    "description": {
+      "en": "Practice subtraction with minuends up to 20 and non-negative results",
+      "zh": "练习0-20范围内的减法"
+    },
     "problemSetKey": "subtraction-within-20",
     "difficulty": "easy",
     "metadata": {

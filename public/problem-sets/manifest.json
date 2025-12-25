@@ -4,36 +4,66 @@
       "problemSetKey": "addition-within-10",
       "version": "1.0",
       "path": "/problem-sets/addition-within-10.json",
-      "name": "Addition within 10",
-      "description": "Practice addition with sums up to 10"
+      "name": {
+        "en": "Addition within 10",
+        "zh": "10以内加法"
+      },
+      "description": {
+        "en": "Practice addition with sums up to 10",
+        "zh": "练习0-10范围内的加法"
+      }
     },
     {
       "problemSetKey": "addition-within-20",
       "version": "1.0",
       "path": "/problem-sets/addition-within-20.json",
-      "name": "Addition within 20",
-      "description": "Practice addition with sums up to 20"
+      "name": {
+        "en": "Addition within 20",
+        "zh": "20以内加法"
+      },
+      "description": {
+        "en": "Practice addition with sums up to 20",
+        "zh": "练习0-20范围内的加法"
+      }
     },
     {
       "problemSetKey": "subtraction-within-10",
       "version": "1.0",
       "path": "/problem-sets/subtraction-within-10.json",
-      "name": "Subtraction within 10",
-      "description": "Practice subtraction with minuends up to 10 and non-negative results"
+      "name": {
+        "en": "Subtraction within 10",
+        "zh": "10以内减法"
+      },
+      "description": {
+        "en": "Practice subtraction with minuends up to 10 and non-negative results",
+        "zh": "练习0-10范围内的减法"
+      }
     },
     {
       "problemSetKey": "subtraction-within-20",
       "version": "1.0",
       "path": "/problem-sets/subtraction-within-20.json",
-      "name": "Subtraction within 20",
-      "description": "Practice subtraction with minuends up to 20 and non-negative results"
+      "name": {
+        "en": "Subtraction within 20",
+        "zh": "20以内减法"
+      },
+      "description": {
+        "en": "Practice subtraction with minuends up to 20 and non-negative results",
+        "zh": "练习0-20范围内的减法"
+      }
     },
     {
       "problemSetKey": "add-subtract-within-10-no-zero",
       "version": "1.0",
       "path": "/problem-sets/add-subtract-within-10-no-zero.json",
-      "name": "Addition and Subtraction within 10 (No Zero Operand)",
-      "description": "Practice addition and subtraction with sums and minuends up to 10, excluding problems where one operand is 0."
+      "name": {
+        "en": "Addition and Subtraction within 10 (No Zero Operand)",
+        "zh": "10以内加减法（无0）"
+      },
+      "description": {
+        "en": "Practice addition and subtraction with sums and minuends up to 10, excluding problems where one operand is 0.",
+        "zh": "练习1-10范围内的加减法，不包含0"
+      }
     }
   ]
 }

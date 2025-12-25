@@ -434,29 +434,29 @@ As a busy parent, I want to see detailed statistics when a session completes so 
 - ✅ Given a new session starts, when beginning the session, then the timer should start and statistics should reset to zero.
 - ✅ Given a session is active, when problems are being answered, then the statistics should not be displayed until the session completes.
 
-### Epic 5: Internationalization (i18n) Support
+### Epic 5: Internationalization (i18n) Support ✅ COMPLETED
 
 [Busy Parent] wants to use the app in their preferred language (Chinese or English) so that it is accessible and comfortable for parents in China and English-speaking regions.
 
-#### User Story 1: Language Selection and Persistence
+#### User Story 1: Language Selection and Persistence ✅ COMPLETED
 
 As a parent, I want to switch between Chinese and English in the app so that I can use it in my preferred language, with Chinese as the default.
 
 ##### Acceptance Criteria:
 
-- Given the app is opened, when no language is selected, then the app displays in Chinese by default.
-- Given the app is opened, when I select a language, then all user-visible elements (UI, instructions, error messages, etc.) are displayed in the selected language.
-- Given I select a language, when I return to the app in the same browser, then my language preference persists across sessions.
-- Given the app displays problem sets, when viewing the list, then each problem set's name and description are shown in the selected language (from JSON/manifest).
-- Given the app is used, when switching languages, then the UI updates immediately to reflect the new language.
-- Given translation resources are prepared, when the app is used, then all user-visible text is translated and displays correctly in both languages.
+- ✅ Given the app is opened, when no language is selected, then the app displays in Chinese by default.
+- ✅ Given the app is opened, when I select a language, then all user-visible elements (UI, instructions, error messages, etc.) are displayed in the selected language.
+- ✅ Given I select a language, when I return to the app in the same browser, then my language preference persists across sessions.
+- ✅ Given the app displays problem sets, when viewing the list, then each problem set's name and description are shown in the selected language (from JSON/manifest).
+- ✅ Given the app is used, when switching languages, then the UI updates immediately to reflect the new language.
+- ✅ Given translation resources are prepared, when the app is used, then all user-visible text is translated and displays correctly in both languages.
 
 ##### In Scope:
 
-- Problem set JSON and manifest update for bilingual name/description
-- Translation resource preparation for all user-visible text
-- Refactoring existing UI components to support dynamic language switching
-- Implementing mechanism to store language preference in browser storage
+- ✅ Problem set JSON and manifest updated for bilingual name/description
+- ✅ Translation resource preparation for all user-visible text
+- ✅ Refactored UI components to support dynamic language switching
+- ✅ Implemented mechanism to store language preference in browser storage (localStorage)
 
 ##### Out of Scope:
 
@@ -465,20 +465,25 @@ As a parent, I want to switch between Chinese and English in the app so that I c
 - No support for additional languages beyond English and Chinese
 - No automatic language detection based on browser or system settings
 
-##### Prerequisites:
+##### Implementation Details (December 25, 2025):
 
-- Existing UI components must be refactored to support dynamic language switching
-- Translation resources for all user-visible text in both English and Chinese must be prepared
-- Problem set JSON files and manifest must be updated to include name and description in both languages
-- Mechanism for storing language preference in browser storage (e.g., localStorage) must be implemented
+- **LanguageContext**: Created context provider managing language state (zh|en) with localStorage persistence
+- **Translation Resources**: Created `/locales/zh.json` and `/locales/en.json` with comprehensive translations
+- **LanguageSelector Component**: Toggle button with flag icons for switching between Chinese and English
+- **Bilingual Problem Sets**: Updated manifest and all problem set JSON files to support `{ en: string, zh: string }` format for names and descriptions
+- **Type System**: Added `LocalizedString` type to handle both string and bilingual object formats
+- **Utility Functions**: Created `getLocalizedString()` helper to extract language-specific strings
+- **Database Service**: Updated to normalize localized strings to English for storage
+- **Settings Integration**: Added language selector to SettingsPanel for easy access
+- **App Layout**: Wrapped AppProvider with LanguageProvider to provide i18n context globally
 
 ##### Benefits:
 
-- Parents in China can use the app comfortably in their native language
-- English-speaking users can access the app in English
-- Users have control over language preference, improving accessibility and user experience
-- Consistent language experience for users during their session
-- Problem sets and manifest are understandable in both languages, broadening usability
+- ✅ Parents in China can use the app comfortably in their native language
+- ✅ English-speaking users can access the app in English
+- ✅ Users have control over language preference, improving accessibility and user experience
+- ✅ Consistent language experience for users during their session
+- ✅ Problem sets and manifest are understandable in both languages, broadening usability
 
 ### Epic 6: Problem Set Selection and Navigation ✅ COMPLETED
 

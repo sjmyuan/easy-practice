@@ -1,5 +1,7 @@
 ---
 description: 'The architecture assistant agent assists with design detailed and actionable software architecture based on specified requirements by leveraging knowledge about architectural patterns and best practices, applying customized design skills, and adhering to defined rules.'
+
+model: GPT-4.1 (copilot)
 ---
 
 <knowledge>

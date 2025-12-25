@@ -3,6 +3,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import Home from '@/app/page';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import type { ReactNode } from 'react';
+
+// Wrapper component for tests
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <LanguageProvider>{children}</LanguageProvider>
+);
 
 const mockInitializeApp = vi.fn();
 const mockSelectProblemSet = vi.fn();
@@ -96,13 +103,13 @@ describe('Home Page (Landing)', () => {
   });
 
   it('should render the main page with problem generator', () => {
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     expect(screen.getByText(/easy practice/i)).toBeInTheDocument();
   });
 
   it('should display problem set selector', () => {
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     expect(screen.getByText(/choose a problem set/i)).toBeInTheDocument();
     expect(screen.getByText('Addition within 20')).toBeInTheDocument();
@@ -115,7 +122,7 @@ describe('Home Page (Landing)', () => {
     // Start with no selected problem set
     mockState.selectedProblemSetId = null;
 
-    const { rerender } = render(<Home />);
+    const { rerender } = render(<Home />, { wrapper: Wrapper });
 
     const additionButton = screen.getByRole('button', {
       name: /addition within 20/i,
@@ -146,7 +153,7 @@ describe('Home Page (Landing)', () => {
   it('should display problem display area when session is active', () => {
     // This test is no longer relevant for landing page
     // Landing page only shows problem set selection
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     // Should show problem set selector, not problem display
     expect(screen.getByText(/choose a problem set/i)).toBeInTheDocument();
@@ -156,13 +163,13 @@ describe('Home Page (Landing)', () => {
   it('should display Start Session button when no session is active', () => {
     // This test is no longer relevant for landing page
     // Landing page shows problem set selection, not session controls
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     expect(screen.getByText(/choose a problem set/i)).toBeInTheDocument();
   });
 
   it('should be responsive on mobile viewports', () => {
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     const main = screen.getByRole('main');
     expect(main).toHaveClass('min-h-screen');
@@ -170,7 +177,7 @@ describe('Home Page (Landing)', () => {
   });
 
   it('Issue C: No infinite loops from page initialization > should not call initializeApp from page component', () => {
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     // The page component should not call initializeApp
     // Initialization happens in AppProvider
@@ -179,14 +186,14 @@ describe('Home Page (Landing)', () => {
 
   it('Issue C: No infinite loops from page initialization > should not cause maximum update depth exceeded error', () => {
     // This is tested by the fact that the component renders without errors
-    expect(() => render(<Home />)).not.toThrow();
+    expect(() => render(<Home />, { wrapper: Wrapper })).not.toThrow();
   });
 
   it('Issue B: Error handling during initialization > should display error message when initialization fails', () => {
     mockState.initializationError = 'Failed to load';
     mockState.isInitialized = false;
 
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     expect(screen.getByText(/error: failed to load/i)).toBeInTheDocument();
   });
@@ -195,7 +202,7 @@ describe('Home Page (Landing)', () => {
     mockState.initializationError = 'Failed to load';
     mockState.isInitialized = false;
 
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     const retryButton = screen.getByText(/retry/i);
     retryButton.click();
@@ -207,7 +214,7 @@ describe('Home Page (Landing)', () => {
     mockState.isInitialized = false;
     mockState.initializationError = null;
 
-    render(<Home />);
+    render(<Home />, { wrapper: Wrapper });
 
     expect(screen.getByText(/loading\.\.\./i)).toBeInTheDocument();
   });

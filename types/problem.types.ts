@@ -1,4 +1,8 @@
 // Type definitions for Problem entities
+
+// Localized string type for bilingual content
+export type LocalizedString = string | { en: string; zh: string };
+
 export interface ProblemSet {
   id?: string;
   name: string;
@@ -53,15 +57,15 @@ export interface StruggledProblemSummary {
 export interface ProblemSetJSON {
   version: string;
   problemSet?: {
-    name: string;
-    description?: string;
+    name: LocalizedString;
+    description?: LocalizedString;
     problemSetKey: string;
     difficulty?: string;
     metadata?: Record<string, unknown>;
   };
   problemSets?: Array<{
-    name: string;
-    description?: string;
+    name: LocalizedString;
+    description?: LocalizedString;
     problemSetKey: string;
     difficulty?: string;
     metadata?: Record<string, unknown>;
@@ -81,8 +85,8 @@ export interface ProblemSetManifestEntry {
   problemSetKey: string;
   version: string;
   path: string;
-  name: string;
-  description?: string;
+  name: LocalizedString;
+  description?: LocalizedString;
 }
 
 export interface ProblemSetManifest {

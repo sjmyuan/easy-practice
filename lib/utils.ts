@@ -1,12 +1,30 @@
 // lib/utils.ts - Utility functions
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { LocalizedString } from '@/types';
+import type { Language } from '@/contexts/LanguageContext';
 
 /**
  * Merge Tailwind CSS classes with clsx
  */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Get localized string based on current language
+ * @param value - String or object with localized strings
+ * @param language - Current language (zh or en)
+ * @returns Localized string
+ */
+export function getLocalizedString(
+  value: LocalizedString,
+  language: Language
+): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return value[language] || value.en || value.zh || '';
 }
 
 /**
