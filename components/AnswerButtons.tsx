@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AnswerButtonsProps {
   onPass: () => void;
@@ -14,6 +15,8 @@ export function AnswerButtons({
   onFail,
   disabled,
 }: AnswerButtonsProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex justify-center gap-4">
       <button
@@ -22,7 +25,7 @@ export function AnswerButtons({
         className="h-12 rounded-2xl bg-[#FF6F61] px-8 font-semibold text-white shadow-lg transition-all hover:bg-[#FF5A4F] hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
         aria-label="Mark as Fail"
       >
-        Fail
+        {t('session.fail')}
       </button>
       <button
         onClick={onPass}
@@ -30,7 +33,7 @@ export function AnswerButtons({
         className="h-12 rounded-2xl bg-[#6ECEDA] px-8 font-semibold text-white shadow-lg transition-all hover:bg-[#5DD0C8] hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
         aria-label="Mark as Pass"
       >
-        Pass
+        {t('session.pass')}
       </button>
     </div>
   );

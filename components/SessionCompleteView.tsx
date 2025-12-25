@@ -2,6 +2,7 @@
 
 import { StartSessionButton } from '@/components/StartSessionButton';
 import { formatDuration } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SessionCompleteViewProps {
   sessionDuration: number | null;
@@ -22,31 +23,33 @@ export function SessionCompleteView({
   onViewSummary,
   isLoading,
 }: SessionCompleteViewProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-4 py-8 text-center">
       <div className="text-2xl font-bold text-[#6ECEDA]">
-        🎉 Session Complete!
+        🎉 {t('sessionComplete.title')}
       </div>
 
       {/* Session Duration */}
       {sessionDuration !== null && (
         <div className="text-xl font-semibold text-gray-700">
-          Duration: {formatDuration(sessionDuration)}
+          {t('sessionComplete.duration')}: {formatDuration(sessionDuration)}
         </div>
       )}
 
       {/* Session Statistics */}
       <div className="mx-auto grid max-w-md grid-cols-3 gap-4 text-center">
         <div className="rounded-2xl bg-[#E2F0CB] p-3 shadow-md">
-          <div className="text-sm font-medium text-gray-700">Pass</div>
+          <div className="text-sm font-medium text-gray-700">{t('sessionComplete.passed')}</div>
           <div className="text-2xl font-bold text-gray-800">{passCount}</div>
         </div>
         <div className="rounded-2xl bg-[#FFB7B2] p-3 shadow-md">
-          <div className="text-sm font-medium text-gray-700">Fail</div>
+          <div className="text-sm font-medium text-gray-700">{t('sessionComplete.failed')}</div>
           <div className="text-2xl font-bold text-gray-800">{failCount}</div>
         </div>
         <div className="rounded-2xl bg-[#B5EAD7] p-3 shadow-md">
-          <div className="text-sm font-medium text-gray-700">Total</div>
+          <div className="text-sm font-medium text-gray-700">{t('sessionComplete.totalProblems')}</div>
           <div className="text-2xl font-bold text-gray-800">{totalCount}</div>
         </div>
       </div>
@@ -62,7 +65,7 @@ export function SessionCompleteView({
             disabled={isLoading}
             className="h-12 w-full rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            View Summary
+            {t('preSession.viewSummary')}
           </button>
         </div>
       </div>

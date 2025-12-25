@@ -10,13 +10,13 @@
     "settings": "Settings"
   },
   "landing": {
-    "title": "Select Problem Set",
+    "title": "Choose a Problem Set",
     "subtitle": "Please select a problem set to begin practice",
     "noProblemSets": "No problem sets available",
     "selectProblemSet": "Select Problem Set"
   },
   "preSession": {
-    "startSession": "Start Session",
+    "startSession": "Start New Session",
     "viewSummary": "View Summary",
     "resetData": "Reset Data",
     "settings": "Settings",

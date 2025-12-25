@@ -2,6 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ProblemCoverageSlider } from '@/components/ProblemCoverageSlider';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('ProblemCoverageSlider', () => {
   const mockOnChange = vi.fn();
@@ -12,44 +13,66 @@ describe('ProblemCoverageSlider', () => {
   };
 
   it('should render with default 100% value', () => {
-    render(<ProblemCoverageSlider {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} />
+      </LanguageProvider>
+    );
 
-    expect(screen.getByText('Problem Coverage')).toBeInTheDocument();
-    expect(screen.getByText('100% (20/20 problems)')).toBeInTheDocument();
+    expect(screen.getByText(/Problem Coverage|题目覆盖率/)).toBeInTheDocument();
+    expect(screen.getByText(/100% \(20\/20 problems\)|100% \(20\/20 道题\)/)).toBeInTheDocument();
   });
 
   it('should display correct percentage and problem count for 80%', () => {
-    render(<ProblemCoverageSlider {...defaultProps} value={80} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} value={80} />
+      </LanguageProvider>
+    );
 
-    expect(screen.getByText('80% (16/20 problems)')).toBeInTheDocument();
+    expect(screen.getByText(/80% \(16\/20 problems\)|80% \(16\/20 道题\)/)).toBeInTheDocument();
   });
 
   it('should display correct percentage and problem count for 50%', () => {
-    render(<ProblemCoverageSlider {...defaultProps} value={50} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} value={50} />
+      </LanguageProvider>
+    );
 
-    expect(screen.getByText('50% (10/20 problems)')).toBeInTheDocument();
+    expect(screen.getByText(/50% \(10\/20 problems\)|50% \(10\/20 道题\)/)).toBeInTheDocument();
   });
 
   it('should display correct percentage and problem count for 30%', () => {
-    render(<ProblemCoverageSlider {...defaultProps} value={30} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} value={30} />
+      </LanguageProvider>
+    );
 
-    expect(screen.getByText('30% (6/20 problems)')).toBeInTheDocument();
+    expect(screen.getByText(/30% \(6\/20 problems\)|30% \(6\/20 道题\)/)).toBeInTheDocument();
   });
 
   it('should handle zero total problems', () => {
-    render(<ProblemCoverageSlider {...defaultProps} totalProblems={0} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} totalProblems={0} />
+      </LanguageProvider>
+    );
 
-    expect(screen.getByText('100% (0/0 problems)')).toBeInTheDocument();
+    expect(screen.getByText(/100% \(0\/0 problems\)|100% \(0\/0 道题\)/)).toBeInTheDocument();
   });
 
   it('should call onChange when slider value changes', () => {
     const onChange = vi.fn();
     render(
-      <ProblemCoverageSlider
-        value={100}
-        onChange={onChange}
-        totalProblems={20}
-      />
+      <LanguageProvider>
+        <ProblemCoverageSlider
+          value={100}
+          onChange={onChange}
+          totalProblems={20}
+        />
+      </LanguageProvider>
     );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
@@ -62,7 +85,11 @@ describe('ProblemCoverageSlider', () => {
   });
 
   it('should have discrete steps at 30, 50, 80, 100', () => {
-    render(<ProblemCoverageSlider {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} />
+      </LanguageProvider>
+    );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
 
@@ -72,35 +99,55 @@ describe('ProblemCoverageSlider', () => {
   });
 
   it('should map step 0 to 30%', async () => {
-    render(<ProblemCoverageSlider {...defaultProps} value={30} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} value={30} />
+      </LanguageProvider>
+    );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
     expect(slider.value).toBe('0');
   });
 
   it('should map step 1 to 50%', async () => {
-    render(<ProblemCoverageSlider {...defaultProps} value={50} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} value={50} />
+      </LanguageProvider>
+    );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
     expect(slider.value).toBe('1');
   });
 
   it('should map step 2 to 80%', async () => {
-    render(<ProblemCoverageSlider {...defaultProps} value={80} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} value={80} />
+      </LanguageProvider>
+    );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
     expect(slider.value).toBe('2');
   });
 
   it('should map step 3 to 100%', async () => {
-    render(<ProblemCoverageSlider {...defaultProps} value={100} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} value={100} />
+      </LanguageProvider>
+    );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
     expect(slider.value).toBe('3');
   });
 
   it('should have proper ARIA labels', () => {
-    render(<ProblemCoverageSlider {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} />
+      </LanguageProvider>
+    );
 
     const slider = screen.getByRole('slider');
     expect(slider).toHaveAccessibleName('Problem coverage percentage');
@@ -109,11 +156,13 @@ describe('ProblemCoverageSlider', () => {
   it('should be keyboard accessible', () => {
     const onChange = vi.fn();
     render(
-      <ProblemCoverageSlider
-        value={100}
-        onChange={onChange}
-        totalProblems={20}
-      />
+      <LanguageProvider>
+        <ProblemCoverageSlider
+          value={100}
+          onChange={onChange}
+          totalProblems={20}
+        />
+      </LanguageProvider>
     );
 
     const slider = screen.getByRole('slider') as HTMLInputElement;
@@ -131,15 +180,21 @@ describe('ProblemCoverageSlider', () => {
   it('should round problem count correctly', () => {
     // Test with odd number that creates decimal
     render(
-      <ProblemCoverageSlider {...defaultProps} totalProblems={15} value={50} />
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} totalProblems={15} value={50} />
+      </LanguageProvider>
     );
 
     // 50% of 15 = 7.5, should round to 8
-    expect(screen.getByText('50% (8/15 problems)')).toBeInTheDocument();
+    expect(screen.getByText(/50% \(8\/15 problems\)|50% \(8\/15 道题\)/)).toBeInTheDocument();
   });
 
   it('should have mobile-friendly styling', () => {
-    const { container } = render(<ProblemCoverageSlider {...defaultProps} />);
+    const { container } = render(
+      <LanguageProvider>
+        <ProblemCoverageSlider {...defaultProps} />
+      </LanguageProvider>
+    );
 
     const slider = container.querySelector('input[type="range"]');
     expect(slider).toBeInTheDocument();

@@ -3,13 +3,18 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StartSessionButton } from '@/components/StartSessionButton';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('StartSessionButton', () => {
   it('should render button with text', () => {
-    render(<StartSessionButton onStart={vi.fn()} />);
+    render(
+      <LanguageProvider>
+        <StartSessionButton onStart={vi.fn()} />
+      </LanguageProvider>
+    );
 
     expect(
-      screen.getByRole('button', { name: /start new session/i })
+      screen.getByRole('button', { name: /start new session|开始新练习/i })
     ).toBeInTheDocument();
   });
 
@@ -17,18 +22,26 @@ describe('StartSessionButton', () => {
     const onStart = vi.fn();
     const user = userEvent.setup();
 
-    render(<StartSessionButton onStart={onStart} />);
+    render(
+      <LanguageProvider>
+        <StartSessionButton onStart={onStart} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /start new session/i });
+    const button = screen.getByRole('button', { name: /start new session|开始新练习/i });
     await user.click(button);
 
     expect(onStart).toHaveBeenCalledOnce();
   });
 
   it('should be disabled when disabled prop is true', () => {
-    render(<StartSessionButton onStart={vi.fn()} disabled={true} />);
+    render(
+      <LanguageProvider>
+        <StartSessionButton onStart={vi.fn()} disabled={true} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /start new session/i });
+    const button = screen.getByRole('button', { name: /start new session|开始新练习/i });
     expect(button).toBeDisabled();
   });
 
@@ -36,16 +49,24 @@ describe('StartSessionButton', () => {
     const onStart = vi.fn();
     const user = userEvent.setup();
 
-    render(<StartSessionButton onStart={onStart} disabled={true} />);
+    render(
+      <LanguageProvider>
+        <StartSessionButton onStart={onStart} disabled={true} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /start new session/i });
+    const button = screen.getByRole('button', { name: /start new session|开始新练习/i });
     await user.click(button);
 
     expect(onStart).not.toHaveBeenCalled();
   });
 
   it('should have proper styling classes', () => {
-    const { container } = render(<StartSessionButton onStart={vi.fn()} />);
+    const { container } = render(
+      <LanguageProvider>
+        <StartSessionButton onStart={vi.fn()} />
+      </LanguageProvider>
+    );
     const button = container.querySelector('button');
 
     expect(button).toHaveClass('bg-[#6ECEDA]');

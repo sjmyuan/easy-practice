@@ -3,17 +3,20 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { AnswerButtons } from '@/components/AnswerButtons';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('AnswerButtons Component', () => {
   it('should render Pass and Fail buttons', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    expect(screen.getByRole('button', { name: /pass/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /fail/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /(pass|通过)/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /(fail|未通过)/i })).toBeInTheDocument();
   });
 
   it('should call onPass when Pass button is clicked', async () => {
@@ -21,10 +24,12 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    const passButton = screen.getByRole('button', { name: /pass/i });
+    const passButton = screen.getByRole('button', { name: /(pass|通过)/i });
     await user.click(passButton);
 
     expect(mockOnPass).toHaveBeenCalledTimes(1);
@@ -36,10 +41,12 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    const failButton = screen.getByRole('button', { name: /fail/i });
+    const failButton = screen.getByRole('button', { name: /(fail|未通过)/i });
     await user.click(failButton);
 
     expect(mockOnFail).toHaveBeenCalledTimes(1);
@@ -50,11 +57,13 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />
+      </LanguageProvider>
     );
 
-    const passButton = screen.getByRole('button', { name: /pass/i });
-    const failButton = screen.getByRole('button', { name: /fail/i });
+    const passButton = screen.getByRole('button', { name: /(pass|通过)/i });
+    const failButton = screen.getByRole('button', { name: /(fail|未通过)/i });
 
     expect(passButton).toBeDisabled();
     expect(failButton).toBeDisabled();
@@ -65,11 +74,13 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={true} />
+      </LanguageProvider>
     );
 
-    const passButton = screen.getByRole('button', { name: /pass/i });
-    const failButton = screen.getByRole('button', { name: /fail/i });
+    const passButton = screen.getByRole('button', { name: /(pass|通过)/i });
+    const failButton = screen.getByRole('button', { name: /(fail|未通过)/i });
 
     await user.click(passButton);
     await user.click(failButton);
@@ -82,11 +93,13 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    const passButton = screen.getByRole('button', { name: /pass/i });
-    const failButton = screen.getByRole('button', { name: /fail/i });
+    const passButton = screen.getByRole('button', { name: /(pass|通过)/i });
+    const failButton = screen.getByRole('button', { name: /(fail|未通过)/i });
 
     expect(passButton).toHaveClass('h-12');
     expect(failButton).toHaveClass('h-12');
@@ -96,11 +109,13 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    const passButton = screen.getByRole('button', { name: /pass/i });
-    const failButton = screen.getByRole('button', { name: /fail/i });
+    const passButton = screen.getByRole('button', { name: /(pass|通过)/i });
+    const failButton = screen.getByRole('button', { name: /(fail|未通过)/i });
 
     expect(passButton).toHaveClass('px-8');
     expect(failButton).toHaveClass('px-8');
@@ -110,10 +125,12 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    const passButton = screen.getByRole('button', { name: /pass/i });
+    const passButton = screen.getByRole('button', { name: /(pass|通过)/i });
     expect(passButton).toHaveClass('bg-[#6ECEDA]');
     expect(passButton).toHaveClass('rounded-2xl');
   });
@@ -122,10 +139,12 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    const failButton = screen.getByRole('button', { name: /fail/i });
+    const failButton = screen.getByRole('button', { name: /(fail|未通过)/i });
     expect(failButton).toHaveClass('bg-[#FF6F61]');
     expect(failButton).toHaveClass('rounded-2xl');
   });
@@ -134,11 +153,13 @@ describe('AnswerButtons Component', () => {
     const mockOnPass = vi.fn();
     const mockOnFail = vi.fn();
     render(
-      <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      <LanguageProvider>
+        <AnswerButtons onPass={mockOnPass} onFail={mockOnFail} disabled={false} />
+      </LanguageProvider>
     );
 
-    const passButton = screen.getByRole('button', { name: /pass/i });
-    const failButton = screen.getByRole('button', { name: /fail/i });
+    const passButton = screen.getByRole('button', { name: /(pass|通过)/i });
+    const failButton = screen.getByRole('button', { name: /(fail|未通过)/i });
 
     expect(passButton).toHaveAccessibleName();
     expect(failButton).toHaveAccessibleName();

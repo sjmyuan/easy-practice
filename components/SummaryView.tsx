@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import type { StruggledProblemSummary } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SummaryViewProps {
   problems: StruggledProblemSummary[];
@@ -10,6 +11,7 @@ interface SummaryViewProps {
 }
 
 export function SummaryView({ problems, onClose }: SummaryViewProps) {
+  const { t } = useLanguage();
   const [selectedProblemId, setSelectedProblemId] = useState<string | null>(
     null
   );
@@ -24,7 +26,7 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
         <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">
-              Struggled Problems
+              {t('summary.title')}
             </h2>
             <button
               onClick={onClose}
@@ -35,7 +37,7 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
             </button>
           </div>
           <p className="py-8 text-center text-gray-500">
-            No struggled problems found.
+            {t('summary.noStruggledProblems')}
           </p>
         </div>
       </div>
@@ -51,7 +53,7 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900">
-            Struggled Problems
+            {t('summary.title')}
           </h2>
           <button
             onClick={onClose}
@@ -85,8 +87,8 @@ export function SummaryView({ problems, onClose }: SummaryViewProps) {
                       {problem.problem} = {problem.answer}
                     </p>
                     <p className="mt-1 text-sm text-gray-600">
-                      Failed {problem.failCount}{' '}
-                      {problem.failCount === 1 ? 'time' : 'times'} (
+                      {t('sessionComplete.failed')} {problem.failCount}{' '}
+                      {problem.failCount === 1 ? t('summary.attempts').toLowerCase().slice(0, -1) : t('summary.attempts').toLowerCase()} (
                       {Math.round(problem.failureRate * 100)}%)
                     </p>
                   </div>

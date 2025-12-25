@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 import { PracticeSessionView } from '../../../components/PracticeSessionView';
 import type { Problem } from '../../../types';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 const mockProblem: Problem = {
   id: '1',

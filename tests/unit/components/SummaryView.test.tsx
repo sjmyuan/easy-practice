@@ -4,6 +4,7 @@ import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { SummaryView } from '@/components/SummaryView';
 import type { StruggledProblemSummary } from '@/types';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('SummaryView Component', () => {
   const mockProblems: StruggledProblemSummary[] = [
@@ -31,16 +32,20 @@ describe('SummaryView Component', () => {
     },
   ];
 
+  const renderWithProvider = (ui: React.ReactElement) => {
+    return render(<LanguageProvider>{ui}</LanguageProvider>);
+  };
+
   it('should render summary title', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
-    expect(screen.getByText(/struggled problems/i)).toBeInTheDocument();
+    expect(screen.getByText(/(Struggled Problems|困难题目总结)/i)).toBeInTheDocument();
   });
 
   it('should display list of struggled problems', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     expect(screen.getByText(/5 \+ 7/)).toBeInTheDocument();
     expect(screen.getByText(/15 - 8/)).toBeInTheDocument();
@@ -48,15 +53,15 @@ describe('SummaryView Component', () => {
 
   it('should display failure count for each problem', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
-    expect(screen.getByText(/failed 3 times/i)).toBeInTheDocument();
-    expect(screen.getByText(/failed 2 times/i)).toBeInTheDocument();
+    expect(screen.getByText(/(Failed|失败) 3/i)).toBeInTheDocument();
+    expect(screen.getByText(/(Failed|失败) 2/i)).toBeInTheDocument();
   });
 
   it('should display failure rate for each problem', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     expect(screen.getByText(/60%/)).toBeInTheDocument();
     expect(screen.getByText(/50%/)).toBeInTheDocument();
@@ -64,16 +69,16 @@ describe('SummaryView Component', () => {
 
   it('should show empty message when no problems', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={[]} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={[]} onClose={mockOnClose} />);
 
     expect(
-      screen.getByText(/no struggled problems found/i)
+      screen.getByText(/(No struggled problems|没有困难题目)/i)
     ).toBeInTheDocument();
   });
 
   it('should render close button', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument();
   });
@@ -81,7 +86,7 @@ describe('SummaryView Component', () => {
   it('should call onClose when close button is clicked', async () => {
     const user = userEvent.setup();
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     const closeButton = screen.getByRole('button', { name: /close/i });
     await user.click(closeButton);
@@ -92,7 +97,7 @@ describe('SummaryView Component', () => {
   it('should display problem details when clicked', async () => {
     const user = userEvent.setup();
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     const problemItem = screen.getByLabelText('View details for 5 + 7');
     expect(problemItem).toBeInTheDocument();
@@ -104,7 +109,7 @@ describe('SummaryView Component', () => {
 
   it('should be accessible with proper ARIA labels', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     const region = screen.getByRole('region');
     expect(region).toHaveAttribute(
@@ -115,7 +120,7 @@ describe('SummaryView Component', () => {
 
   it('should display problems sorted by failure rate', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     const problems = screen.getAllByRole('button', { name: /view details/i });
     expect(problems).toHaveLength(2);
@@ -125,7 +130,7 @@ describe('SummaryView Component', () => {
 
   it('should show answer for each problem', () => {
     const mockOnClose = vi.fn();
-    render(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
+    renderWithProvider(<SummaryView problems={mockProblems} onClose={mockOnClose} />);
 
     expect(screen.getByText(/= 12/)).toBeInTheDocument();
     expect(screen.getByText(/= 7/)).toBeInTheDocument();

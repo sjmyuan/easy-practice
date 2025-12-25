@@ -4,6 +4,7 @@
 import { X } from 'lucide-react';
 import { ProblemCoverageSlider } from './ProblemCoverageSlider';
 import { ResetDataButton } from './ResetDataButton';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ export function SettingsPanel({
   onResetData,
   selectedProblemSetKey,
 }: SettingsPanelProps) {
+  const { t } = useLanguage();
+  
   if (!isOpen) return null;
 
   return (
@@ -48,7 +51,7 @@ export function SettingsPanel({
               id="settings-title"
               className="text-2xl font-bold text-gray-900"
             >
-              Settings
+              {t('settings.title')}
             </h2>
             <button
               onClick={onClose}

@@ -1,4 +1,5 @@
 import type { ProblemSet } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProblemSetSelectorProps {
   problemSets: ProblemSet[];
@@ -11,6 +12,8 @@ export function ProblemSetSelector({
   onSelect,
   disabled = false,
 }: ProblemSetSelectorProps) {
+  const { t } = useLanguage();
+  
   const enabledProblemSets = problemSets
     .filter((set) => set.enabled)
     .sort((a, b) =>
@@ -21,9 +24,9 @@ export function ProblemSetSelector({
     return (
       <div className="space-y-6 py-8 text-center">
         <h2 className="text-3xl font-bold text-gray-900">
-          Choose a Problem Set
+          {t('landing.title')}
         </h2>
-        <p className="text-gray-600">No problem sets available</p>
+        <p className="text-gray-600">{t('landing.noProblemSets')}</p>
       </div>
     );
   }
@@ -31,7 +34,7 @@ export function ProblemSetSelector({
   return (
     <div className="space-y-6">
       <h2 className="text-center text-3xl font-bold text-gray-800">
-        Choose a Problem Set
+        {t('landing.title')}
       </h2>
 
       <div className="grid gap-4">

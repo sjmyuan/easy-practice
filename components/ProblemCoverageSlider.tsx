@@ -2,6 +2,7 @@
 'use client';
 
 import { ChangeEvent } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProblemCoverageSliderProps {
   value: number; // 30, 50, 80, or 100
@@ -16,6 +17,8 @@ export function ProblemCoverageSlider({
   onChange,
   totalProblems,
 }: ProblemCoverageSliderProps) {
+  const { t } = useLanguage();
+  
   // Map percentage value to slider step (0-3)
   const valueToStep = (val: number): number => {
     return COVERAGE_VALUES.indexOf(val);
@@ -43,7 +46,7 @@ export function ProblemCoverageSlider({
         htmlFor="coverage-slider"
         className="block text-lg font-medium text-gray-700"
       >
-        Problem Coverage
+        {t('settings.problemCoverage')}
       </label>
 
       <div className="flex items-center gap-4">
@@ -68,7 +71,7 @@ export function ProblemCoverageSlider({
       </div>
 
       <div className="text-center text-base font-medium text-gray-800">
-        {value}% ({problemCount}/{totalProblems} problems)
+        {value}% ({problemCount}/{totalProblems} {t('preSession.estimatedProblems').toLowerCase()})
       </div>
     </div>
   );

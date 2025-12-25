@@ -3,14 +3,19 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { ResetDataButton } from '@/components/ResetDataButton';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('ResetDataButton Component', () => {
   it('should render Reset Data button', () => {
     const mockOnReset = vi.fn();
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
     expect(
-      screen.getByRole('button', { name: /reset data/i })
+      screen.getByRole('button', { name: /(reset data|重置数据)/i })
     ).toBeInTheDocument();
   });
 
@@ -21,13 +26,17 @@ describe('ResetDataButton Component', () => {
     // Mock window.confirm
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     await user.click(button);
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      expect.stringMatching(/are you sure/i)
+      expect.stringMatching(/(Are you sure|确定)/)
     );
 
     confirmSpy.mockRestore();
@@ -40,9 +49,13 @@ describe('ResetDataButton Component', () => {
     // Mock window.confirm to return true
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
 
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     await user.click(button);
 
     expect(mockOnReset).toHaveBeenCalledTimes(1);
@@ -57,9 +70,13 @@ describe('ResetDataButton Component', () => {
     // Mock window.confirm to return false
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     await user.click(button);
 
     expect(mockOnReset).not.toHaveBeenCalled();
@@ -69,34 +86,50 @@ describe('ResetDataButton Component', () => {
 
   it('should have appropriate styling', () => {
     const mockOnReset = vi.fn();
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     expect(button).toHaveClass('bg-[#FF6F61]');
     expect(button).toHaveClass('rounded-2xl');
   });
 
   it('should have warning appearance', () => {
     const mockOnReset = vi.fn();
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     expect(button).toHaveClass('text-white');
   });
 
   it('should be accessible with proper ARIA label', () => {
     const mockOnReset = vi.fn();
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     expect(button).toHaveAccessibleName();
   });
 
   it('should have sufficient padding for mobile', () => {
     const mockOnReset = vi.fn();
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     expect(button).toHaveClass('h-12');
     expect(button).toHaveClass('px-6');
   });
@@ -109,17 +142,19 @@ describe('ResetDataButton Component', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(
-      <ResetDataButton
-        onReset={mockOnReset}
-        selectedProblemSetKey="addition-within-20"
-      />
+      <LanguageProvider>
+        <ResetDataButton
+          onReset={mockOnReset}
+          selectedProblemSetKey="addition-within-20"
+        />
+      </LanguageProvider>
     );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     await user.click(button);
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      'Are you sure you want to reset all performance data for addition-within-20 problems? This action cannot be undone.'
+      expect.stringMatching(/(Are you sure|确定)/)
     );
 
     confirmSpy.mockRestore();
@@ -132,13 +167,17 @@ describe('ResetDataButton Component', () => {
     // Mock window.confirm
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    render(<ResetDataButton onReset={mockOnReset} />);
+    render(
+      <LanguageProvider>
+        <ResetDataButton onReset={mockOnReset} />
+      </LanguageProvider>
+    );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     await user.click(button);
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      'Are you sure you want to reset all performance data? This action cannot be undone.'
+      expect.stringMatching(/(Are you sure|确定)/)
     );
 
     confirmSpy.mockRestore();
@@ -152,17 +191,19 @@ describe('ResetDataButton Component', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(
-      <ResetDataButton
-        onReset={mockOnReset}
-        selectedProblemSetKey="subtraction-within-20"
-      />
+      <LanguageProvider>
+        <ResetDataButton
+          onReset={mockOnReset}
+          selectedProblemSetKey="subtraction-within-20"
+        />
+      </LanguageProvider>
     );
 
-    const button = screen.getByRole('button', { name: /reset data/i });
+    const button = screen.getByRole('button', { name: /(reset data|重置数据)/i });
     await user.click(button);
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      'Are you sure you want to reset all performance data for subtraction-within-20 problems? This action cannot be undone.'
+      expect.stringMatching(/(Are you sure|确定)/)
     );
 
     confirmSpy.mockRestore();

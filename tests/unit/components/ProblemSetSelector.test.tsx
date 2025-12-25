@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ProblemSetSelector } from '@/components/ProblemSetSelector';
 import type { ProblemSet } from '@/types';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('ProblemSetSelector', () => {
   const mockProblemSets: ProblemSet[] = [
@@ -35,15 +37,19 @@ describe('ProblemSetSelector', () => {
   describe('Rendering', () => {
     it('should render the component title', () => {
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
-      expect(screen.getByText('Choose a Problem Set')).toBeInTheDocument();
+      expect(screen.getByText(/Choose a Problem Set|选择题集/)).toBeInTheDocument();
     });
 
     it('should render all enabled problem sets', () => {
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       expect(screen.getByText('Addition within 20')).toBeInTheDocument();
@@ -52,7 +58,9 @@ describe('ProblemSetSelector', () => {
 
     it('should not render disabled problem sets', () => {
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       expect(screen.queryByText('Mixed Operations')).not.toBeInTheDocument();
@@ -60,7 +68,9 @@ describe('ProblemSetSelector', () => {
 
     it('should render problem set descriptions', () => {
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       expect(
@@ -72,9 +82,13 @@ describe('ProblemSetSelector', () => {
     });
 
     it('should render empty state when no problem sets available', () => {
-      render(<ProblemSetSelector problemSets={[]} onSelect={vi.fn()} />);
+      render(
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={[]} onSelect={vi.fn()} />
+        </LanguageProvider>
+      );
 
-      expect(screen.getByText('No problem sets available')).toBeInTheDocument();
+      expect(screen.getByText(/No problem sets available|没有可用的题集/)).toBeInTheDocument();
     });
 
     it('should render empty state when all problem sets are disabled', () => {
@@ -84,10 +98,12 @@ describe('ProblemSetSelector', () => {
       }));
 
       render(
-        <ProblemSetSelector problemSets={disabledSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={disabledSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
-      expect(screen.getByText('No problem sets available')).toBeInTheDocument();
+      expect(screen.getByText(/No problem sets available|没有可用的题集/)).toBeInTheDocument();
     });
   });
 
@@ -97,7 +113,9 @@ describe('ProblemSetSelector', () => {
       const onSelect = vi.fn();
 
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
+        </LanguageProvider>
       );
 
       const additionButton = screen.getByRole('button', {
@@ -114,7 +132,9 @@ describe('ProblemSetSelector', () => {
       const onSelect = vi.fn();
 
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
+        </LanguageProvider>
       );
 
       const subtractionButton = screen.getByRole('button', {
@@ -130,11 +150,13 @@ describe('ProblemSetSelector', () => {
       const onSelect = vi.fn();
 
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={onSelect}
-          disabled={true}
-        />
+        <LanguageProvider>
+          <ProblemSetSelector
+            problemSets={mockProblemSets}
+            onSelect={onSelect}
+            disabled={true}
+          />
+        </LanguageProvider>
       );
 
       const additionButton = screen.getByRole('button', {
@@ -149,7 +171,9 @@ describe('ProblemSetSelector', () => {
   describe('Styling and Accessibility', () => {
     it('should have proper button styling for mobile touch targets', () => {
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       const buttons = screen.getAllByRole('button');
@@ -161,7 +185,9 @@ describe('ProblemSetSelector', () => {
 
     it('should have accessible button labels', () => {
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       const additionButton = screen.getByRole('button', {
@@ -177,11 +203,13 @@ describe('ProblemSetSelector', () => {
 
     it('should disable all buttons when disabled prop is true', () => {
       render(
-        <ProblemSetSelector
-          problemSets={mockProblemSets}
-          onSelect={vi.fn()}
-          disabled={true}
-        />
+        <LanguageProvider>
+          <ProblemSetSelector
+            problemSets={mockProblemSets}
+            onSelect={vi.fn()}
+            disabled={true}
+          />
+        </LanguageProvider>
       );
 
       const buttons = screen.getAllByRole('button');
@@ -192,7 +220,9 @@ describe('ProblemSetSelector', () => {
 
     it('should have hover states for interactive feedback', () => {
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       const buttons = screen.getAllByRole('button');
@@ -232,7 +262,9 @@ describe('ProblemSetSelector', () => {
       ];
 
       render(
-        <ProblemSetSelector problemSets={unorderedSets} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={unorderedSets} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       const buttons = screen.getAllByRole('button');
@@ -255,7 +287,9 @@ describe('ProblemSetSelector', () => {
       ];
 
       render(
-        <ProblemSetSelector problemSets={setsWithoutDesc} onSelect={vi.fn()} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={setsWithoutDesc} onSelect={vi.fn()} />
+        </LanguageProvider>
       );
 
       expect(screen.getByText('Addition within 20')).toBeInTheDocument();
@@ -264,7 +298,11 @@ describe('ProblemSetSelector', () => {
     it('should handle single problem set', () => {
       const singleSet = [mockProblemSets[0]];
 
-      render(<ProblemSetSelector problemSets={singleSet} onSelect={vi.fn()} />);
+      render(
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={singleSet} onSelect={vi.fn()} />
+        </LanguageProvider>
+      );
 
       expect(screen.getByText('Addition within 20')).toBeInTheDocument();
       expect(
@@ -277,7 +315,9 @@ describe('ProblemSetSelector', () => {
       const onSelect = vi.fn();
 
       render(
-        <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
+        <LanguageProvider>
+          <ProblemSetSelector problemSets={mockProblemSets} onSelect={onSelect} />
+        </LanguageProvider>
       );
 
       const additionButton = screen.getByRole('button', {

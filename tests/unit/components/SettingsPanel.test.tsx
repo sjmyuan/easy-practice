@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SettingsPanel } from '@/components/SettingsPanel';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('SettingsPanel', () => {
   const defaultProps = {
@@ -16,20 +17,30 @@ describe('SettingsPanel', () => {
 
   it('should not render when isOpen is false', () => {
     const { container } = render(
-      <SettingsPanel {...defaultProps} isOpen={false} />
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} isOpen={false} />
+      </LanguageProvider>
     );
 
     expect(container.firstChild).toBeNull();
   });
 
   it('should render when isOpen is true', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
   it('should render backdrop overlay', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
     const backdrop = screen.getByTestId('settings-backdrop');
     expect(backdrop).toBeInTheDocument();
@@ -39,7 +50,11 @@ describe('SettingsPanel', () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
 
-    render(<SettingsPanel {...defaultProps} onClose={onClose} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} onClose={onClose} />
+      </LanguageProvider>
+    );
 
     const backdrop = screen.getByTestId('settings-backdrop');
     await user.click(backdrop);
