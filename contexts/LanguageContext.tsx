@@ -42,8 +42,9 @@ function getNestedValue(obj: unknown, path: string): string | undefined {
   let current = obj;
 
   for (const key of keys) {
-    if (current && typeof current === 'object' && key in current) {
-      current = current[key];
+      if (current && typeof current === 'object' && key in current) {
+        // Type assertion to allow string indexing
+        current = (current as Record<string, unknown>)[key];
     } else {
       return undefined;
     }

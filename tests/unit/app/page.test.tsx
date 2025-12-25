@@ -15,7 +15,7 @@ const mockInitializeApp = vi.fn();
 const mockSelectProblemSet = vi.fn();
 const mockPush = vi.fn();
 
-let mockState: {
+const mockState: {
   isLoading: boolean;
   isInitialized: boolean;
   initializationError: string | null;

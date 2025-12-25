@@ -29,7 +29,7 @@ interface MockState {
   selectedProblemSetId: string | null;
 }
 
-let mockState: MockState = {
+const mockState: MockState = {
   isLoading: false,
   isInitialized: true,
   initializationError: null,

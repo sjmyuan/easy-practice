@@ -39,8 +39,13 @@ export class DatabaseService {
       async () => {
         // Handle single problem set
         if (jsonData.problemSet && jsonData.problems) {
+          const { name, description, ...rest } = jsonData.problemSet;
           await this.importSingleProblemSet(
-            jsonData.problemSet,
+            {
+              ...rest,
+              name: toLocalizedContent(name),
+              description: description ? toLocalizedContent(description) : undefined,
+            },
             jsonData.problems,
             jsonData.version
           );
@@ -49,8 +54,13 @@ export class DatabaseService {
         // Handle multiple problem sets
         if (jsonData.problemSets) {
           for (const ps of jsonData.problemSets) {
+            const { name, description, ...rest } = ps;
             await this.importSingleProblemSet(
-              ps,
+              {
+                ...rest,
+                name: toLocalizedContent(name),
+                description: description ? toLocalizedContent(description) : undefined,
+              },
               ps.problems,
               jsonData.version
             );
@@ -65,8 +75,8 @@ export class DatabaseService {
    */
   private async importSingleProblemSet(
     problemSetData: {
-      name: string;
-      description?: string;
+      name: string | LocalizedContent;
+      description?: string | LocalizedContent;
       problemSetKey: string;
       difficulty?: string;
       metadata?: Record<string, unknown>;

@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { ProblemSetSelector } from '@/components/ProblemSetSelector';
 import type { ProblemSet } from '@/types';
 import { LanguageProvider } from '@/contexts/LanguageContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('ProblemSetSelector', () => {
   const mockProblemSets: ProblemSet[] = [

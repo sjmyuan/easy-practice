@@ -5,6 +5,14 @@ import 'fake-indexeddb/auto';
 
 // Mock localStorage for tests
 class LocalStorageMock {
+    get length(): number {
+      return Object.keys(this.store).length;
+    }
+
+    key(index: number): string | null {
+      const keys = Object.keys(this.store);
+      return keys[index] ?? null;
+    }
   store: { [key: string]: string } = {};
 
   getItem(key: string): string | null {
