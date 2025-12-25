@@ -81,7 +81,12 @@ export class DatabaseService {
       difficulty?: string;
       metadata?: Record<string, unknown>;
     },
-    problems: Array<{ problem: string; answer: string }>,
+    problems: Array<{ 
+      problem: string; 
+      answer: string;
+      problem_audio?: string;
+      answer_audio?: string;
+    }>,
     version: string
   ): Promise<void> {
     // Check if problem set already exists
@@ -123,7 +128,12 @@ export class DatabaseService {
       difficulty?: string;
       metadata?: Record<string, unknown>;
     },
-    problems: Array<{ problem: string; answer: string }>,
+    problems: Array<{ 
+      problem: string; 
+      answer: string;
+      problem_audio?: string;
+      answer_audio?: string;
+    }>,
     version: string
   ): Promise<void> {
     const problemSetId = generateId();
@@ -149,6 +159,8 @@ export class DatabaseService {
         problemSetId: problemSetId,
         problem: p.problem,
         answer: p.answer,
+        problemAudio: p.problem_audio,
+        answerAudio: p.answer_audio,
         createdAt: Date.now(),
       });
 
@@ -177,7 +189,12 @@ export class DatabaseService {
       difficulty?: string;
       metadata?: Record<string, unknown>;
     },
-    newProblems: Array<{ problem: string; answer: string }>,
+    newProblems: Array<{ 
+      problem: string; 
+      answer: string;
+      problem_audio?: string;
+      answer_audio?: string;
+    }>,
     version: string
   ): Promise<void> {
     // Get existing problems
@@ -224,6 +241,8 @@ export class DatabaseService {
         problemSetId: problemSetId,
         problem: p.problem,
         answer: p.answer,
+        problemAudio: p.problem_audio,
+        answerAudio: p.answer_audio,
         createdAt: Date.now(),
       });
 

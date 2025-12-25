@@ -304,4 +304,118 @@ describe('ProblemDisplay Component', () => {
       expect(toggleButton).toHaveClass('hover:bg-gray-100');
     });
   });
+
+  describe('Audio Functionality', () => {
+    const mockProblemWithAudio: Problem = {
+      id: '1',
+      problemSetId: 'set-1',
+      problem: 'What is your name?',
+      answer: 'My name is Sean.',
+      problemAudio: 'problem1.wav',
+      answerAudio: 'answer1.wav',
+      createdAt: Date.now(),
+    };
+
+    it('should render problem audio button when problemAudio is provided', () => {
+      render(<ProblemDisplay problem={mockProblemWithAudio} />);
+
+      const audioButton = screen.getByRole('button', {
+        name: /play problem audio/i,
+      });
+      expect(audioButton).toBeInTheDocument();
+    });
+
+    it('should not render problem audio button when problemAudio is not provided', () => {
+      render(<ProblemDisplay problem={mockProblem} />);
+
+      const audioButton = screen.queryByRole('button', {
+        name: /play problem audio/i,
+      });
+      expect(audioButton).not.toBeInTheDocument();
+    });
+
+    it('should render answer audio button when answerAudio is provided and answer is shown', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblemWithAudio} />);
+
+      // Show the answer first
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+      await user.click(toggleButton);
+
+      // Answer audio button should be visible
+      const audioButton = screen.getByRole('button', {
+        name: /play answer audio/i,
+      });
+      expect(audioButton).toBeInTheDocument();
+    });
+
+    it('should not render answer audio button when answer is hidden', () => {
+      render(<ProblemDisplay problem={mockProblemWithAudio} />);
+
+      const audioButton = screen.queryByRole('button', {
+        name: /play answer audio/i,
+      });
+      expect(audioButton).not.toBeInTheDocument();
+    });
+
+    it('should not render answer audio button when answerAudio is not provided', async () => {
+      const user = userEvent.setup();
+      const problemWithoutAnswerAudio: Problem = {
+        ...mockProblem,
+        problemAudio: 'problem1.wav',
+      };
+      render(<ProblemDisplay problem={problemWithoutAnswerAudio} />);
+
+      // Show the answer
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+      await user.click(toggleButton);
+
+      // Answer audio button should not be present
+      const audioButton = screen.queryByRole('button', {
+        name: /play answer audio/i,
+      });
+      expect(audioButton).not.toBeInTheDocument();
+    });
+
+    it('should construct correct audio URL for problem audio', () => {
+      render(<ProblemDisplay problem={mockProblemWithAudio} />);
+
+      // Find audio element (it should be created for auto-play)
+      const audioElements = document.querySelectorAll('audio');
+      const problemAudio = Array.from(audioElements).find((audio) =>
+        audio.src.includes('problem1.wav')
+      );
+
+      expect(problemAudio).toBeDefined();
+      expect(problemAudio?.src).toBe(
+        'https://images.shangjiaming.top/problem1.wav'
+      );
+    });
+
+    it('should construct correct audio URL for answer audio', async () => {
+      const user = userEvent.setup();
+      render(<ProblemDisplay problem={mockProblemWithAudio} />);
+
+      // Show the answer
+      const toggleButton = screen.getByRole('button', {
+        name: /show answer/i,
+      });
+      await user.click(toggleButton);
+
+      // Find audio element
+      const audioElements = document.querySelectorAll('audio');
+      const answerAudio = Array.from(audioElements).find((audio) =>
+        audio.src.includes('answer1.wav')
+      );
+
+      expect(answerAudio).toBeDefined();
+      expect(answerAudio?.src).toBe(
+        'https://images.shangjiaming.top/answer1.wav'
+      );
+    });
+  });
 });

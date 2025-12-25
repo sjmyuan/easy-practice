@@ -877,4 +877,107 @@ describe('DatabaseService', () => {
       });
     });
   });
+
+  describe('importProblemsFromJSON with audio fields', () => {
+    it('should import problems with audio fields', async () => {
+      const problemSetData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: { en: 'Audio Test', zh: '音频测试' },
+          description: { en: 'Test audio import', zh: '测试音频导入' },
+          problemSetKey: 'audio-test',
+          difficulty: 'easy',
+        },
+        problems: [
+          {
+            problem: 'What is your name?',
+            answer: 'My name is Sean.',
+            problem_audio: 'problem1.wav',
+            answer_audio: 'answer1.wav',
+          },
+          {
+            problem: 'How are you?',
+            answer: 'I am fine.',
+            problem_audio: 'problem2.wav',
+            answer_audio: 'answer2.wav',
+          },
+          {
+            problem: 'No audio problem',
+            answer: 'No audio answer',
+          },
+        ],
+      };
+
+      await service.importProblemsFromJSON(problemSetData);
+
+      const problems = await db.problems.toArray();
+      expect(problems.length).toBe(3);
+
+      // Check first problem with audio
+      const problem1 = problems.find((p) => p.problem === 'What is your name?');
+      expect(problem1).toBeDefined();
+      expect(problem1!.problemAudio).toBe('problem1.wav');
+      expect(problem1!.answerAudio).toBe('answer1.wav');
+
+      // Check second problem with audio
+      const problem2 = problems.find((p) => p.problem === 'How are you?');
+      expect(problem2).toBeDefined();
+      expect(problem2!.problemAudio).toBe('problem2.wav');
+      expect(problem2!.answerAudio).toBe('answer2.wav');
+
+      // Check third problem without audio
+      const problem3 = problems.find((p) => p.problem === 'No audio problem');
+      expect(problem3).toBeDefined();
+      expect(problem3!.problemAudio).toBeUndefined();
+      expect(problem3!.answerAudio).toBeUndefined();
+    });
+
+    it('should handle problems with only problem audio', async () => {
+      const problemSetData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Partial Audio Test',
+          problemSetKey: 'partial-audio',
+        },
+        problems: [
+          {
+            problem: 'Question',
+            answer: 'Answer',
+            problem_audio: 'question.wav',
+          },
+        ],
+      };
+
+      await service.importProblemsFromJSON(problemSetData);
+
+      const problems = await db.problems.toArray();
+      expect(problems.length).toBe(1);
+      expect(problems[0].problemAudio).toBe('question.wav');
+      expect(problems[0].answerAudio).toBeUndefined();
+    });
+
+    it('should handle problems with only answer audio', async () => {
+      const problemSetData: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Answer Audio Only',
+          problemSetKey: 'answer-audio-only',
+        },
+        problems: [
+          {
+            problem: 'Question',
+            answer: 'Answer',
+            answer_audio: 'answer.wav',
+          },
+        ],
+      };
+
+      await service.importProblemsFromJSON(problemSetData);
+
+      const problems = await db.problems.toArray();
+      expect(problems.length).toBe(1);
+      expect(problems[0].problemAudio).toBeUndefined();
+      expect(problems[0].answerAudio).toBe('answer.wav');
+    });
+  });
 });

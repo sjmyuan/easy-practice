@@ -1,9 +1,11 @@
 // components/ProblemDisplay.tsx
 'use client';
 
-import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Eye, EyeOff, Volume2 } from 'lucide-react';
 import type { Problem } from '@/types';
+
+const AUDIO_BASE_URL = 'https://images.shangjiaming.top';
 
 interface ProblemDisplayProps {
   problem: Problem | null;
@@ -11,6 +13,64 @@ interface ProblemDisplayProps {
 
 export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   const [showAnswer, setShowAnswer] = useState(false);
+  const [isProblemAudioPlaying, setIsProblemAudioPlaying] = useState(false);
+  const [isAnswerAudioPlaying, setIsAnswerAudioPlaying] = useState(false);
+  const problemAudioRef = useRef<HTMLAudioElement>(null);
+  const answerAudioRef = useRef<HTMLAudioElement>(null);
+  const prevProblemIdRef = useRef<string | undefined>(problem?.id);
+
+  // Auto-play and cleanup when problem changes
+  useEffect(() => {
+    // Check if problem actually changed
+    if (problem?.id !== prevProblemIdRef.current) {
+      prevProblemIdRef.current = problem?.id;
+
+      // Stop any playing audio when problem changes
+      if (problemAudioRef.current) {
+        problemAudioRef.current.pause();
+        problemAudioRef.current.currentTime = 0;
+      }
+      if (answerAudioRef.current) {
+        answerAudioRef.current.pause();
+        answerAudioRef.current.currentTime = 0;
+      }
+
+      // Auto-play problem audio if available
+      if (problem?.problemAudio && problemAudioRef.current) {
+        problemAudioRef.current.play().catch((error) => {
+          console.error('Failed to auto-play problem audio:', error);
+        });
+      }
+    }
+  }, [problem]);
+
+  // Reset showAnswer state when problem changes (using key prop instead)
+
+  const handleProblemAudioClick = () => {
+    if (problemAudioRef.current) {
+      if (isProblemAudioPlaying) {
+        problemAudioRef.current.pause();
+        problemAudioRef.current.currentTime = 0;
+      } else {
+        problemAudioRef.current.play().catch((error) => {
+          console.error('Failed to play problem audio:', error);
+        });
+      }
+    }
+  };
+
+  const handleAnswerAudioClick = () => {
+    if (answerAudioRef.current) {
+      if (isAnswerAudioPlaying) {
+        answerAudioRef.current.pause();
+        answerAudioRef.current.currentTime = 0;
+      } else {
+        answerAudioRef.current.play().catch((error) => {
+          console.error('Failed to play answer audio:', error);
+        });
+      }
+    }
+  };
 
   if (!problem) {
     return (
@@ -25,6 +85,13 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
       </div>
     );
   }
+
+  const problemAudioUrl = problem.problemAudio
+    ? `${AUDIO_BASE_URL}/${problem.problemAudio}`
+    : undefined;
+  const answerAudioUrl = problem.answerAudio
+    ? `${AUDIO_BASE_URL}/${problem.answerAudio}`
+    : undefined;
 
   return (
     <div
@@ -45,13 +112,67 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
           <Eye className="h-6 w-6 text-gray-600" />
         )}
       </button>
-      <p className="text-center text-6xl font-bold text-gray-900">
-        {problem.problem}
-      </p>
-      {showAnswer && (
-        <p className="mt-4 text-center text-2xl font-medium text-green-600">
-          {problem.answer}
+
+      <div className="flex items-center gap-4">
+        <p className="text-center text-6xl font-bold text-gray-900">
+          {problem.problem}
         </p>
+        {problemAudioUrl && (
+          <>
+            <button
+              onClick={handleProblemAudioClick}
+              className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+              aria-label="Play problem audio"
+              type="button"
+            >
+              <Volume2
+                className={`h-8 w-8 ${
+                  isProblemAudioPlaying ? 'text-blue-600' : 'text-gray-600'
+                }`}
+              />
+            </button>
+            <audio
+              ref={problemAudioRef}
+              src={problemAudioUrl}
+              onPlay={() => setIsProblemAudioPlaying(true)}
+              onPause={() => setIsProblemAudioPlaying(false)}
+              onEnded={() => setIsProblemAudioPlaying(false)}
+              onError={() => setIsProblemAudioPlaying(false)}
+            />
+          </>
+        )}
+      </div>
+
+      {showAnswer && (
+        <div className="mt-4 flex items-center gap-4">
+          <p className="text-center text-2xl font-medium text-green-600">
+            {problem.answer}
+          </p>
+          {answerAudioUrl && (
+            <>
+              <button
+                onClick={handleAnswerAudioClick}
+                className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+                aria-label="Play answer audio"
+                type="button"
+              >
+                <Volume2
+                  className={`h-6 w-6 ${
+                    isAnswerAudioPlaying ? 'text-blue-600' : 'text-gray-600'
+                  }`}
+                />
+              </button>
+              <audio
+                ref={answerAudioRef}
+                src={answerAudioUrl}
+                onPlay={() => setIsAnswerAudioPlaying(true)}
+                onPause={() => setIsAnswerAudioPlaying(false)}
+                onEnded={() => setIsAnswerAudioPlaying(false)}
+                onError={() => setIsAnswerAudioPlaying(false)}
+              />
+            </>
+          )}
+        </div>
       )}
     </div>
   );

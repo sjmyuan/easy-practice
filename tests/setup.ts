@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { afterEach, beforeEach } from 'vitest';
+import { afterEach, beforeEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import 'fake-indexeddb/auto';
 
@@ -33,6 +33,11 @@ class LocalStorageMock {
 }
 
 global.localStorage = new LocalStorageMock() as Storage;
+
+// Mock HTMLMediaElement methods for audio testing
+window.HTMLMediaElement.prototype.play = vi.fn(() => Promise.resolve());
+window.HTMLMediaElement.prototype.pause = vi.fn();
+window.HTMLMediaElement.prototype.load = vi.fn();
 
 // Clear localStorage before each test
 beforeEach(() => {

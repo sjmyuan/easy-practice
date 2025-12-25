@@ -8,6 +8,46 @@
 
 ## Recent Updates
 
+### Audio Support for Problems (December 25, 2025)
+
+- **Audio Field Storage**:
+  - Added optional `problemAudio` and `answerAudio` fields to Problem entity
+  - Stores audio filenames (e.g., "problem1.wav") imported from JSON files
+  - Database service maps `problem_audio` → `problemAudio` and `answer_audio` → `answerAudio` during import
+  - Audio fields preserved during problem set upgrades for matching problems
+- **Audio Playback Integration**:
+  - Audio base URL: `https://images.shangjiaming.top`
+  - Complete URLs constructed as: `{baseURL}/{filename}`
+  - Problem audio: Auto-plays when problem is displayed, can be manually replayed
+  - Answer audio: Manual play only when answer is revealed
+  - Audio stops automatically when navigating to next problem
+- **ProblemDisplay Component Updates**:
+  - Added Volume2 icon buttons from Lucide React for audio playback
+  - Problem audio button: Visible next to problem text when `problemAudio` exists
+  - Answer audio button: Visible next to answer text when `answerAudio` exists and answer is shown
+  - Audio playing state indicated by blue icon color (gray when paused)
+  - Graceful error handling for failed audio loads
+  - Uses HTML5 `<audio>` elements with refs for playback control
+  - Auto-play implemented via useEffect hook on problem change
+  - Audio cleanup on component unmount and problem navigation
+- **Test Infrastructure**:
+  - Added HTMLMediaElement mocks to test setup (`tests/setup.ts`)
+  - Mocked `play()`, `pause()`, and `load()` methods using Vitest
+  - 8 new tests in ProblemDisplay.test.tsx covering audio rendering and URL construction
+  - 3 new tests in database.service.test.ts covering audio field import scenarios
+  - All 366 tests passing with audio functionality
+- **Type System Updates**:
+  - Added `problemAudio?: string` and `answerAudio?: string` to Problem interface
+  - Added `problem_audio?: string` and `answer_audio?: string` to ProblemSetJSON import types
+  - TypeScript validation ensures audio fields are properly typed throughout codebase
+- **Impact**:
+  - Enables language learning problem sets with pronunciation support
+  - First implementation: Common English Dialogues (Grade 1) with 10+ audio-enabled problems
+  - Supports mixed problem sets (some with audio, some without)
+  - Audio files hosted on CDN for fast global delivery
+  - Graceful degradation: Audio buttons only shown when audio files exist
+  - No breaking changes to existing math problem sets (audio fields optional)
+
 ### Internationalization (i18n) Support (December 25, 2025)
 
 - **Language Support**:
@@ -504,15 +544,29 @@
 - ✅ **Type Switch Behavior**: Sessions reset when switching between addition/subtraction
 - ✅ **Session-Based Problem Flow**: Problems advance through queue as answers are submitted
 
+#### Epic 5: Audio Support for Problems ✅
+
+- ✅ **Audio Field Storage**: Optional `problemAudio` and `answerAudio` fields added to Problem entity
+- ✅ **JSON Import Support**: Audio filenames imported from `problem_audio` and `answer_audio` fields in problem set JSON files
+- ✅ **Audio URL Construction**: Complete URLs built as `https://images.shangjiaming.top/{filename}` for CDN delivery
+- ✅ **Problem Audio Auto-Play**: Audio automatically plays when new problem is displayed, with manual replay option
+- ✅ **Answer Audio Manual Play**: Audio playback button shown next to answer (only plays on user click)
+- ✅ **Audio State Management**: Playing state indicated by blue icon color, with automatic cleanup on navigation
+- ✅ **ProblemDisplay Integration**: Volume2 icon buttons from Lucide React for audio playback controls
+- ✅ **Graceful Degradation**: Audio buttons only shown when audio files exist, error handling for failed loads
+- ✅ **Test Coverage**: 11 new tests covering audio rendering, URL construction, and playback scenarios
+
 ### Test Coverage
 
-- 284 tests passing across 18 test files
-- Component tests: TypeSelector, ProblemDisplay (24 tests including toggle and accessibility), AnswerButtons, SummaryView, ResetDataButton, ProgressIndicator, StartSessionButton, ProblemSetSelector, NextProblemButton
-- Integration tests: Landing page, Practice page with Epic 2, Epic 3, and Epic 4 components
-- Unit tests: Priority calculation, database services, utilities, session queue generation, version comparison
+- 366 tests passing across 28 test files
+- Component tests: TypeSelector, ProblemDisplay (31 tests including toggle, accessibility, and audio), AnswerButtons, SummaryView, ResetDataButton, ProgressIndicator, StartSessionButton, ProblemSetSelector, NextProblemButton
+- Integration tests: Landing page, Practice page with Epic 2, Epic 3, Epic 4, and Epic 5 components
+- Unit tests: Priority calculation, database services (including audio field import), utilities, session queue generation, version comparison
 - Context tests: Session state, start session action, progress tracking, type switch reset, problem set selection
 - Epic 3 tests: Responsive design, button sizing, contrast, hover states, and visual engagement (28 tests)
+- Epic 5 tests: Audio field import (3 tests in database.service.test.ts), audio rendering and URL construction (8 tests in ProblemDisplay.test.tsx)
 - ProblemDisplay toggle tests: Icon rendering, answer visibility, state management, keyboard accessibility (13 tests)
+- HTMLMediaElement mocks: play(), pause(), load() methods mocked in test setup for audio testing
 - Note: NextProblemButton component tests retained but component not used in main page flow
 
 ---
@@ -779,22 +833,26 @@ The application uses **IndexedDB** for local data persistence with three core en
 
 Represents a single problem with its question and answer.
 
-| Field       | Type   | Description                  | Constraints                                     |
-| ----------- | ------ | ---------------------------- | ----------------------------------------------- |
-| `id`        | string | Unique identifier (UUID)     | Primary Key, auto-generated                     |
-| `problem`   | string | Problem text (e.g., "5 + 7") | Required, max 200 chars                         |
-| `answer`    | string | Correct answer (e.g., "12")  | Required, max 50 chars                          |
-| `category`  | string | Problem type                 | 'addition-within-20' or 'subtraction-within-20' |
-| `createdAt` | number | When problem was created     | Unix timestamp (milliseconds)                   |
+| Field          | Type   | Description                      | Constraints                                     |
+| -------------- | ------ | -------------------------------- | ----------------------------------------------- |
+| `id`           | string | Unique identifier (UUID)         | Primary Key, auto-generated                     |
+| `problem`      | string | Problem text (e.g., "5 + 7")     | Required, max 200 chars                         |
+| `answer`       | string | Correct answer (e.g., "12")      | Required, max 50 chars                          |
+| `problemAudio` | string | Audio filename for problem       | Optional, e.g., "problem1.wav"                  |
+| `answerAudio`  | string | Audio filename for answer        | Optional, e.g., "answer1.wav"                   |
+| `category`     | string | Problem type                     | 'addition-within-20' or 'subtraction-within-20' |
+| `createdAt`    | number | When problem was created         | Unix timestamp (milliseconds)                   |
 
 **Sample Data:**
 
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "problem": "5 + 7",
-  "answer": "12",
-  "problemSetKey": "addition-within-20",
+  "problem": "What is your name?",
+  "answer": "My name is Sean.",
+  "problemAudio": "f6429fe0f1a76611670df7e1234af936.wav",
+  "answerAudio": "f7a9b80833e93c7e86edc91d77de0ed0.wav",
+  "problemSetKey": "common-english-dialogues-grade1",
   "createdAt": 1703069400000
 }
 ```
@@ -878,8 +936,10 @@ Problems are imported from JSON files with the following format:
       "answer": "2"
     },
     {
-      "problem": "2 + 3",
-      "answer": "5"
+      "problem": "What is your name?",
+      "answer": "My name is Sean.",
+      "problem_audio": "f6429fe0f1a76611670df7e1234af936.wav",
+      "answer_audio": "f7a9b80833e93c7e86edc91d77de0ed0.wav"
     },
     {
       "problem": "5 + 7",

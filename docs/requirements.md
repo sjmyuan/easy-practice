@@ -581,11 +581,64 @@ As a busy parent, I want additional problem sets for simpler problems so that I 
 - ✅ Given I select "Addition within 10", when practicing, then all addition problems should have sums from 0 to 10.
 - ✅ Given I select "Subtraction within 10", when practicing, then all subtraction problems should have minuends from 0 to 10 with non-negative results.
 
+### Epic 5: Audio Support for Problems ✅ COMPLETED
+
+Enable audio playback for problems and answers to support language learning and pronunciation practice.
+
+#### User Story 1: Audio Field Storage ✅ COMPLETED
+
+As a system, I want to store audio file references for problems and answers so that they can be played back during practice.
+
+##### Acceptance Criteria:
+
+- ✅ Given a problem set JSON contains `problem_audio` field, when importing, then the audio filename should be stored in the database as `problemAudio`.
+- ✅ Given a problem set JSON contains `answer_audio` field, when importing, then the audio filename should be stored in the database as `answerAudio`.
+- ✅ Given a problem has no audio fields in the JSON, when importing, then the audio fields should be undefined in the database.
+- ✅ Given a problem set is upgraded, when migrating, then audio fields should be preserved for matching problems.
+
+#### User Story 2: Problem Audio Auto-Play ✅ COMPLETED
+
+As a user, I want to hear the problem audio automatically when a new problem appears so that I can learn pronunciation without extra clicks.
+
+##### Acceptance Criteria:
+
+- ✅ Given a problem has `problemAudio` field, when the problem is displayed, then an audio play button should be visible.
+- ✅ Given a problem has `problemAudio` field, when the problem is first displayed, then the audio should auto-play.
+- ✅ Given problem audio is auto-playing, when I click the audio button, then the audio should stop or replay.
+- ✅ Given a problem has no `problemAudio` field, when displayed, then no audio button should be shown.
+- ✅ Given problem audio is playing, when I navigate to next problem, then the audio should stop.
+- ✅ Given audio fails to load, when displaying problem, then the button should still be shown but not break the UI.
+
+#### User Story 3: Answer Audio Manual Play ✅ COMPLETED
+
+As a user, I want to play answer audio manually when I reveal the answer so that I can practice pronunciation at my own pace.
+
+##### Acceptance Criteria:
+
+- ✅ Given an answer has `answerAudio` field, when the answer is revealed, then an audio play button should be visible next to the answer.
+- ✅ Given answer audio button is visible, when I click it, then the answer audio should play.
+- ✅ Given answer audio is playing, when I click the button again, then the audio should stop.
+- ✅ Given an answer has no `answerAudio` field, when revealed, then no audio button should be shown.
+- ✅ Given answer is hidden, when viewing problem, then the answer audio button should not be visible.
+- ✅ Given I navigate to next problem, when answer audio is playing, then the audio should stop.
+
+#### User Story 4: Audio URL Construction ✅ COMPLETED
+
+As a system, I want to construct complete audio URLs from stored filenames so that audio files can be fetched from the CDN.
+
+##### Acceptance Criteria:
+
+- ✅ Given a problem has audio filename "example.wav", when constructing URL, then it should be "https://images.shangjiaming.top/example.wav".
+- ✅ Given audio URL is constructed, when audio element loads, then it should fetch from the correct CDN path.
+- ✅ Given audio file fails to load, when error occurs, then it should be handled gracefully without breaking the UI.
+
 ## Dependencies/Risks
 
 - Dependency: Local data storage (e.g., browser localStorage or IndexedDB) is required for saving performance data.
 - Dependency: Next.js App Router for implementing multiple routes (/, /practice).
+- Dependency: Audio CDN (https://images.shangjiaming.top) must be accessible for audio playback.
 - Risk: Technical debt could arise if features are rushed without proper testing.
 - Risk: Scope creep may occur if additional features are requested mid-development.
 - Risk: Changing requirements could lead to rework and delays.
 - Risk: Limited availability of developers or testers could slow down progress.
+- Risk: Audio files may fail to load if CDN is down or files are missing.

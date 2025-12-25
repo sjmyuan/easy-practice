@@ -23,6 +23,8 @@ export interface Problem {
   problemSetId: string;
   problem: string;
   answer: string;
+  problemAudio?: string; // Audio filename for problem
+  answerAudio?: string; // Audio filename for answer
   createdAt: number; // timestamp
 }
 
@@ -75,11 +77,15 @@ export interface ProblemSetJSON {
     problems: Array<{
       problem: string;
       answer: string;
+      problem_audio?: string;
+      answer_audio?: string;
     }>;
   }>;
   problems?: Array<{
     problem: string;
     answer: string;
+    problem_audio?: string;
+    answer_audio?: string;
   }>;
 }
 
