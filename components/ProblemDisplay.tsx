@@ -17,7 +17,7 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   const [isAnswerAudioPlaying, setIsAnswerAudioPlaying] = useState(false);
   const problemAudioRef = useRef<HTMLAudioElement>(null);
   const answerAudioRef = useRef<HTMLAudioElement>(null);
-  const prevProblemIdRef = useRef<string | undefined>(problem?.id);
+  const prevProblemIdRef = useRef<string | undefined>(undefined);
 
   // Auto-play and cleanup when problem changes
   useEffect(() => {
@@ -96,37 +96,25 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   return (
     <div
       key={problem.id}
-      className="relative flex min-h-[200px] flex-col items-center justify-center p-8"
+      className="relative flex h-80 max-h-[28rem] min-h-[16rem] w-full items-stretch justify-center p-8 bg-white rounded-lg shadow overflow-hidden"
       role="region"
       aria-label="Current math problem"
     >
-      <button
-        onClick={() => setShowAnswer(!showAnswer)}
-        className="absolute top-4 right-4 rounded-lg p-2 transition-colors hover:bg-gray-100"
-        aria-label={showAnswer ? 'Hide answer' : 'Show answer'}
-        type="button"
-      >
-        {showAnswer ? (
-          <EyeOff className="h-6 w-6 text-gray-600" />
-        ) : (
-          <Eye className="h-6 w-6 text-gray-600" />
-        )}
-      </button>
-
-      <div className="flex items-center gap-4">
-        <p className="text-center text-6xl font-bold text-gray-900">
-          {problem.problem}
-        </p>
+      {/*
+        Top-right button group: audio (if any) and show answer
+        Always fixed at the top right, does not move with content.
+      */}
+      <div className="absolute top-4 right-4 flex flex-row gap-2 z-10">
         {problemAudioUrl && (
           <>
             <button
               onClick={handleProblemAudioClick}
-              className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+              className="rounded-lg p-2 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
               aria-label="Play problem audio"
               type="button"
             >
               <Volume2
-                className={`h-8 w-8 ${
+                className={`h-6 w-6 ${
                   isProblemAudioPlaying ? 'text-blue-600' : 'text-gray-600'
                 }`}
               />
@@ -141,39 +129,58 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
             />
           </>
         )}
+        <button
+          onClick={() => setShowAnswer(!showAnswer)}
+          className="rounded-lg p-2 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          aria-label={showAnswer ? 'Hide answer' : 'Show answer'}
+          type="button"
+        >
+          {showAnswer ? (
+            <EyeOff className="h-6 w-6 text-gray-600" />
+          ) : (
+            <Eye className="h-6 w-6 text-gray-600" />
+          )}
+        </button>
       </div>
 
-      {showAnswer && (
-        <div className="mt-4 flex items-center gap-4">
-          <p className="text-center text-2xl font-medium text-green-600">
-            {problem.answer}
-          </p>
-          {answerAudioUrl && (
-            <>
-              <button
-                onClick={handleAnswerAudioClick}
-                className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-                aria-label="Play answer audio"
-                type="button"
-              >
-                <Volume2
-                  className={`h-6 w-6 ${
-                    isAnswerAudioPlaying ? 'text-blue-600' : 'text-gray-600'
-                  }`}
+      {/* Add extra top padding to prevent overlap with the button group */}
+      <div className="w-full flex flex-col items-center pt-16 overflow-y-auto">
+        <p className="text-center text-6xl font-bold text-gray-900 break-words">
+          {problem.problem}
+        </p>
+
+        {showAnswer && (
+          <div className="mt-4 flex items-center gap-4">
+            <p className="text-center text-2xl font-medium text-green-600 break-words">
+              {problem.answer}
+            </p>
+            {answerAudioUrl && (
+              <>
+                <button
+                  onClick={handleAnswerAudioClick}
+                  className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+                  aria-label="Play answer audio"
+                  type="button"
+                >
+                  <Volume2
+                    className={`h-6 w-6 ${
+                      isAnswerAudioPlaying ? 'text-blue-600' : 'text-gray-600'
+                    }`}
+                  />
+                </button>
+                <audio
+                  ref={answerAudioRef}
+                  src={answerAudioUrl}
+                  onPlay={() => setIsAnswerAudioPlaying(true)}
+                  onPause={() => setIsAnswerAudioPlaying(false)}
+                  onEnded={() => setIsAnswerAudioPlaying(false)}
+                  onError={() => setIsAnswerAudioPlaying(false)}
                 />
-              </button>
-              <audio
-                ref={answerAudioRef}
-                src={answerAudioUrl}
-                onPlay={() => setIsAnswerAudioPlaying(true)}
-                onPause={() => setIsAnswerAudioPlaying(false)}
-                onEnded={() => setIsAnswerAudioPlaying(false)}
-                onError={() => setIsAnswerAudioPlaying(false)}
-              />
-            </>
-          )}
-        </div>
-      )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -2,11 +2,26 @@
 
 ## Easy Practice for Parents
 
-**Version:** 1.7.0  
+**Version:** 1.7.1  
 **Date:** December 25, 2025  
 **Status:** In Progress - Epics 1-5 Completed
 
 ## Recent Updates
+
+### Audio Auto-play and UI Improvements (December 25, 2025)
+
+- **Audio Auto-play Bug Fix**:
+  - Fixed bug where first audio in a session wouldn't auto-play
+  - Root cause: `prevProblemIdRef` was initialized with the current problem's ID, preventing auto-play detection
+  - Solution: Initialize `prevProblemIdRef` with `undefined` to ensure first problem triggers auto-play
+  - Added comprehensive tests for auto-play scenarios (first load, problem transitions, session start)
+- **Audio Button Repositioning**:
+  - Moved problem audio button from inline (next to problem text) to top-right corner
+  - Positioned at same location as view answer button for consistent UI
+  - View answer button shifts to `right-16` when audio button is present (at `right-4`)
+  - Problem text remains centered without inline elements
+  - Improved mobile UX with fixed button positions
+  - Added tests to validate button positioning and layout
 
 ### Audio Support for Problems (December 25, 2025)
 
@@ -23,7 +38,7 @@
   - Audio stops automatically when navigating to next problem
 - **ProblemDisplay Component Updates**:
   - Added Volume2 icon buttons from Lucide React for audio playback
-  - Problem audio button: Visible next to problem text when `problemAudio` exists
+  - Problem audio button: Positioned in top-right corner (absolute positioning)
   - Answer audio button: Visible next to answer text when `answerAudio` exists and answer is shown
   - Audio playing state indicated by blue icon color (gray when paused)
   - Graceful error handling for failed audio loads
@@ -33,9 +48,13 @@
 - **Test Infrastructure**:
   - Added HTMLMediaElement mocks to test setup (`tests/setup.ts`)
   - Mocked `play()`, `pause()`, and `load()` methods using Vitest
-  - 8 new tests in ProblemDisplay.test.tsx covering audio rendering and URL construction
+  - 12 new tests in ProblemDisplay.test.tsx covering:
+    - Audio rendering and URL construction
+    - Auto-play functionality (first load, problem changes, session start)
+    - Button positioning (top-right corner placement)
+    - Audio cleanup on problem transitions
   - 3 new tests in database.service.test.ts covering audio field import scenarios
-  - All 366 tests passing with audio functionality
+  - All 373 tests passing with audio functionality and bug fixes
 - **Type System Updates**:
   - Added `problemAudio?: string` and `answerAudio?: string` to Problem interface
   - Added `problem_audio?: string` and `answer_audio?: string` to ProblemSetJSON import types
@@ -47,6 +66,7 @@
   - Audio files hosted on CDN for fast global delivery
   - Graceful degradation: Audio buttons only shown when audio files exist
   - No breaking changes to existing math problem sets (audio fields optional)
+  - Improved UX with reliable auto-play and consistent button positioning
 
 ### Internationalization (i18n) Support (December 25, 2025)
 

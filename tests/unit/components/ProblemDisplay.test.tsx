@@ -1,7 +1,7 @@
 // tests/unit/components/ProblemDisplay.test.tsx
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ProblemDisplay } from '@/components/ProblemDisplay';
 import type { Problem } from '@/types';
 
@@ -416,6 +416,140 @@ describe('ProblemDisplay Component', () => {
       expect(answerAudio?.src).toBe(
         'https://images.shangjiaming.top/answer1.wav'
       );
+    });
+
+    describe('Auto-play functionality', () => {
+      it('should auto-play problem audio when problem first loads', () => {
+        const { container } = render(
+          <ProblemDisplay problem={mockProblemWithAudio} />
+        );
+
+        // Find the audio element
+        const audioElement = container.querySelector('audio');
+        expect(audioElement).toBeDefined();
+
+        // Verify play was called (mock will capture this)
+        const playSpy = vi.spyOn(audioElement!, 'play');
+        playSpy.mockResolvedValue(undefined);
+
+        // The auto-play should have triggered in useEffect
+        // Since useEffect runs after render, we need to wait a tick
+        expect(playSpy).toHaveBeenCalled();
+      });
+
+      it('should auto-play when problem changes from null to first problem', () => {
+        const { rerender, container } = render(
+          <ProblemDisplay problem={null} />
+        );
+
+        // Initially no audio element
+        expect(container.querySelector('audio')).toBeNull();
+
+        // Now render with a problem
+        rerender(<ProblemDisplay problem={mockProblemWithAudio} />);
+
+        const audioElement = container.querySelector('audio');
+        expect(audioElement).toBeDefined();
+
+        // Verify play was called
+        const playSpy = vi.spyOn(audioElement!, 'play');
+        playSpy.mockResolvedValue(undefined);
+
+        // Auto-play should trigger for the first problem
+        expect(playSpy).toHaveBeenCalled();
+      });
+
+      it('should auto-play when problem changes to a new problem', () => {
+        const problem1: Problem = {
+          ...mockProblemWithAudio,
+          id: 'problem-1',
+          problemAudio: 'audio1.wav',
+        };
+
+        const problem2: Problem = {
+          ...mockProblemWithAudio,
+          id: 'problem-2',
+          problemAudio: 'audio2.wav',
+        };
+
+        const { rerender, container } = render(
+          <ProblemDisplay problem={problem1} />
+        );
+
+        const audio1 = container.querySelector('audio');
+        const playSpy1 = vi.spyOn(audio1!, 'play');
+        playSpy1.mockResolvedValue(undefined);
+
+        // Change to a new problem
+        rerender(<ProblemDisplay problem={problem2} />);
+
+        const audio2 = container.querySelector('audio');
+        const playSpy2 = vi.spyOn(audio2!, 'play');
+        playSpy2.mockResolvedValue(undefined);
+
+        // Auto-play should trigger for the new problem
+        expect(playSpy2).toHaveBeenCalled();
+      });
+
+      it('should stop previous audio when problem changes', () => {
+        const problem1: Problem = {
+          ...mockProblemWithAudio,
+          id: 'problem-1',
+          problemAudio: 'audio1.wav',
+        };
+
+        const problem2: Problem = {
+          ...mockProblemWithAudio,
+          id: 'problem-2',
+          problemAudio: 'audio2.wav',
+        };
+
+        const { rerender, container } = render(
+          <ProblemDisplay problem={problem1} />
+        );
+
+        const audio1 = container.querySelector('audio');
+        const pauseSpy = vi.spyOn(audio1!, 'pause');
+        pauseSpy.mockImplementation(() => {});
+
+        // Change to a new problem
+        rerender(<ProblemDisplay problem={problem2} />);
+
+        // Previous audio should be paused
+        expect(pauseSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe('Button positioning', () => {
+      it('should render audio and show answer buttons in a flex row group at the top-right', () => {
+        render(<ProblemDisplay problem={mockProblemWithAudio} />);
+
+        // The button group container
+        const buttonGroup = document.querySelector('.absolute.top-4.right-4.flex');
+        expect(buttonGroup).toBeInTheDocument();
+
+        // Both buttons should be present and siblings
+        const audioButton = screen.getByRole('button', { name: /play problem audio/i });
+        const showAnswerButton = screen.getByRole('button', { name: /show answer/i });
+        expect(audioButton).toBeInTheDocument();
+        expect(showAnswerButton).toBeInTheDocument();
+        expect(audioButton.parentElement).toBe(buttonGroup);
+        expect(showAnswerButton.parentElement).toBe(buttonGroup);
+      });
+
+      it('should have the same style for audio and show answer buttons', () => {
+        render(<ProblemDisplay problem={mockProblemWithAudio} />);
+        const audioButton = screen.getByRole('button', { name: /play problem audio/i });
+        const showAnswerButton = screen.getByRole('button', { name: /show answer/i });
+        // Both should have the same classes
+        expect(audioButton.className).toBe(showAnswerButton.className);
+      });
+
+      it('should keep problem text centered and not affected by button group', () => {
+        render(<ProblemDisplay problem={mockProblemWithAudio} />);
+        const problemText = screen.getByText('What is your name?');
+        expect(problemText).toHaveClass('text-center');
+      });
     });
   });
 });
