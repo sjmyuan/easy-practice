@@ -178,7 +178,7 @@ describe('Landing Page (app/page.tsx)', () => {
   });
 
   describe('Layout and Styling', () => {
-    it('should have proper page layout', async () => {
+    it('should have proper page layout with gradient background', async () => {
       render(
         <Wrapper>
           <Home />
@@ -190,6 +190,7 @@ describe('Landing Page (app/page.tsx)', () => {
       });
       const main = screen.getByRole('main');
       expect(main).toHaveClass('min-h-screen');
+      expect(main).toHaveClass('bg-gradient-to-br');
     });
 
     it('should display app title', async () => {
@@ -202,6 +203,42 @@ describe('Landing Page (app/page.tsx)', () => {
       await waitFor(() => {
         expect(screen.getByTestId('landing-title')).toBeInTheDocument();
       });
+    });
+
+    it('should display settings icon on landing page', async () => {
+      render(
+        <Wrapper>
+          <Home />
+        </Wrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
+      });
+
+      const settingsIcon = screen.getByLabelText('Settings');
+      expect(settingsIcon).toBeInTheDocument();
+    });
+
+    it('should open settings panel when settings icon is clicked on landing page', async () => {
+      const user = userEvent.setup();
+      render(
+        <Wrapper>
+          <Home />
+        </Wrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
+      });
+
+      const settingsIcon = screen.getByLabelText('Settings');
+      await act(async () => {
+        await user.click(settingsIcon);
+      });
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText(/设置|Settings/i)).toBeInTheDocument();
     });
   });
 

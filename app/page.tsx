@@ -58,11 +58,30 @@ export default function Home() {
   // Landing view - no problem set selected
   if (!state.selectedProblemSetId) {
     return (
-      <LandingView
-        problemSets={state.availableProblemSets}
-        onSelect={(problemSetId) => actions.selectProblemSet(problemSetId)}
-        isLoading={state.isLoading}
-      />
+      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">
+        <div className="w-full max-w-2xl space-y-8 rounded-3xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
+          <div className="space-y-4">
+            {/* Settings Icon for Landing View */}
+            <div className="flex items-center justify-end">
+              <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
+            </div>
+
+            <LandingView
+              problemSets={state.availableProblemSets}
+              onSelect={(problemSetId) => actions.selectProblemSet(problemSetId)}
+              isLoading={state.isLoading}
+            />
+          </div>
+        </div>
+
+        <SettingsPanel
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          problemCoverage={state.problemCoverage}
+          onProblemCoverageChange={actions.setProblemCoverage}
+          onResetData={actions.resetAllData}
+        />
+      </main>
     );
   }
 

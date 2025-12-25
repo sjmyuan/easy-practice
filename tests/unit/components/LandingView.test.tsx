@@ -1,16 +1,13 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 import { LandingView } from '../../../components/LandingView';
-import { AppProvider } from '@/contexts/AppContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import type { ProblemSet } from '../../../types';
 import type { ReactNode } from 'react';
 
 // Wrapper component for tests
 const Wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider>
-    <AppProvider>{children}</AppProvider>
-  </LanguageProvider>
+  <LanguageProvider>{children}</LanguageProvider>
 );
 
 const mockProblemSets: ProblemSet[] = [
@@ -93,7 +90,7 @@ describe('LandingView', () => {
     expect(button).toBeDisabled();
   });
 
-  it('should have correct layout styling', () => {
+  it('should render content without layout wrapper', () => {
     const { container } = render(
       <LandingView
         problemSets={mockProblemSets}
@@ -103,12 +100,13 @@ describe('LandingView', () => {
       { wrapper: Wrapper }
     );
 
+    // LandingView should NOT have a main element - layout is managed by page.tsx
     const mainElement = container.querySelector('main');
-    expect(mainElement).toHaveClass('flex', 'min-h-screen');
+    expect(mainElement).not.toBeInTheDocument();
   });
 
-  it('should display logo image', () => {
-    render(
+  it('should render logo and title without gradient background wrapper', () => {
+    const { container } = render(
       <LandingView
         problemSets={mockProblemSets}
         onSelect={() => {}}
@@ -120,23 +118,13 @@ describe('LandingView', () => {
     const logo = screen.getByAltText('Easy Practice Logo');
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute('src', '/logo.svg');
-  });
 
-  it('should have playful gradient background', () => {
-    const { container } = render(
-      <LandingView
-        problemSets={mockProblemSets}
-        onSelect={() => {}}
-        isLoading={false}
-      />,
-      { wrapper: Wrapper }
-    );
-
+    // Gradient background should NOT be in LandingView (managed by page.tsx)
     const mainElement = container.querySelector('main');
-    expect(mainElement).toHaveClass('bg-gradient-to-br');
+    expect(mainElement).not.toBeInTheDocument();
   });
 
-  it('should render settings icon', () => {
+  it('should NOT render settings icon (managed by page.tsx)', () => {
     render(
       <LandingView
         problemSets={mockProblemSets}
@@ -146,11 +134,11 @@ describe('LandingView', () => {
       { wrapper: Wrapper }
     );
 
-    const settingsIcon = screen.getByLabelText('Settings');
-    expect(settingsIcon).toBeInTheDocument();
+    const settingsIcon = screen.queryByLabelText('Settings');
+    expect(settingsIcon).not.toBeInTheDocument();
   });
 
-  it('should open settings panel when settings icon is clicked', () => {
+  it('should NOT manage settings panel state (managed by page.tsx)', () => {
     render(
       <LandingView
         problemSets={mockProblemSets}
@@ -160,47 +148,8 @@ describe('LandingView', () => {
       { wrapper: Wrapper }
     );
 
-    const settingsIcon = screen.getByLabelText('Settings');
-    fireEvent.click(settingsIcon);
-
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText(/设置|Settings/i)).toBeInTheDocument();
-  });
-
-  it('should close settings panel when backdrop is clicked', () => {
-    render(
-      <LandingView
-        problemSets={mockProblemSets}
-        onSelect={() => {}}
-        isLoading={false}
-      />,
-      { wrapper: Wrapper }
-    );
-
-    const settingsIcon = screen.getByLabelText('Settings');
-    fireEvent.click(settingsIcon);
-
-    const backdrop = screen.getByTestId('settings-backdrop');
-    fireEvent.click(backdrop);
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('should show language selector in settings panel', () => {
-    render(
-      <LandingView
-        problemSets={mockProblemSets}
-        onSelect={() => {}}
-        isLoading={false}
-      />,
-      { wrapper: Wrapper }
-    );
-
-    const settingsIcon = screen.getByLabelText('Settings');
-    fireEvent.click(settingsIcon);
-
-    // Language selector should be in the settings panel
-    const languageButton = screen.getByRole('button', { name: /English|中文|语言|Language/i });
-    expect(languageButton).toBeInTheDocument();
+    // Settings panel should not be rendered by LandingView
+    const settingsPanel = screen.queryByRole('dialog');
+    expect(settingsPanel).not.toBeInTheDocument();
   });
 });
