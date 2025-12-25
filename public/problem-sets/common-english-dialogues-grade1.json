@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "problemSet": {
+    "name": {
+      "en": "Common English Dialogues (Grade 1)",
+      "zh": "一年级常用英语对话"
+    },
+    "description": {
+      "en": "Basic English questions and answers for first grade students.",
+      "zh": "适合小学一年级的基础英语问答练习。"
+    },
+    "problemSetKey": "common-english-dialogues-grade1",
+    "difficulty": "easy",
+    "metadata": {
+      "targetAge": "6-7"
+    }
+  },
+  "problems": [
+    { "problem": "What is your name?", "answer": "My name is Sean." },
+    { "problem": "What is this?", "answer": "It is my cap." },
+    { "problem": "What color is this?", "answer": "It is blue." },
+    { "problem": "What is your favorite color?", "answer": "I like purple." },
+    { "problem": "Who is he?", "answer": "He is my dad." },
+    { "problem": "Who is she?", "answer": "She is my mum." },
+    { "problem": "Whose pencil is this?", "answer": "This is Sars's pencil." },
+    { "problem": "Whose bag is this?", "answer": "This is my bag." },
+    { "problem": "Where is my pencil box?", "answer": "It is on your desk." },
+    { "problem": "How are you?", "answer": "I am good." },
+    { "problem": "How old are you?", "answer": "I am six." },
+    { "problem": "How many apples?", "answer": "Three." }
+  ]
+}

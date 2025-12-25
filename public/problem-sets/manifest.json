@@ -65,5 +65,19 @@
         "zh": "练习1-10范围内的加减法，不包含0"
       }
     }
+      ,
+      {
+        "problemSetKey": "common-english-dialogues-grade1",
+        "version": "1.0",
+        "path": "/problem-sets/common-english-dialogues-grade1.json",
+        "name": {
+          "en": "Common English Dialogues (Grade 1)",
+          "zh": "一年级常用英语对话"
+        },
+        "description": {
+          "en": "Basic English questions and answers for first grade students.",
+          "zh": "适合小学一年级的基础英语问答练习。"
+        }
+      }
   ]
 }
