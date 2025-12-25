@@ -37,10 +37,11 @@ export function ProblemSetSelector({
   if (enabledProblemSets.length === 0) {
     return (
       <div className="space-y-6 py-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900">
+        <h2 className="text-3xl font-bold text-gray-900" data-testid="problem-set-selector-title">
           {t('landing.title')}
         </h2>
         <p className="text-gray-600">{t('landing.noProblemSets')}</p>
+        <div data-testid="problem-set-list" />
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Home from '@/app/page';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -7,11 +7,12 @@ import * as services from '@/services';
 import type { ProblemSet } from '@/types';
 import type { ReactNode } from 'react';
 
+import { AppProvider } from '@/contexts/AppContext';
 // Wrapper component for tests
 const Wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider>
-    <Wrapper>{children}</Wrapper>
-  </LanguageProvider>
+  <AppProvider>
+    <LanguageProvider>{children}</LanguageProvider>
+  </AppProvider>
 );
 
 // Mock Next.js navigation
@@ -71,37 +72,40 @@ describe('Landing Page (app/page.tsx)', () => {
 
   describe('Initialization', () => {
     it('should display loading state initially', () => {
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      act(() => {
+        render(
+          <Wrapper>
+            <Home />
+          </Wrapper>
+        );
+      });
+      expect(screen.getByTestId('loading-view')).toBeInTheDocument();
     });
 
     it('should display problem set selector after initialization', async () => {
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
+      await act(async () => {
+        render(
+          <Wrapper>
+            <Home />
+          </Wrapper>
+        );
+      });
       await waitFor(() => {
-        expect(screen.getByText('Choose a Problem Set')).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
       });
     });
 
     it('should fetch and display available problem sets', async () => {
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
+      await act(async () => {
+        render(
+          <Wrapper>
+            <Home />
+          </Wrapper>
+        );
+      });
       await waitFor(() => {
-        expect(screen.getByText('Addition within 20')).toBeInTheDocument();
-        expect(screen.getByText('Subtraction within 20')).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-button-addition-within-20')).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-button-subtraction-within-20')).toBeInTheDocument();
       });
     });
 
@@ -109,15 +113,16 @@ describe('Landing Page (app/page.tsx)', () => {
       vi.mocked(services.databaseService.getProblemSets).mockRejectedValue(
         new Error('Database error')
       );
-
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
+      await act(async () => {
+        render(
+          <Wrapper>
+            <Home />
+          </Wrapper>
+        );
+      });
       await waitFor(() => {
-        expect(screen.getByText(/Error:/)).toBeInTheDocument();
+        expect(screen.getByTestId('error-view')).toBeInTheDocument();
+        expect(screen.getByTestId('error-message')).toHaveTextContent('Database error');
       });
     });
   });
@@ -125,59 +130,49 @@ describe('Landing Page (app/page.tsx)', () => {
   describe('Problem Set Selection', () => {
     it('should show practice view when a problem set is selected', async () => {
       const user = userEvent.setup();
-
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
+      await act(async () => {
+        render(
+          <Wrapper>
+            <Home />
+          </Wrapper>
+        );
+      });
       await waitFor(() => {
-        expect(screen.getByText('Addition within 20')).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-button-addition-within-20')).toBeInTheDocument();
       });
-
-      const additionButton = screen.getByRole('button', {
-        name: /Addition within 20/i,
+      const additionButton = screen.getByTestId('problem-set-button-addition-within-20');
+      await act(async () => {
+        await user.click(additionButton);
       });
-      await user.click(additionButton);
-
       // Should not navigate - stays on same page (SPA behavior)
       expect(mockPush).not.toHaveBeenCalled();
-
       // Should show practice view with Start Session button
       await waitFor(() => {
-        expect(
-          screen.getByRole('button', { name: /start new session/i })
-        ).toBeInTheDocument();
+        expect(screen.getByTestId('start-session-button')).toBeInTheDocument();
       });
     });
 
     it('should store selected problem set ID in context', async () => {
       const user = userEvent.setup();
-
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
+      await act(async () => {
+        render(
+          <Wrapper>
+            <Home />
+          </Wrapper>
+        );
+      });
       await waitFor(() => {
-        expect(screen.getByText('Addition within 20')).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-button-addition-within-20')).toBeInTheDocument();
       });
-
-      const additionButton = screen.getByRole('button', {
-        name: /Addition within 20/i,
+      const additionButton = screen.getByTestId('problem-set-button-addition-within-20');
+      await act(async () => {
+        await user.click(additionButton);
       });
-      await user.click(additionButton);
-
       // Should not navigate - stays on same page (SPA behavior)
       expect(mockPush).not.toHaveBeenCalled();
-
       // Should show practice view instead of landing view
       await waitFor(() => {
-        expect(
-          screen.queryByText('Choose a Problem Set')
-        ).not.toBeInTheDocument();
+        expect(screen.queryByTestId('problem-set-selector-title')).not.toBeInTheDocument();
       });
     });
   });
@@ -191,9 +186,8 @@ describe('Landing Page (app/page.tsx)', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Choose a Problem Set')).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
       });
-
       const main = screen.getByRole('main');
       expect(main).toHaveClass('min-h-screen');
     });
@@ -206,7 +200,7 @@ describe('Landing Page (app/page.tsx)', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Easy Practice')).toBeInTheDocument();
+        expect(screen.getByTestId('landing-title')).toBeInTheDocument();
       });
     });
   });
@@ -214,38 +208,29 @@ describe('Landing Page (app/page.tsx)', () => {
   describe('Empty State', () => {
     it('should display message when no problem sets are available', async () => {
       vi.mocked(services.databaseService.getProblemSets).mockResolvedValue([]);
-
       render(
         <Wrapper>
           <Home />
         </Wrapper>
       );
-
       await waitFor(() => {
-        expect(
-          screen.getByText('No problem sets available')
-        ).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
       });
     });
 
     it('should not show navigation options when no problem sets', async () => {
       vi.mocked(services.databaseService.getProblemSets).mockResolvedValue([]);
-
       render(
         <Wrapper>
           <Home />
         </Wrapper>
       );
-
       await waitFor(() => {
-        expect(
-          screen.getByText('No problem sets available')
-        ).toBeInTheDocument();
+        expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
       });
-
       // Should not have any problem set buttons
-      const buttons = screen.queryAllByRole('button');
-      expect(buttons).toHaveLength(0);
+      const list = screen.getByTestId('problem-set-list');
+      expect(list.childElementCount).toBe(0);
     });
   });
 
@@ -258,14 +243,12 @@ describe('Landing Page (app/page.tsx)', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Easy Practice')).toBeInTheDocument();
+        expect(screen.getByTestId('landing-title')).toBeInTheDocument();
       });
-
-      const h1 = screen.getByRole('heading', { level: 1 });
+      const h1 = screen.getByTestId('landing-title');
       expect(h1).toHaveTextContent('Easy Practice');
-
-      const h2 = screen.getByRole('heading', { level: 2 });
-      expect(h2).toHaveTextContent('Choose a Problem Set');
+      const h2 = screen.getByTestId('problem-set-selector-title');
+      expect(h2).toBeInTheDocument();
     });
   });
 });

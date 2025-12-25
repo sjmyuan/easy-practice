@@ -33,7 +33,7 @@ export function LandingView({
             priority
             className="drop-shadow-lg"
           />
-          <h1 className="text-center text-4xl font-bold text-gray-800">
+          <h1 className="text-center text-4xl font-bold text-gray-800" data-testid="landing-title">
             Easy Practice
           </h1>
         </div>
