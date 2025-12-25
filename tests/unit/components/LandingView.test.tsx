@@ -28,18 +28,7 @@ const mockProblemSets: ProblemSet[] = [
 ];
 
 describe('LandingView', () => {
-  it('should render title', () => {
-    render(
-      <LandingView
-        problemSets={mockProblemSets}
-        onSelect={() => {}}
-        isLoading={false}
-      />,
-      { wrapper: Wrapper }
-    );
-
-    expect(screen.getByText('Easy Practice')).toBeInTheDocument();
-  });
+  // Title is no longer rendered in LandingView
 
   it('should render ProblemSetSelector with correct props', () => {
     const onSelect = vi.fn();
@@ -105,24 +94,7 @@ describe('LandingView', () => {
     expect(mainElement).not.toBeInTheDocument();
   });
 
-  it('should render logo and title without gradient background wrapper', () => {
-    const { container } = render(
-      <LandingView
-        problemSets={mockProblemSets}
-        onSelect={() => {}}
-        isLoading={false}
-      />,
-      { wrapper: Wrapper }
-    );
-
-    const logo = screen.getByAltText('Easy Practice Logo');
-    expect(logo).toBeInTheDocument();
-    expect(logo).toHaveAttribute('src', '/logo.svg');
-
-    // Gradient background should NOT be in LandingView (managed by page.tsx)
-    const mainElement = container.querySelector('main');
-    expect(mainElement).not.toBeInTheDocument();
-  });
+  // Logo and title are no longer rendered in LandingView
 
   it('should NOT render settings icon (managed by page.tsx)', () => {
     render(

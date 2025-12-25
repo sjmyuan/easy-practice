@@ -65,7 +65,12 @@ export default function Home() {
             <div className="flex items-center justify-end">
               <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
             </div>
-
+            <h1
+              className="text-center text-4xl font-bold bg-gradient-to-r from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] bg-clip-text text-transparent drop-shadow-md"
+              data-testid="landing-title"
+            >
+              Easy Practice
+            </h1>
             <LandingView
               problemSets={state.availableProblemSets}
               onSelect={(problemSetId) => actions.selectProblemSet(problemSetId)}
