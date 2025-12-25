@@ -434,7 +434,53 @@ As a busy parent, I want to see detailed statistics when a session completes so 
 - ✅ Given a new session starts, when beginning the session, then the timer should start and statistics should reset to zero.
 - ✅ Given a session is active, when problems are being answered, then the statistics should not be displayed until the session completes.
 
-### Epic 5: Problem Set Selection and Navigation ✅ COMPLETED
+### Epic 5: Internationalization (i18n) Support
+
+[Busy Parent] wants to use the app in their preferred language (Chinese or English) so that it is accessible and comfortable for parents in China and English-speaking regions.
+
+#### User Story 1: Language Selection and Persistence
+
+As a parent, I want to switch between Chinese and English in the app so that I can use it in my preferred language, with Chinese as the default.
+
+##### Acceptance Criteria:
+
+- Given the app is opened, when no language is selected, then the app displays in Chinese by default.
+- Given the app is opened, when I select a language, then all user-visible elements (UI, instructions, error messages, etc.) are displayed in the selected language.
+- Given I select a language, when I return to the app in the same browser, then my language preference persists across sessions.
+- Given the app displays problem sets, when viewing the list, then each problem set's name and description are shown in the selected language (from JSON/manifest).
+- Given the app is used, when switching languages, then the UI updates immediately to reflect the new language.
+- Given translation resources are prepared, when the app is used, then all user-visible text is translated and displays correctly in both languages.
+
+##### In Scope:
+
+- Problem set JSON and manifest update for bilingual name/description
+- Translation resource preparation for all user-visible text
+- Refactoring existing UI components to support dynamic language switching
+- Implementing mechanism to store language preference in browser storage
+
+##### Out of Scope:
+
+- Language preference does not sync across multiple devices or browsers
+- Only name and description fields in problem set JSON and manifest require translation; other fields remain unchanged
+- No support for additional languages beyond English and Chinese
+- No automatic language detection based on browser or system settings
+
+##### Prerequisites:
+
+- Existing UI components must be refactored to support dynamic language switching
+- Translation resources for all user-visible text in both English and Chinese must be prepared
+- Problem set JSON files and manifest must be updated to include name and description in both languages
+- Mechanism for storing language preference in browser storage (e.g., localStorage) must be implemented
+
+##### Benefits:
+
+- Parents in China can use the app comfortably in their native language
+- English-speaking users can access the app in English
+- Users have control over language preference, improving accessibility and user experience
+- Consistent language experience for users during their session
+- Problem sets and manifest are understandable in both languages, broadening usability
+
+### Epic 6: Problem Set Selection and Navigation ✅ COMPLETED
 
 [Busy Parent] wants to select a specific problem set before starting practice so that they can choose focused practice areas and easily switch between different problem types.
 
