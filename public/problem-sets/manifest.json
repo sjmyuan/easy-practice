@@ -2,7 +2,7 @@
   "problemSets": [
     {
       "problemSetKey": "addition-within-10",
-      "version": "1.0",
+      "version": "2.0",
       "path": "/problem-sets/addition-within-10.json",
       "name": {
         "en": "Addition within 10",
@@ -15,7 +15,7 @@
     },
     {
       "problemSetKey": "addition-within-20",
-      "version": "1.0",
+      "version": "2.0",
       "path": "/problem-sets/addition-within-20.json",
       "name": {
         "en": "Addition within 20",
@@ -28,7 +28,7 @@
     },
     {
       "problemSetKey": "subtraction-within-10",
-      "version": "1.0",
+      "version": "2.0",
       "path": "/problem-sets/subtraction-within-10.json",
       "name": {
         "en": "Subtraction within 10",
@@ -41,7 +41,7 @@
     },
     {
       "problemSetKey": "subtraction-within-20",
-      "version": "1.0",
+      "version": "2.0",
       "path": "/problem-sets/subtraction-within-20.json",
       "name": {
         "en": "Subtraction within 20",
@@ -54,7 +54,7 @@
     },
     {
       "problemSetKey": "add-subtract-within-10-no-zero",
-      "version": "1.0",
+      "version": "2.0",
       "path": "/problem-sets/add-subtract-within-10-no-zero.json",
       "name": {
         "en": "Addition and Subtraction within 10 (No Zero Operand)",
