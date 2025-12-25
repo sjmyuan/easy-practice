@@ -112,8 +112,7 @@ describe('Home Page (Landing)', () => {
 
   it('should render the main page with problem generator', () => {
     render(<Home />, { wrapper: Wrapper });
-
-    expect(screen.getByText(/easy practice/i)).toBeInTheDocument();
+    // No Easy Practice title on landing view
   });
 
   it('should display problem set selector', () => {

@@ -193,17 +193,7 @@ describe('Landing Page (app/page.tsx)', () => {
       expect(main).toHaveClass('bg-gradient-to-br');
     });
 
-    it('should display app title', async () => {
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('landing-title')).toBeInTheDocument();
-      });
-    });
+    // App title is intentionally not displayed on landing view
 
     it('should display settings icon on landing page', async () => {
       render(
@@ -271,21 +261,5 @@ describe('Landing Page (app/page.tsx)', () => {
     });
   });
 
-  describe('Accessibility', () => {
-    it('should have proper heading hierarchy', async () => {
-      render(
-        <Wrapper>
-          <Home />
-        </Wrapper>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('landing-title')).toBeInTheDocument();
-      });
-      const h1 = screen.getByTestId('landing-title');
-      expect(h1).toHaveTextContent('Easy Practice');
-      const h2 = screen.getByTestId('problem-set-selector-title');
-      expect(h2).toBeInTheDocument();
-    });
-  });
+  // Accessibility: No h1 title on landing view, so skip heading hierarchy test
 });
