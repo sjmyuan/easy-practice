@@ -16,17 +16,77 @@
     }
   },
   "problems": [
-    { "problem": "What is your name?", "answer": "My name is Sean." },
-    { "problem": "What is this?", "answer": "It is my cap." },
-    { "problem": "What color is this?", "answer": "It is blue." },
-    { "problem": "What is your favorite color?", "answer": "I like purple." },
-    { "problem": "Who is he?", "answer": "He is my dad." },
-    { "problem": "Who is she?", "answer": "She is my mum." },
-    { "problem": "Whose pencil is this?", "answer": "This is Sars's pencil." },
-    { "problem": "Whose bag is this?", "answer": "This is my bag." },
-    { "problem": "Where is my pencil box?", "answer": "It is on your desk." },
-    { "problem": "How are you?", "answer": "I am good." },
-    { "problem": "How old are you?", "answer": "I am six." },
-    { "problem": "How many apples?", "answer": "Three." }
+    {
+      "problem": "What is your name?",
+      "answer": "My name is Sean.",
+      "problem_audio": "f6429fe0f1a76611670df7e1234af936.wav",
+      "answer_audio": "f7a9b80833e93c7e86edc91d77de0ed0.wav"
+    },
+    {
+      "problem": "What is this?",
+      "answer": "It is my cap.",
+      "problem_audio": "efc45797ddd32ddad81371c29f3d549b.wav",
+      "answer_audio": "19f012b641442f94e74619ca0f45a14f.wav"
+    },
+    {
+      "problem": "What color is this?",
+      "answer": "It is blue.",
+      "problem_audio": "fafd90a477b0904c0ca0a3b848cd42ed.wav",
+      "answer_audio": "9bd12f9a0a182a96ee2aa367f449280b.wav"
+    },
+    {
+      "problem": "What is your favorite color?",
+      "answer": "I like purple.",
+      "problem_audio": "1e20a1ae79f4d3b54176d34e1b52ab68.wav",
+      "answer_audio": "537fa04f0d5dcdcb09f6f1d6939359b3.wav"
+    },
+    {
+      "problem": "Who is he?",
+      "answer": "He is my dad.",
+      "problem_audio": "6e04300264c2347df9cffebfa57921de.wav",
+      "answer_audio": "b3336bc58c3b48cf3943757ef54dc338.wav"
+    },
+    {
+      "problem": "Who is she?",
+      "answer": "She is my mum.",
+      "problem_audio": "326413fb6ba6a93010720d25dff960de.wav",
+      "answer_audio": "46f79afb157503936fb559caf62c92d1.wav"
+    },
+    {
+      "problem": "Whose pencil is this?",
+      "answer": "This is Sars's pencil.",
+      "problem_audio": "dfa1b90ba46398e922eee5154c4da6e5.wav",
+      "answer_audio": "42b76e629d57d9a9a292d1239a824435.wav"
+    },
+    {
+      "problem": "Whose bag is this?",
+      "answer": "This is my bag.",
+      "problem_audio": "514d27fe56b6f398bac8c8591d24f38f.wav",
+      "answer_audio": "df9f4baa3de49c2dd990f31be18082bf.wav"
+    },
+    {
+      "problem": "Where is my pencil box?",
+      "answer": "It is on your desk.",
+      "problem_audio": "4e01afd2dd1186be904a4f79491b514c.wav",
+      "answer_audio": "7e0cf098342ace16f6659561b20df6ee.wav"
+    },
+    {
+      "problem": "How are you?",
+      "answer": "I am good.",
+      "problem_audio": "04e35eb3e4fcb8b395191053c359ca0e.wav",
+      "answer_audio": "322eb8cac59aeb9a1d44122253943fdb.wav"
+    },
+    {
+      "problem": "How old are you?",
+      "answer": "I am six.",
+      "problem_audio": "13e575be866ecf5ac3dcbf61ab2048d7.wav",
+      "answer_audio": "f6de58f29001aa574b3883f55cdf1d00.wav"
+    },
+    {
+      "problem": "How many apples?",
+      "answer": "Three.",
+      "problem_audio": "a1c33c4adab9ecef567b23ba1856f0c4.wav",
+      "answer_audio": "bab22fac44b67c66f19955d944d4878a.wav"
+    }
   ]
 }
