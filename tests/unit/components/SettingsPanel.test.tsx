@@ -11,7 +11,6 @@ describe('SettingsPanel', () => {
     onClose: vi.fn(),
     problemCoverage: 50,
     onProblemCoverageChange: vi.fn(),
-    totalProblems: 20,
     onResetData: vi.fn(),
   };
 

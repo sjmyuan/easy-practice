@@ -62,8 +62,8 @@
     "problemCoverage": "问题覆盖率",
     "coverageDescription": "选择要练习的问题百分比（基于优先级）",
     "resetData": "重置数据",
-    "resetDataDescription": "清除当前练习集的所有数据",
-    "resetConfirm": "确定要重置所有数据吗？此操作无法撤销。"
+    "resetDataDescription": "清除所有练习集的统计数据",
+    "resetConfirm": "确定要重置所有统计数据吗？这将清除所有练习集的数据，且此操作无法撤销。"
   },
   "errors": {
     "loadingFailed": "加载失败",

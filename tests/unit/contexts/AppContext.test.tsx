@@ -924,12 +924,9 @@ describe('AppContext', () => {
   });
 
   describe('Reset Data by Type', () => {
-    it('should reset statistics only for the selected problem type', async () => {
-      const resetStatisticsByProblemSetIdCall = vi
-        .fn()
-        .mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByProblemSetId =
-        resetStatisticsByProblemSetIdCall;
+    it('should reset statistics for ALL problem sets', async () => {
+      const resetStatisticsCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatistics = resetStatisticsCall;
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -942,25 +939,21 @@ describe('AppContext', () => {
         result.current.actions.selectProblemSet('1');
       });
 
-      // Call resetAllData (which should now reset by problem set ID)
+      // Call resetAllData (which should now reset ALL statistics)
       await act(async () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify resetStatisticsByProblemSetId was called with the selected ID
-      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
-      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledTimes(1);
+      // Verify resetStatistics was called (not resetStatisticsByProblemSetId)
+      expect(resetStatisticsCall).toHaveBeenCalledTimes(1);
 
       // Verify only struggledProblems cache was cleared
       expect(result.current.state.struggledProblems).toEqual([]);
     });
 
     it('should preserve currentProblem and session state after reset', async () => {
-      const resetStatisticsByProblemSetIdCall = vi
-        .fn()
-        .mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByProblemSetId =
-        resetStatisticsByProblemSetIdCall;
+      const resetStatisticsCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatistics = resetStatisticsCall;
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -993,8 +986,8 @@ describe('AppContext', () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify statistics were reset
-      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
+      // Verify statistics were reset globally
+      expect(resetStatisticsCall).toHaveBeenCalledTimes(1);
       expect(result.current.state.struggledProblems).toEqual([]);
 
       // Verify UI state was preserved
@@ -1014,11 +1007,8 @@ describe('AppContext', () => {
     });
 
     it('should preserve session completion screen after reset', async () => {
-      const resetStatisticsByProblemSetIdCall = vi
-        .fn()
-        .mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByProblemSetId =
-        resetStatisticsByProblemSetIdCall;
+      const resetStatisticsCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatistics = resetStatisticsCall;
 
       const mockProblem = {
         id: '1',
@@ -1073,8 +1063,8 @@ describe('AppContext', () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify statistics were reset
-      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
+      // Verify statistics were reset globally
+      expect(resetStatisticsCall).toHaveBeenCalledTimes(1);
       expect(result.current.state.struggledProblems).toEqual([]);
 
       // Verify session completion state was preserved
@@ -1093,12 +1083,9 @@ describe('AppContext', () => {
       );
     });
 
-    it('should use the current selectedProblemSetId when resetting', async () => {
-      const resetStatisticsByProblemSetIdCall = vi
-        .fn()
-        .mockResolvedValue(undefined);
-      vi.mocked(databaseService).resetStatisticsByProblemSetId =
-        resetStatisticsByProblemSetIdCall;
+    it('should reset all statistics regardless of selected problem set', async () => {
+      const resetStatisticsCall = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(databaseService).resetStatistics = resetStatisticsCall;
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -1116,16 +1103,15 @@ describe('AppContext', () => {
         await result.current.actions.resetAllData();
       });
 
-      // Verify resetStatisticsByProblemSetId was called with the selected ID
-      expect(resetStatisticsByProblemSetIdCall).toHaveBeenCalledWith('1');
+      // Verify resetStatistics was called (resets ALL problem sets)
+      expect(resetStatisticsCall).toHaveBeenCalledTimes(1);
     });
 
     it('should handle errors during reset gracefully', async () => {
-      const resetStatisticsByProblemSetIdCall = vi
+      const resetStatisticsCall = vi
         .fn()
         .mockRejectedValue(new Error('Reset failed'));
-      vi.mocked(databaseService).resetStatisticsByProblemSetId =
-        resetStatisticsByProblemSetIdCall;
+      vi.mocked(databaseService).resetStatistics = resetStatisticsCall;
 
       const consoleErrorSpy = vi
         .spyOn(console, 'error')
@@ -1720,7 +1706,7 @@ describe('AppContext', () => {
       expect(result.current.state.problemCoverage).toBe(30);
     });
 
-    it('should reset problem coverage to 100 when starting a new session', async () => {
+    it('should NOT reset problem coverage when starting a new session', async () => {
       const generateSessionQueueCall = vi.mocked(
         problemService.generateSessionQueue
       );
@@ -1755,8 +1741,8 @@ describe('AppContext', () => {
         await result.current.actions.startNewSession();
       });
 
-      // Coverage should reset to 100
-      expect(result.current.state.problemCoverage).toBe(100);
+      // Coverage should remain at 50% (not reset to 100)
+      expect(result.current.state.problemCoverage).toBe(50);
     });
 
     it('should pass problem coverage to generateSessionQueue', async () => {
@@ -1798,6 +1784,50 @@ describe('AppContext', () => {
         false,
         80
       );
+    });
+
+    it('should load problem coverage from localStorage on initialization', async () => {
+      // Set localStorage value before initializing
+      localStorage.setItem('problemCoverage', '30');
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Coverage should be loaded from localStorage
+      expect(result.current.state.problemCoverage).toBe(30);
+    });
+
+    it('should save problem coverage to localStorage when changed', async () => {
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Change coverage
+      act(() => {
+        result.current.actions.setProblemCoverage(50);
+      });
+
+      // Verify it was saved to localStorage
+      expect(localStorage.getItem('problemCoverage')).toBe('50');
+    });
+
+    it('should use default 100 if localStorage value is invalid', async () => {
+      // Set invalid localStorage value
+      localStorage.setItem('problemCoverage', 'invalid');
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Coverage should default to 100
+      expect(result.current.state.problemCoverage).toBe(100);
     });
   });
 });

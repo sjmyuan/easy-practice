@@ -7,7 +7,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface ProblemCoverageSliderProps {
   value: number; // 30, 50, 80, or 100
   onChange: (coverage: number) => void;
-  totalProblems: number;
 }
 
 const COVERAGE_VALUES = [30, 50, 80, 100];
@@ -15,7 +14,6 @@ const COVERAGE_VALUES = [30, 50, 80, 100];
 export function ProblemCoverageSlider({
   value,
   onChange,
-  totalProblems,
 }: ProblemCoverageSliderProps) {
   const { t } = useLanguage();
   
@@ -36,9 +34,6 @@ export function ProblemCoverageSlider({
     const coverageValue = stepToValue(step);
     onChange(coverageValue);
   };
-
-  // Calculate number of problems for current coverage
-  const problemCount = Math.round((totalProblems * value) / 100);
 
   return (
     <div className="w-full space-y-3">
@@ -71,7 +66,7 @@ export function ProblemCoverageSlider({
       </div>
 
       <div className="text-center text-base font-medium text-gray-800">
-        {value}% ({problemCount}/{totalProblems} {t('preSession.estimatedProblems').toLowerCase()})
+        {value}%
       </div>
     </div>
   );

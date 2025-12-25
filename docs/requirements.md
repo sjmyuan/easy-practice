@@ -49,51 +49,52 @@ A mobile-first web application that helps parents facilitate practice for their 
 - Improved testability with clearer component boundaries
 - All 322 tests maintained and passing after refactor
 
-### Settings Panel (December 20, 2025)
+### Global Settings Panel (December 31, 2025)
 
-**Decision**: Added a settings panel accessible via a settings icon on the practice page to consolidate configuration controls, implemented as a centered modal dialog overlay.
+**Decision**: Refactored settings panel to be global (not problem-set-specific) with language selection, global reset data, and persistent problem coverage percentage.
 
 **Rationale**:
 
-- Declutters the main practice interface by moving infrequently used controls (Problem Coverage slider and Reset Data button) to a dedicated settings panel
-- Maintains focus on the primary workflow (displaying problems and marking answers)
-- Follows standard UI patterns with settings icon in top-right corner
-- Provides clear separation between practice actions and configuration options
-- Accessible only when no session is active, preventing accidental changes during practice
-- Modal overlay pattern provides better focus and accessibility compared to side panels
+- Consolidates all app-level settings into a single, consistent interface available from both landing and pre-session views
+- Simplifies user mental model by treating settings as global rather than per-problem-set
+- Eliminates confusion about language switching being tied to a specific problem set
+- Makes problem coverage setting persistent across sessions and problem sets, respecting user preference
+- Unifies reset data behavior to reset ALL statistics at once (clearer and more predictable)
+- Simplifies problem coverage by showing only percentage (30%, 50%, 80%, 100%) since different problem sets have different totals
 
 **Implementation Details**:
 
-- Settings icon (gear icon from Lucide React) positioned absolutely in top-right corner of practice page header
-- Icon only visible when `isSessionActive === false` (both pre-session and post-session states)
-- Clicking icon opens a centered modal dialog overlay with fade-in and scale animation
-- Modal dialog:
+- Settings icon (gear icon from Lucide React) positioned absolutely in top-right corner
+- Available in both LandingView and PreSessionView (not during active sessions)
+- Language selector moved from landing page into settings panel
+- Modal content includes:
+  - Language selector (English/中文)
+  - Problem Coverage slider (percentage-only display: 30%, 50%, 80%, 100%)
+  - Reset Data button (resets ALL statistics for ALL problem sets)
+  - Close button (X icon) in modal header
+- Problem coverage stored in localStorage (persists across sessions and problem sets)
+- Reset data calls `databaseService.resetStatistics()` globally instead of per-problem-set
+- Reset confirmation message updated to clarify it resets ALL data
+- Modal dialog styling:
   - Centered positioning using `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`
   - Max-width constraint: `max-w-lg` (~512px) on desktop
   - Full-screen on mobile devices: `w-full h-full` on screens smaller than `sm` breakpoint
   - Rounded corners on desktop: `sm:rounded-2xl`
   - Max height on desktop: `sm:max-h-[90vh]` with scrollable content
   - Backdrop overlay with fade-in animation
-  - Fade-in with scale animation for modal appearance (`opacity-100 scale-100`)
-- Modal content includes:
-  - Close button (X icon) in modal header
-  - Problem Coverage Slider
-  - Reset Data Button
-- Click on backdrop (overlay) closes the modal
-- Smooth CSS transitions for fade and scale animations
-- Z-index management: backdrop (z-40), modal (z-50)
+  - Z-index management: backdrop (z-40), modal (z-50)
 - Full keyboard accessibility with proper ARIA labels and dialog role
 
 **Impact**:
 
-- Cleaner main interface with fewer visible controls
-- Improved focus on core practice workflow with modal overlay covering the page
-- Settings remain easily accessible via standard UI pattern (settings icon)
-- No impact on existing functionality - all features retained, just reorganized
-- Better visual hierarchy separating practice actions from configuration
-- Reduced cognitive load during active practice sessions
-- Enhanced mobile experience with full-screen modal on small devices
-- Improved accessibility with modal dialog pattern
+- Unified settings experience across all views
+- Clearer user understanding: settings affect the entire app, not individual problem sets
+- Language preference accessible from landing page (no need to select problem set first)
+- Problem coverage setting persists across sessions (doesn't reset to 100% after each session)
+- Simplified problem coverage display: percentage only, no problem count (works consistently across problem sets with different totals)
+- Reset data is now clearly global (user understands it affects ALL data)
+- Better accessibility with settings available earlier in user journey (landing page)
+- Reduced redundancy: one settings panel instead of problem-set-specific variations
 
 ### Back Navigation Icon (December 20, 2025)
 

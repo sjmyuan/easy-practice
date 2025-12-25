@@ -11,7 +11,6 @@ interface ResetDataButtonProps {
 
 export function ResetDataButton({
   onReset,
-  selectedProblemSetKey,
 }: ResetDataButtonProps) {
   const { t } = useLanguage();
   

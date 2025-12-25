@@ -1,13 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 import { LandingView } from '../../../components/LandingView';
+import { AppProvider } from '@/contexts/AppContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import type { ProblemSet } from '../../../types';
 import type { ReactNode } from 'react';
 
 // Wrapper component for tests
 const Wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider>{children}</LanguageProvider>
+  <LanguageProvider>
+    <AppProvider>{children}</AppProvider>
+  </LanguageProvider>
 );
 
 const mockProblemSets: ProblemSet[] = [
@@ -131,5 +134,73 @@ describe('LandingView', () => {
 
     const mainElement = container.querySelector('main');
     expect(mainElement).toHaveClass('bg-gradient-to-br');
+  });
+
+  it('should render settings icon', () => {
+    render(
+      <LandingView
+        problemSets={mockProblemSets}
+        onSelect={() => {}}
+        isLoading={false}
+      />,
+      { wrapper: Wrapper }
+    );
+
+    const settingsIcon = screen.getByLabelText('Settings');
+    expect(settingsIcon).toBeInTheDocument();
+  });
+
+  it('should open settings panel when settings icon is clicked', () => {
+    render(
+      <LandingView
+        problemSets={mockProblemSets}
+        onSelect={() => {}}
+        isLoading={false}
+      />,
+      { wrapper: Wrapper }
+    );
+
+    const settingsIcon = screen.getByLabelText('Settings');
+    fireEvent.click(settingsIcon);
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText(/设置|Settings/i)).toBeInTheDocument();
+  });
+
+  it('should close settings panel when backdrop is clicked', () => {
+    render(
+      <LandingView
+        problemSets={mockProblemSets}
+        onSelect={() => {}}
+        isLoading={false}
+      />,
+      { wrapper: Wrapper }
+    );
+
+    const settingsIcon = screen.getByLabelText('Settings');
+    fireEvent.click(settingsIcon);
+
+    const backdrop = screen.getByTestId('settings-backdrop');
+    fireEvent.click(backdrop);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('should show language selector in settings panel', () => {
+    render(
+      <LandingView
+        problemSets={mockProblemSets}
+        onSelect={() => {}}
+        isLoading={false}
+      />,
+      { wrapper: Wrapper }
+    );
+
+    const settingsIcon = screen.getByLabelText('Settings');
+    fireEvent.click(settingsIcon);
+
+    // Language selector should be in the settings panel
+    const languageButton = screen.getByRole('button', { name: /English|中文|语言|Language/i });
+    expect(languageButton).toBeInTheDocument();
   });
 });

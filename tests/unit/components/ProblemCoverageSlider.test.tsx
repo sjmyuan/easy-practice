@@ -9,7 +9,6 @@ describe('ProblemCoverageSlider', () => {
   const defaultProps = {
     value: 100,
     onChange: mockOnChange,
-    totalProblems: 20,
   };
 
   it('should render with default 100% value', () => {
@@ -20,47 +19,49 @@ describe('ProblemCoverageSlider', () => {
     );
 
     expect(screen.getByText(/Problem Coverage|问题覆盖率/)).toBeInTheDocument();
-    expect(screen.getByText(/100% \(20\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
+    const percentageDisplay = screen.getByText((content, element) => {
+      return Boolean(element?.className.includes('text-center') && content === '100%');
+    });
+    expect(percentageDisplay).toBeInTheDocument();
   });
 
-  it('should display correct percentage and problem count for 80%', () => {
+  it('should display correct percentage for 80%', () => {
     render(
       <LanguageProvider>
         <ProblemCoverageSlider {...defaultProps} value={80} />
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/80% \(16\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
+    const percentageDisplay = screen.getByText((content, element) => {
+      return Boolean(element?.className.includes('text-center') && content === '80%');
+    });
+    expect(percentageDisplay).toBeInTheDocument();
   });
 
-  it('should display correct percentage and problem count for 50%', () => {
+  it('should display correct percentage for 50%', () => {
     render(
       <LanguageProvider>
         <ProblemCoverageSlider {...defaultProps} value={50} />
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/50% \(10\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
+    const percentageDisplay = screen.getByText((content, element) => {
+      return Boolean(element?.className.includes('text-center') && content === '50%');
+    });
+    expect(percentageDisplay).toBeInTheDocument();
   });
 
-  it('should display correct percentage and problem count for 30%', () => {
+  it('should display correct percentage for 30%', () => {
     render(
       <LanguageProvider>
         <ProblemCoverageSlider {...defaultProps} value={30} />
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/30% \(6\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
-  });
-
-  it('should handle zero total problems', () => {
-    render(
-      <LanguageProvider>
-        <ProblemCoverageSlider {...defaultProps} totalProblems={0} />
-      </LanguageProvider>
-    );
-
-    expect(screen.getByText(/100% \(0\/0 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
+    const percentageDisplay = screen.getByText((content, element) => {
+      return Boolean(element?.className.includes('text-center') && content === '30%');
+    });
+    expect(percentageDisplay).toBeInTheDocument();
   });
 
   it('should call onChange when slider value changes', () => {
@@ -70,7 +71,6 @@ describe('ProblemCoverageSlider', () => {
         <ProblemCoverageSlider
           value={100}
           onChange={onChange}
-          totalProblems={20}
         />
       </LanguageProvider>
     );
@@ -160,7 +160,6 @@ describe('ProblemCoverageSlider', () => {
         <ProblemCoverageSlider
           value={100}
           onChange={onChange}
-          totalProblems={20}
         />
       </LanguageProvider>
     );
@@ -175,18 +174,6 @@ describe('ProblemCoverageSlider', () => {
 
     // Verify keyboard interaction triggers onChange
     expect(onChange).toHaveBeenCalledWith(80);
-  });
-
-  it('should round problem count correctly', () => {
-    // Test with odd number that creates decimal
-    render(
-      <LanguageProvider>
-        <ProblemCoverageSlider {...defaultProps} totalProblems={15} value={50} />
-      </LanguageProvider>
-    );
-
-    // 50% of 15 = 7.5, should round to 8
-    expect(screen.getByText(/50% \(8\/15 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
   });
 
   it('should have mobile-friendly styling', () => {

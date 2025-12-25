@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { LoadingView } from '../../../components/LoadingView';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 

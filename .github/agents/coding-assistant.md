@@ -8,10 +8,12 @@ model: Claude Sonnet 4.5 (copilot)
 The knowledge section contains information about the software project, including its purpose, architecture, technology stack, etc.
 
 <architecture>
- - App: Next.js (App Router) + React + TypeScript + Tailwind CSS
- - Styling: styled-components
+ - App: Next.js (App Router) + React + TypeScript
+ - Styling: Tailwind CSS 4+
+ - Data Storage: IndexedDB (via Dexie.js)
  - Tests: Vitest
  - Single Page Application
+ - Deployment: Static export (AWS S3 + CloudFront ready)
 </architecture>
 
 <coding-guidelines>
@@ -19,6 +21,8 @@ The knowledge section contains information about the software project, including
 - Favor TypeScript correctness: clear types, no `any` unless justified, and avoid unsafe casts.
 - Ensure changes include appropriate tests (or a clear rationale when tests are impractical).
 - Ensure the test file name matches the component file name being tested. For example, if the component file is `Component.tsx`, the test file should be named `Component.test.tsx`.
+- Prefere test data-testid attributes for selecting elements in tests. If not available, use roles or text content as fallbacks.
+- Split large components into smaller, reusable components where appropriate to improve readability and maintainability.
 </coding-guidelines>
 
 </knowledge>
@@ -59,7 +63,7 @@ The skills section describes additional capabilities that you can refer to, incl
   - **Verify Implementation**, Re-run the tests to confirm that the implemented code passes all test cases successfully. Debug and refine as necessary.  
   - **Refactor**, Improve the code’s structure, readability, and performance while maintaining functionality, ensuring no tests break during the process.  
   - **Validate Refactoring**, Run the tests again after refactoring to ensure the updated code still passes all test cases without introducing regressions.
-  - **Validate Linting and Formatting**, Run linting and formatting tools to ensure code quality and adherence to coding standards.
+  - **Validate Linting, Formatting and Type Checking**, Run linting, formatting and type checking tools to ensure code quality and adherence to coding standards.
 - Summarize the plan back to the user. for example:
   """
   To implement the requirement of [requirement summary], the plan is as follows:
@@ -69,14 +73,14 @@ The skills section describes additional capabilities that you can refer to, incl
   - Step 4: Verify Implementation for functionality A
   - Step 5: Refactor code related to functionality A
   - Step 6: Validate Refactoring for functionality A
-  - Step 7: Validate Linting and Formatting for functionality A
+  - Step 7: Validate Linting, Formatting and Type Checking for functionality A
   - Step 8: Write Focused Tests for functionality B
   - Step 9: Confirm Test Failure for functionality B
   - Step 10: Implement Minimal Code for functionality B
   - Step 11: Verify Implementation for functionality B
   - Step 12: Refactor code related to functionality B
   - Step 13: Validate Refactoring for functionality B
-  - Step 14: Validate Linting and Formatting for functionality B
+  - Step 14: Validate Linting, Formatting and Type Checking for functionality B
   - ...
 
 I will update the todo list to match this plan and proceed to implement the requirement step by step as outlined.
@@ -92,7 +96,10 @@ I will update the todo list to match this plan and proceed to implement the requ
   - **Confirm Test Failure**: Execute the tests to verify they fail initially, validating that the tests correctly identify the current code behavior before refactoring begins.
   - **Refactor Code**: Modify the minimum amount of code necessary to pass the tests while achieving the refactoring objective, avoiding over-engineering or introducing unrelated changes.
   - **Verify Refactor**: Re-run all tests to confirm the refactored code passes successfully. Debug and refine as necessary to ensure correctness.
-  - **Validate Linting and Formatting**: Run linting and formatting tools to ensure code quality and adherence to coding standards.
+  - **Clean Up Unused Code**: Remove any obsolete or redundant code that is no longer needed after the refactor.
+  - **Clean Up Tests**: Update or remove tests that are no longer relevant due to the refactor, ensuring the test suite remains accurate and effective.
+  - **Verify Cleanup**: Re-run all tests to ensure that the cleanup process has not introduced any regressions or issues.
+  - **Validate Linting, Formatting and Type Checking**: Run linting, formatting and type checking tools to ensure code quality and adherence to coding standards.
 - Summarize the complete plan to the user. For example:
   """
   To complete the refactoring request of [refactor request summary], the plan is as follows:
@@ -100,12 +107,18 @@ I will update the todo list to match this plan and proceed to implement the requ
   - Step 2: Confirm Test Failure for refactor objective A
   - Step 3: Refactor Code for refactor objective A
   - Step 4: Verify Refactor for refactor objective A
-  - Step 5: Validate Linting and Formatting for refactor objective A
-  - Step 6: Write Focused Tests for refactor objective B
-  - Step 7: Confirm Test Failure for refactor objective B
-  - Step 8: Refactor Code for refactor objective B
-  - Step 9: Verify Refactor for refactor objective B
-  - Step 10: Validate Linting and Formatting for refactor objective B
+  - Step 5: Clean Up Unused Code for refactor objective A
+  - Step 6: Clean Up Tests for refactor objective A
+  - Step 7: Verify Cleanup for refactor objective A
+  - Step 8: Validate Linting, Formatting and Type Checking for refactor objective A
+  - Step 9: Write Focused Tests for refactor objective B
+  - Step 10: Confirm Test Failure for refactor objective B
+  - Step 11: Refactor Code for refactor objective B
+  - Step 12: Verify Refactor for refactor objective B
+  - Step 13: Clean Up Unused Code for refactor objective B
+  - Step 14: Clean Up Tests for refactor objective B
+  - Step 15: Verify Cleanup for refactor objective B
+  - Step 16: Validate Linting, Formatting and Type Checking for refactor objective B
   - ... 
   
   I will update the todo list to match this plan and proceed to refactor the code step by step as outlined.
@@ -120,7 +133,7 @@ I will update the todo list to match this plan and proceed to implement the requ
   - **Confirm Test Failure**: Execute the tests to verify they fail initially, validating that the tests correctly identify the current code behavior before fixing begins.
   - **Fix Code**: Modify the minimum amount of code necessary to pass the tests while addressing the bug, avoiding over-engineering or introducing unrelated changes.
   - **Verify Fix**: Re-run all tests to confirm the fix works successfully. Debug and refine as necessary to ensure correctness.
-  - **Validate Linting and Formatting**: Run linting and formatting tools to ensure code quality and adherence to coding standards.
+  - **Validate Linting, Formatting and Type Checking**: Run linting, formatting and type checking tools to ensure code quality and adherence to coding standards.
 - Summarize the complete plan to the user. For example:
   """
   To fix the bug of [bug summary], the plan is as follows:
@@ -128,12 +141,12 @@ I will update the todo list to match this plan and proceed to implement the requ
   - Step 2: Confirm Test Failure for issue A
   - Step 3: Fix Code for issue A
   - Step 4: Verify Fix for issue A
-  - Step 5: Validate Linting and Formatting for issue A
+  - Step 5: Validate Linting, Formatting and Type Checking for issue A
   - Step 6: Write Focused Tests for issue B
   - Step 7: Confirm Test Failure for issue B
   - Step 8: Fix Code for issue B
   - Step 9: Verify Fix for issue B
-  - Step 10: Validate Linting and Formatting for issue B
+  - Step 10: Validate Linting, Formatting and Type Checking for issue B
   - ...
   I will update the todo list to match this plan and proceed to fix the bug step by step as outlined.
   """
@@ -160,10 +173,6 @@ The rules section outlines decision criteria that determine which skills to appl
 
 <rule> **DO NOT MODIFY THE TODO LIST AFTER CREATING IT** </rule>
 
-<rule> After modifying the test code, run the test. </rule>
-<rule> After modifying the implementation code, run the test. </rule>
-
-<rule> For multi-step changes, tests may be run after completing each logical unit rather than after every individual modification. </rule>
 <rule> Think aloud and explain your approach before making any code changes. </rule>
 <rule> When run a command in terminal, redirect stdout and stderr to the file output.log, then read the file to get the output. </rule>
 </rules>

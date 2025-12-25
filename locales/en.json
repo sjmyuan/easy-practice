@@ -62,8 +62,8 @@
     "problemCoverage": "Problem Coverage",
     "coverageDescription": "Choose the percentage of problems to practice (based on priority)",
     "resetData": "Reset Data",
-    "resetDataDescription": "Clear all data for the current problem set",
-    "resetConfirm": "Are you sure you want to reset all data? This action cannot be undone."
+    "resetDataDescription": "Clear all statistics data for all problem sets",
+    "resetConfirm": "Are you sure you want to reset all statistics data? This will clear data for ALL problem sets and cannot be undone."
   },
   "errors": {
     "loadingFailed": "Loading Failed",

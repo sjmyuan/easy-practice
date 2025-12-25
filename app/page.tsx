@@ -12,8 +12,7 @@ import { SummaryView } from '@/components/SummaryView';
 import { SettingsIcon } from '@/components/SettingsIcon';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { ChevronLeft } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { db } from '@/lib/db';
+import { useState } from 'react';
 import type { LocalizedContent } from '@/types';
 
 /**
@@ -31,39 +30,7 @@ function getLocalizedText(
 export default function Home() {
   const { state, actions } = useApp();
   const { language } = useLanguage();
-  const [totalProblems, setTotalProblems] = useState(20); // Default fallback
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  // Get total problem count for selected problem set
-  useEffect(() => {
-    const loadProblemCount = async () => {
-      if (!state.selectedProblemSetKey) return;
-
-      const problemSets = await db.problemSets
-        .where('problemSetKey')
-        .equals(state.selectedProblemSetKey)
-        .and((ps) => ps.enabled)
-        .toArray();
-
-      if (problemSets.length === 0) {
-        setTotalProblems(0);
-        return;
-      }
-
-      const problemSetIds = problemSets
-        .map((ps) => ps.id)
-        .filter((id): id is string => id !== undefined);
-
-      const count = await db.problems
-        .where('problemSetId')
-        .anyOf(problemSetIds)
-        .count();
-
-      setTotalProblems(count);
-    };
-
-    loadProblemCount();
-  }, [state.selectedProblemSetKey]);
 
   const handleChangeProblemSet = () => {
     // Clear session and return to landing
@@ -172,7 +139,6 @@ export default function Home() {
         onClose={() => setIsSettingsOpen(false)}
         problemCoverage={state.problemCoverage}
         onProblemCoverageChange={actions.setProblemCoverage}
-        totalProblems={totalProblems}
         onResetData={actions.resetAllData}
         selectedProblemSetKey={state.selectedProblemSetKey}
       />

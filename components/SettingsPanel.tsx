@@ -4,6 +4,7 @@
 import { X } from 'lucide-react';
 import { ProblemCoverageSlider } from './ProblemCoverageSlider';
 import { ResetDataButton } from './ResetDataButton';
+import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SettingsPanelProps {
@@ -11,7 +12,6 @@ interface SettingsPanelProps {
   onClose: () => void;
   problemCoverage: number;
   onProblemCoverageChange: (coverage: number) => void;
-  totalProblems: number;
   onResetData: () => void;
   selectedProblemSetKey?: string;
 }
@@ -21,7 +21,6 @@ export function SettingsPanel({
   onClose,
   problemCoverage,
   onProblemCoverageChange,
-  totalProblems,
   onResetData,
   selectedProblemSetKey,
 }: SettingsPanelProps) {
@@ -64,12 +63,19 @@ export function SettingsPanel({
 
           {/* Content */}
           <div className="flex-1 space-y-6 overflow-y-auto">
+            {/* Language Selector */}
+            <div>
+              <label className="mb-3 block text-lg font-medium text-gray-700">
+                {t('settings.language')}
+              </label>
+              <LanguageSelector />
+            </div>
+
             {/* Problem Coverage Slider */}
             <div>
               <ProblemCoverageSlider
                 value={problemCoverage}
                 onChange={onProblemCoverageChange}
-                totalProblems={totalProblems}
               />
             </div>
 

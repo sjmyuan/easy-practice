@@ -83,7 +83,25 @@ export interface AppContextValue {
   actions: AppActions;
 }
 
+const PROBLEM_COVERAGE_KEY = 'problemCoverage';
+
 const AppContext = createContext<AppContextValue | undefined>(undefined);
+
+// Load problem coverage from localStorage
+function loadProblemCoverageFromStorage(): number {
+  try {
+    const stored = localStorage.getItem(PROBLEM_COVERAGE_KEY);
+    if (stored) {
+      const parsed = parseInt(stored, 10);
+      if ([30, 50, 80, 100].includes(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load problem coverage from localStorage:', error);
+  }
+  return 100; // Default
+}
 
 const initialState: AppState = {
   currentProblem: null,
@@ -103,11 +121,15 @@ const initialState: AppState = {
   struggledProblems: [],
   isInitialized: false,
   initializationError: null,
-  problemCoverage: 100,
+  problemCoverage: 100, // Default, will be overridden in AppProvider
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AppState>(initialState);
+  // Initialize state with localStorage value
+  const [state, setState] = useState<AppState>(() => ({
+    ...initialState,
+    problemCoverage: loadProblemCoverageFromStorage(),
+  }));
   const stateRef = useRef<AppState>(state);
 
   // Keep ref in sync with state
@@ -318,6 +340,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setProblemCoverage = useCallback((coverage: number) => {
+    // Save to localStorage
+    try {
+      localStorage.setItem(PROBLEM_COVERAGE_KEY, coverage.toString());
+    } catch (error) {
+      console.error('Failed to save problem coverage to localStorage:', error);
+    }
     setState((prev) => ({ ...prev, problemCoverage: coverage }));
   }, []);
 
@@ -386,7 +414,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           sessionDuration: null,
           sessionPassCount: 0,
           sessionFailCount: 0,
-          problemCoverage: 100, // Reset to default
         }));
         return;
       }
@@ -410,7 +437,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionDuration: null, // Reset duration for new session
         sessionPassCount: 0, // Reset counts for new session
         sessionFailCount: 0,
-        problemCoverage: 100, // Reset to default after starting session
       }));
     } catch (error) {
       console.error('Failed to start new session:', error);
@@ -445,14 +471,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const resetAllData = useCallback(async () => {
     try {
       setLoading(true);
-      const { selectedProblemSetId } = stateRef.current;
 
-      // Reset statistics only for the currently selected problem set
-      if (selectedProblemSetId) {
-        await databaseService.resetStatisticsByProblemSetId(
-          selectedProblemSetId
-        );
-      }
+      // Reset statistics for ALL problem sets globally
+      await databaseService.resetStatistics();
+
       // Only clear the struggled problems cache, preserve UI state
       setState((prev) => ({
         ...prev,

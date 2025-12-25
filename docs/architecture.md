@@ -152,17 +152,20 @@
   - No user-facing functionality changes
   - All existing features preserved (settings, summary, sessions, etc.)
 
-### Settings Panel (December 20, 2025)
+### Global Settings Panel (December 31, 2025)
 
-- **New Settings Panel Feature**:
-  - Added settings icon (gear icon from Lucide React) in top-right corner of practice page header
-  - Settings icon only visible when `isSessionActive === false` (pre-session and post-session states)
-  - Clicking icon opens a centered modal dialog overlay with smooth fade-in and scale animations
+- **Refactored to Global Settings**:
+  - Settings panel is now global (not problem-set-specific)
+  - Available in both LandingView and PreSessionView
+  - Language selector moved from landing page into settings panel
+  - Problem coverage stored in localStorage (persists across sessions)
+  - Reset data now resets ALL statistics globally (not per problem set)
 - **Settings Panel Components**:
   - **SettingsIcon** (`components/SettingsIcon.tsx`):
     - Gear icon button with hover effects (scale-110, color change to blue-600)
     - ARIA label: "Settings"
-    - Positioned absolutely in top-right corner opposite back button
+    - Positioned absolutely in top-right corner
+    - Minimum height of 48px for accessibility compliance
   - **SettingsPanel** (`components/SettingsPanel.tsx`):
     - Centered modal dialog with backdrop overlay
     - Positioning: `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2` (centered)
@@ -174,48 +177,69 @@
     - Modal content (z-50) with white background and shadow
     - Fade-in with scale animation: `opacity-100 scale-100`
     - Close button (X icon) in modal header
-    - Contains Problem Coverage Slider and Reset Data Button
+    - Contains:
+      - Language selector (English/中文)
+      - Problem Coverage Slider (percentage-only: 30%, 50%, 80%, 100%)
+      - Reset Data Button (resets ALL statistics)
     - Smooth transition animations using `transition-all duration-300`
-- **UI Reorganization**:
-  - Removed Problem Coverage Slider from main practice page view
-  - Removed Reset Data Button from main practice page view
-  - These controls now only accessible via settings modal
-  - Main view now shows only Start Session and View Summary buttons
-- **Layout Structure**:
-  - Practice page header uses relative positioning container
-  - Back button (left-0) and settings icon (right-0) positioned absolutely
-  - Title centered between them using flexbox
-  - Settings icon hidden during active sessions to prevent accidental configuration changes
+  - **LanguageSelector** (`components/LanguageSelector.tsx`):
+    - Moved from landing page into settings panel
+    - Toggle button with flag icons (🇨🇳 for Chinese, 🇺🇸 for English)
+    - Full keyboard accessibility with proper ARIA labels
+  - **ProblemCoverageSlider** (`components/ProblemCoverageSlider.tsx`):
+    - Simplified to show only percentage (30%, 50%, 80%, 100%)
+    - Removed problem count display (different problem sets have different totals)
+    - No longer requires `totalProblems` prop
 - **State Management**:
-  - Local state `isSettingsOpen` in practice page controls modal visibility
-  - Modal closes when:
-    - User clicks backdrop overlay
-    - User clicks close button (X) in modal header
-    - Component unmounts
+  - Local state `isSettingsOpen` in landing/pre-session views controls modal visibility
+  - Problem coverage stored in localStorage with key `problem-coverage`
+  - AppContext loads initial problem coverage from localStorage on initialization
+  - Coverage changes saved to localStorage immediately via `setProblemCoverage()`
+  - Coverage no longer resets to 100 after session starts (persists across sessions)
+  - Reset data calls `databaseService.resetStatistics()` globally (not per problem set)
+- **UI Reorganization**:
+  - Language selector removed from landing page header
+  - Language selector now inside settings panel
+  - Settings icon added to landing page (top-right corner)
+  - Problem coverage slider no longer shows problem count
+- **Layout Structure**:
+  - Landing page and pre-session view use relative positioning container
+  - Settings icon positioned absolutely in top-right corner (right-0)
+  - Settings icon visible in both landing and pre-session views (not during active sessions)
 - **Accessibility**:
-  - Settings icon: ARIA label "Settings"
+  - Settings icon: ARIA label "Settings", minimum height 48px
   - Settings modal: role="dialog", aria-labelledby="settings-title"
   - Close button: ARIA label "Close settings"
   - Full keyboard navigation support
   - Modal pattern provides better focus management
+- **Translation Updates**:
+  - English: `settings.resetDataDescription` → "Clear all statistics data for all problem sets"
+  - English: `settings.resetConfirm` → "Are you sure you want to reset all statistics data? This will clear data for ALL problem sets and cannot be undone."
+  - Chinese: `settings.resetDataDescription` → "清除所有练习集的统计数据"
+  - Chinese: `settings.resetConfirm` → "确定要重置所有统计数据吗？这将清除所有练习集的数据，且此操作无法撤销。"
 - **Testing**:
-  - 5 tests for SettingsIcon component
-  - 17 tests for SettingsPanel component (updated for centered modal layout)
-  - 10 integration tests for practice page with settings
-  - Updated tests to verify centered positioning, max-width constraint, fade-in scale animation, and full-screen mobile behavior
-  - All 368 tests passing
+  - 5 tests for SettingsIcon component (including 48px minimum height)
+  - 17 tests for SettingsPanel component (updated for global settings)
+  - 11 tests for LandingView component (including settings panel integration)
+  - Updated AppContext tests for global reset and localStorage persistence
+  - Updated ProblemCoverageSlider tests (removed problem count assertions)
+  - All 364 tests passing
 - **Components Modified**:
-  - `components/SettingsIcon.tsx` (no changes)
-  - `components/SettingsPanel.tsx` (refactored from side panel to centered modal)
-  - `app/practice/page.tsx` (no changes to integration)
-  - `tests/unit/components/SettingsPanel.test.tsx` (updated for modal layout)
+  - `components/SettingsIcon.tsx` (added min-h-[48px] for accessibility)
+  - `components/SettingsPanel.tsx` (added LanguageSelector, removed totalProblems prop)
+  - `components/LandingView.tsx` (added SettingsIcon and SettingsPanel)
+  - `components/ProblemCoverageSlider.tsx` (removed problem count display)
+  - `contexts/AppContext.tsx` (localStorage persistence, global reset)
+  - `app/page.tsx` (removed totalProblems state)
+  - `locales/en.json` (updated reset confirmation messages)
+  - `locales/zh.json` (updated reset confirmation messages)
 - **Impact**:
-  - Cleaner main interface with focus on core practice workflow
-  - Settings easily accessible via standard UI pattern
-  - Improved visual hierarchy and reduced cognitive load
-  - Better mobile experience with full-screen modal
-  - Enhanced accessibility with modal dialog pattern
-  - No functional changes - all features retained, just repositioned
+  - Unified settings experience across all views
+  - Language accessible from landing page (no need to select problem set first)
+  - Problem coverage persists across sessions (respects user preference)
+  - Reset data clearly global (affects ALL problem sets)
+  - Simplified problem coverage display (percentage works for all problem set sizes)
+  - Better accessibility with settings available earlier in user journey
 
 ### Back Navigation Icon (December 20, 2025)
 

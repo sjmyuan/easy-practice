@@ -1,8 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 import { ProblemSetSelector } from '@/components/ProblemSetSelector';
-import LanguageSelector from '@/components/LanguageSelector';
+import { SettingsIcon } from '@/components/SettingsIcon';
+import { SettingsPanel } from '@/components/SettingsPanel';
+import { useApp } from '@/contexts';
 import type { ProblemSet } from '@/types';
 
 interface LandingViewProps {
@@ -16,12 +19,15 @@ export function LandingView({
   onSelect,
   isLoading,
 }: LandingViewProps) {
+  const { state, actions } = useApp();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">
       <div className="relative w-full max-w-2xl space-y-8 rounded-3xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
-        {/* Language Selector in top-right corner */}
+        {/* Settings Icon in top-right corner */}
         <div className="absolute top-4 right-4">
-          <LanguageSelector />
+          <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
         </div>
 
         <div className="flex flex-col items-center gap-4">
@@ -47,6 +53,14 @@ export function LandingView({
           disabled={isLoading}
         />
       </div>
+
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        problemCoverage={state.problemCoverage}
+        onProblemCoverageChange={actions.setProblemCoverage}
+        onResetData={actions.resetAllData}
+      />
     </main>
   );
 }
