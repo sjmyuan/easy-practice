@@ -8,7 +8,7 @@ model: Claude Sonnet 4.5 (copilot)
 The knowledge section contains information about the software project, including its purpose, architecture, technology stack, etc.
 
 <architecture>
- - App: Next.js (App Router) + React + TypeScript
+ - App: Next.js (App Router) + React + TypeScript + Tailwind CSS
  - Styling: styled-components
  - Tests: Vitest
  - Single Page Application
