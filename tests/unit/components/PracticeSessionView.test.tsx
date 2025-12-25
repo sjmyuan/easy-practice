@@ -13,8 +13,12 @@ const mockProblem: Problem = {
 };
 
 describe('PracticeSessionView', () => {
+  const renderWithProvider = (ui: React.ReactElement) => {
+    return render(<LanguageProvider>{ui}</LanguageProvider>);
+  };
+
   it('should render session timer when session is active', () => {
-    render(
+    renderWithProvider(
       <PracticeSessionView
         sessionStartTime={Date.now()}
         isSessionActive={true}
@@ -32,7 +36,7 @@ describe('PracticeSessionView', () => {
   });
 
   it('should render progress indicator', () => {
-    render(
+    renderWithProvider(
       <PracticeSessionView
         sessionStartTime={Date.now()}
         isSessionActive={true}
@@ -51,7 +55,7 @@ describe('PracticeSessionView', () => {
   });
 
   it('should render problem display', () => {
-    render(
+    renderWithProvider(
       <PracticeSessionView
         sessionStartTime={Date.now()}
         isSessionActive={true}
@@ -68,7 +72,7 @@ describe('PracticeSessionView', () => {
   });
 
   it('should render answer buttons when problem exists', () => {
-    render(
+    renderWithProvider(
       <PracticeSessionView
         sessionStartTime={Date.now()}
         isSessionActive={true}
@@ -90,7 +94,7 @@ describe('PracticeSessionView', () => {
   });
 
   it('should not render answer buttons when no problem exists', () => {
-    render(
+    renderWithProvider(
       <PracticeSessionView
         sessionStartTime={Date.now()}
         isSessionActive={true}
@@ -113,7 +117,7 @@ describe('PracticeSessionView', () => {
 
   it('should call onPass when pass button is clicked', () => {
     const onPass = vi.fn();
-    render(
+    renderWithProvider(
       <PracticeSessionView
         sessionStartTime={Date.now()}
         isSessionActive={true}
@@ -134,7 +138,7 @@ describe('PracticeSessionView', () => {
 
   it('should call onFail when fail button is clicked', () => {
     const onFail = vi.fn();
-    render(
+    renderWithProvider(
       <PracticeSessionView
         sessionStartTime={Date.now()}
         isSessionActive={true}

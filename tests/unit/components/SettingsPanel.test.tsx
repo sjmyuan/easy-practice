@@ -63,7 +63,11 @@ describe('SettingsPanel', () => {
   });
 
   it('should render centered modal with max-width and animation classes', () => {
-    const { container } = render(<SettingsPanel {...defaultProps} />);
+    const { container } = render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
     const panel = container.querySelector('[role="dialog"]');
 
     // Check for centered positioning
@@ -81,7 +85,11 @@ describe('SettingsPanel', () => {
   });
 
   it('should render close button', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
     const closeButton = screen.getByRole('button', { name: /close settings/i });
     expect(closeButton).toBeInTheDocument();
@@ -91,7 +99,11 @@ describe('SettingsPanel', () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
 
-    render(<SettingsPanel {...defaultProps} onClose={onClose} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} onClose={onClose} />
+      </LanguageProvider>
+    );
 
     const closeButton = screen.getByRole('button', { name: /close settings/i });
     await user.click(closeButton);
@@ -100,13 +112,21 @@ describe('SettingsPanel', () => {
   });
 
   it('should render ProblemCoverageSlider', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
     expect(screen.getByLabelText(/problem coverage/i)).toBeInTheDocument();
   });
 
   it('should render ResetDataButton', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
     expect(
       screen.getByRole('button', { name: /reset data/i })
@@ -114,7 +134,11 @@ describe('SettingsPanel', () => {
   });
 
   it('should pass problemCoverage to ProblemCoverageSlider', () => {
-    render(<SettingsPanel {...defaultProps} problemCoverage={80} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} problemCoverage={80} />
+      </LanguageProvider>
+    );
 
     const slider = screen.getByRole('slider');
     // Slider uses steps 0-3 for values 30, 50, 80, 100
@@ -126,10 +150,12 @@ describe('SettingsPanel', () => {
     const onProblemCoverageChange = vi.fn();
 
     render(
-      <SettingsPanel
-        {...defaultProps}
-        onProblemCoverageChange={onProblemCoverageChange}
-      />
+      <LanguageProvider>
+        <SettingsPanel
+          {...defaultProps}
+          onProblemCoverageChange={onProblemCoverageChange}
+        />
+      </LanguageProvider>
     );
 
     const slider = screen.getByRole('slider');
@@ -145,7 +171,11 @@ describe('SettingsPanel', () => {
     // Mock window.confirm to return true
     vi.spyOn(window, 'confirm').mockReturnValue(true);
 
-    render(<SettingsPanel {...defaultProps} onResetData={onResetData} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} onResetData={onResetData} />
+      </LanguageProvider>
+    );
 
     const resetButton = screen.getByRole('button', { name: /reset data/i });
     await user.click(resetButton);
@@ -156,23 +186,35 @@ describe('SettingsPanel', () => {
   });
 
   it('should have proper ARIA attributes for accessibility', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-labelledby', 'settings-title');
   });
 
   it('should render settings title', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
-    expect(screen.getByText('Settings')).toBeInTheDocument();
+    expect(screen.getByText(/(Settings|设置)/)).toBeInTheDocument();
   });
 
   it('should not call onClose when clicking inside the panel', async () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
 
-    render(<SettingsPanel {...defaultProps} onClose={onClose} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} onClose={onClose} />
+      </LanguageProvider>
+    );
 
     const panel = screen.getByRole('dialog');
     await user.click(panel);
@@ -181,7 +223,11 @@ describe('SettingsPanel', () => {
   });
 
   it('should render full-screen on mobile devices', () => {
-    const { container } = render(<SettingsPanel {...defaultProps} />);
+    const { container } = render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
     const panel = container.querySelector('[role="dialog"]');
 
     // Check for full-screen classes on mobile (sm breakpoint)
@@ -190,7 +236,11 @@ describe('SettingsPanel', () => {
   });
 
   it('should have fade-in backdrop animation', () => {
-    render(<SettingsPanel {...defaultProps} />);
+    render(
+      <LanguageProvider>
+        <SettingsPanel {...defaultProps} />
+      </LanguageProvider>
+    );
 
     const backdrop = screen.getByTestId('settings-backdrop');
     expect(backdrop).toHaveClass('opacity-100');

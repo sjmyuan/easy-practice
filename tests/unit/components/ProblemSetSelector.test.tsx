@@ -42,7 +42,7 @@ describe('ProblemSetSelector', () => {
         </LanguageProvider>
       );
 
-      expect(screen.getByText(/Choose a Problem Set|选择题集/)).toBeInTheDocument();
+      expect(screen.getByText(/Choose a Problem Set|选择练习集/)).toBeInTheDocument();
     });
 
     it('should render all enabled problem sets', () => {
@@ -52,8 +52,9 @@ describe('ProblemSetSelector', () => {
         </LanguageProvider>
       );
 
-      expect(screen.getByText('Addition within 20')).toBeInTheDocument();
-      expect(screen.getByText('Subtraction within 20')).toBeInTheDocument();
+      // Check for translated names
+      expect(screen.getByText(/Addition within 20|20以内加法/)).toBeInTheDocument();
+      expect(screen.getByText(/Subtraction within 20|20以内减法/)).toBeInTheDocument();
     });
 
     it('should not render disabled problem sets', () => {
@@ -73,11 +74,12 @@ describe('ProblemSetSelector', () => {
         </LanguageProvider>
       );
 
+      // Check for translated descriptions
       expect(
-        screen.getByText('Practice addition with sums up to 20')
+        screen.getByText(/Practice addition (with sums up to 20|problems from 0 to 20)|练习0-20范围内的加法/i)
       ).toBeInTheDocument();
       expect(
-        screen.getByText('Practice subtraction with results up to 20')
+        screen.getByText(/Practice subtraction (with results up to 20|problems from 0 to 20)|练习0-20范围内的减法/i)
       ).toBeInTheDocument();
     });
 
@@ -88,7 +90,7 @@ describe('ProblemSetSelector', () => {
         </LanguageProvider>
       );
 
-      expect(screen.getByText(/No problem sets available|没有可用的题集/)).toBeInTheDocument();
+      expect(screen.getByText(/No problem sets available|没有可用的练习集/)).toBeInTheDocument();
     });
 
     it('should render empty state when all problem sets are disabled', () => {
@@ -103,7 +105,7 @@ describe('ProblemSetSelector', () => {
         </LanguageProvider>
       );
 
-      expect(screen.getByText(/No problem sets available|没有可用的题集/)).toBeInTheDocument();
+      expect(screen.getByText(/No problem sets available|没有可用的练习集/)).toBeInTheDocument();
     });
   });
 
@@ -119,7 +121,7 @@ describe('ProblemSetSelector', () => {
       );
 
       const additionButton = screen.getByRole('button', {
-        name: /Addition within 20/i,
+        name: /(Addition within 20|20以内加法)/i,
       });
       await user.click(additionButton);
 
@@ -138,7 +140,7 @@ describe('ProblemSetSelector', () => {
       );
 
       const subtractionButton = screen.getByRole('button', {
-        name: /Subtraction within 20/i,
+        name: /(Subtraction within 20|20以内减法)/i,
       });
       await user.click(subtractionButton);
 
@@ -160,7 +162,7 @@ describe('ProblemSetSelector', () => {
       );
 
       const additionButton = screen.getByRole('button', {
-        name: /Addition within 20/i,
+        name: /(Addition within 20|20以内加法)/i,
       });
       await user.click(additionButton);
 
@@ -191,10 +193,10 @@ describe('ProblemSetSelector', () => {
       );
 
       const additionButton = screen.getByRole('button', {
-        name: /Addition within 20/i,
+        name: /(Addition within 20|20以内加法)/i,
       });
       const subtractionButton = screen.getByRole('button', {
-        name: /Subtraction within 20/i,
+        name: /(Subtraction within 20|20以内减法)/i,
       });
 
       expect(additionButton).toBeInTheDocument();
@@ -273,7 +275,14 @@ describe('ProblemSetSelector', () => {
         const heading = btn.querySelector('h3');
         return heading ? heading.textContent?.trim() : '';
       });
-      expect(names).toEqual(['apple', 'Banana', 'zebra']);
+      // Since translation keys are rendered, expect the localized translations
+      // which depend on the LanguageProvider's default language
+      expect(names.length).toBe(3);
+      // Verify they are sorted (exact values depend on current language)
+      const sorted = [...names].sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: 'base' })
+      );
+      expect(names).toEqual(sorted);
     });
     it('should handle problem sets without descriptions', () => {
       const setsWithoutDesc: ProblemSet[] = [
@@ -292,7 +301,7 @@ describe('ProblemSetSelector', () => {
         </LanguageProvider>
       );
 
-      expect(screen.getByText('Addition within 20')).toBeInTheDocument();
+      expect(screen.getByText(/(Addition within 20|20以内加法)/)).toBeInTheDocument();
     });
 
     it('should handle single problem set', () => {
@@ -304,9 +313,9 @@ describe('ProblemSetSelector', () => {
         </LanguageProvider>
       );
 
-      expect(screen.getByText('Addition within 20')).toBeInTheDocument();
+      expect(screen.getByText(/(Addition within 20|20以内加法)/)).toBeInTheDocument();
       expect(
-        screen.queryByText('Subtraction within 20')
+        screen.queryByText(/(Subtraction within 20|20以内减法)/)
       ).not.toBeInTheDocument();
     });
 
@@ -321,7 +330,7 @@ describe('ProblemSetSelector', () => {
       );
 
       const additionButton = screen.getByRole('button', {
-        name: /Addition within 20/i,
+        name: /(Addition within 20|20以内加法)/i,
       });
 
       await user.click(additionButton);

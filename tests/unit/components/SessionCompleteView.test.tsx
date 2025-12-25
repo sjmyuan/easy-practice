@@ -37,7 +37,7 @@ describe('SessionCompleteView', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/duration:|用时：/i)).toBeInTheDocument();
+    expect(screen.getByText(/(Duration|用时):/i)).toBeInTheDocument();
   });
 
   it('should render pass count', () => {
@@ -74,7 +74,7 @@ describe('SessionCompleteView', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/Failed|未通过/)).toBeInTheDocument();
+    expect(screen.getByText(/(Failed|失败)/)).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
   });
 

@@ -21,8 +21,9 @@ let mockState: {
   initializationError: string | null;
   availableProblemSets: Array<{
     id: string;
-    name: string;
-    description: string;
+    name: string | { en: string; zh: string };
+    description?: string | { en: string; zh: string };
+    problemSetKey: string;
     type: string;
     enabled: boolean;
     createdAt: number;
@@ -35,16 +36,18 @@ let mockState: {
   availableProblemSets: [
     {
       id: 'set-1',
-      name: 'Addition within 20',
-      description: 'Practice addition',
+      name: { en: 'Addition within 20', zh: '20以内加法' },
+      description: { en: 'Practice addition', zh: '练习加法' },
+      problemSetKey: 'addition-within-20',
       type: 'addition',
       enabled: true,
       createdAt: Date.now(),
     },
     {
       id: 'set-2',
-      name: 'Subtraction within 20',
-      description: 'Practice subtraction',
+      name: { en: 'Subtraction within 20', zh: '20以内减法' },
+      description: { en: 'Practice subtraction', zh: '练习减法' },
+      problemSetKey: 'subtraction-within-20',
       type: 'subtraction',
       enabled: true,
       createdAt: Date.now(),
@@ -55,13 +58,15 @@ let mockState: {
 
 // Mock the context
 vi.mock('@/contexts', () => ({
-  useApp: () => ({
-    state: mockState,
-    actions: {
-      initializeApp: mockInitializeApp,
-      selectProblemSet: mockSelectProblemSet,
-    },
-  }),
+  useApp: () => {
+    return {
+      state: mockState,
+      actions: {
+        initializeApp: mockInitializeApp,
+        selectProblemSet: mockSelectProblemSet,
+      },
+    };
+  },
 }));
 
 // Mock Next.js navigation
@@ -76,30 +81,33 @@ vi.mock('next/navigation', () => ({
 describe('Home Page (Landing)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockState = {
+    // Mutate the existing object instead of reassigning
+    Object.assign(mockState, {
       isLoading: false,
       isInitialized: true,
       initializationError: null,
       availableProblemSets: [
         {
           id: 'set-1',
-          name: 'Addition within 20',
-          description: 'Practice addition',
+          name: { en: 'Addition within 20', zh: '20以内加法' },
+          description: { en: 'Practice addition', zh: '练习加法' },
+          problemSetKey: 'addition-within-20',
           type: 'addition',
           enabled: true,
           createdAt: Date.now(),
         },
         {
           id: 'set-2',
-          name: 'Subtraction within 20',
-          description: 'Practice subtraction',
+          name: { en: 'Subtraction within 20', zh: '20以内减法' },
+          description: { en: 'Practice subtraction', zh: '练习减法' },
+          problemSetKey: 'subtraction-within-20',
           type: 'subtraction',
           enabled: true,
           createdAt: Date.now(),
         },
       ],
       selectedProblemSetId: null,
-    };
+    });
   });
 
   it('should render the main page with problem generator', () => {
@@ -111,9 +119,9 @@ describe('Home Page (Landing)', () => {
   it('should display problem set selector', () => {
     render(<Home />, { wrapper: Wrapper });
 
-    expect(screen.getByText(/choose a problem set/i)).toBeInTheDocument();
-    expect(screen.getByText('Addition within 20')).toBeInTheDocument();
-    expect(screen.getByText('Subtraction within 20')).toBeInTheDocument();
+    expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
+    expect(screen.getByTestId('problem-set-button-addition-within-20')).toBeInTheDocument();
+    expect(screen.getByTestId('problem-set-button-subtraction-within-20')).toBeInTheDocument();
   });
 
   it('should show practice view when problem set is selected', async () => {
@@ -124,9 +132,7 @@ describe('Home Page (Landing)', () => {
 
     const { rerender } = render(<Home />, { wrapper: Wrapper });
 
-    const additionButton = screen.getByRole('button', {
-      name: /addition within 20/i,
-    });
+    const additionButton = screen.getByTestId('problem-set-button-addition-within-20');
 
     // Mock the state change that would happen after selection
     mockSelectProblemSet.mockImplementation((id: string) => {
@@ -145,7 +151,7 @@ describe('Home Page (Landing)', () => {
     // Should show practice view
     await waitFor(() => {
       expect(
-        screen.getByRole('button', { name: /start new session/i })
+        screen.getByRole('button', { name: /(start new session|开始新练习)/i })
       ).toBeInTheDocument();
     });
   });
@@ -156,7 +162,7 @@ describe('Home Page (Landing)', () => {
     render(<Home />, { wrapper: Wrapper });
 
     // Should show problem set selector, not problem display
-    expect(screen.getByText(/choose a problem set/i)).toBeInTheDocument();
+    expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
     expect(screen.queryByText('5 + 3')).not.toBeInTheDocument();
   });
 
@@ -165,7 +171,7 @@ describe('Home Page (Landing)', () => {
     // Landing page shows problem set selection, not session controls
     render(<Home />, { wrapper: Wrapper });
 
-    expect(screen.getByText(/choose a problem set/i)).toBeInTheDocument();
+    expect(screen.getByTestId('problem-set-selector-title')).toBeInTheDocument();
   });
 
   it('should be responsive on mobile viewports', () => {
@@ -195,7 +201,7 @@ describe('Home Page (Landing)', () => {
 
     render(<Home />, { wrapper: Wrapper });
 
-    expect(screen.getByText(/error: failed to load/i)).toBeInTheDocument();
+    expect(screen.getByText(/(Failed to load|加载失败)/i)).toBeInTheDocument();
   });
 
   it('Issue B: Error handling during initialization > should call initializeApp when retry button is clicked', () => {
@@ -204,7 +210,7 @@ describe('Home Page (Landing)', () => {
 
     render(<Home />, { wrapper: Wrapper });
 
-    const retryButton = screen.getByText(/retry/i);
+    const retryButton = screen.getByText(/(Retry|重试)/i);
     retryButton.click();
 
     expect(mockInitializeApp).toHaveBeenCalled();
@@ -216,6 +222,6 @@ describe('Home Page (Landing)', () => {
 
     render(<Home />, { wrapper: Wrapper });
 
-    expect(screen.getByText(/loading\.\.\./i)).toBeInTheDocument();
+    expect(screen.getByText(/(Loading\.\.\.|加载中\.\.\.)/i)).toBeInTheDocument();
   });
 });

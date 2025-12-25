@@ -9,16 +9,20 @@ import type {
   StruggledProblemSummary,
   ProblemSetJSON,
   LocalizedString,
+  LocalizedContent,
 } from '@/types';
 
 /**
- * Normalize localized string to plain English string for storage
+ * Convert localized string to localized content for storage
+ * Store as { en, zh } object to support multiple languages
  */
-function normalizeLocalizedString(value: LocalizedString): string {
+function toLocalizedContent(value: LocalizedString): string | LocalizedContent {
   if (typeof value === 'string') {
+    // If it's a plain string, store it as-is for backwards compatibility
     return value;
   }
-  return value.en || value.zh || '';
+  // If it's already an object, store the full object
+  return value;
 }
 
 export class DatabaseService {
@@ -116,9 +120,9 @@ export class DatabaseService {
 
     await db.problemSets.add({
       id: problemSetId,
-      name: normalizeLocalizedString(problemSetData.name),
+      name: toLocalizedContent(problemSetData.name),
       description: problemSetData.description
-        ? normalizeLocalizedString(problemSetData.description)
+        ? toLocalizedContent(problemSetData.description)
         : undefined,
       problemSetKey: problemSetData.problemSetKey,
       difficulty: problemSetData.difficulty,
@@ -193,9 +197,9 @@ export class DatabaseService {
 
     // Update problem set metadata
     await db.problemSets.update(problemSetId, {
-      name: normalizeLocalizedString(problemSetData.name),
+      name: toLocalizedContent(problemSetData.name),
       description: problemSetData.description
-        ? normalizeLocalizedString(problemSetData.description)
+        ? toLocalizedContent(problemSetData.description)
         : undefined,
       difficulty: problemSetData.difficulty,
       version: version,

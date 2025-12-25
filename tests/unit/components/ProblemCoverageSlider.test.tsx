@@ -19,8 +19,8 @@ describe('ProblemCoverageSlider', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/Problem Coverage|题目覆盖率/)).toBeInTheDocument();
-    expect(screen.getByText(/100% \(20\/20 problems\)|100% \(20\/20 道题\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Problem Coverage|问题覆盖率/)).toBeInTheDocument();
+    expect(screen.getByText(/100% \(20\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
   });
 
   it('should display correct percentage and problem count for 80%', () => {
@@ -30,7 +30,7 @@ describe('ProblemCoverageSlider', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/80% \(16\/20 problems\)|80% \(16\/20 道题\)/)).toBeInTheDocument();
+    expect(screen.getByText(/80% \(16\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
   });
 
   it('should display correct percentage and problem count for 50%', () => {
@@ -40,7 +40,7 @@ describe('ProblemCoverageSlider', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/50% \(10\/20 problems\)|50% \(10\/20 道题\)/)).toBeInTheDocument();
+    expect(screen.getByText(/50% \(10\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
   });
 
   it('should display correct percentage and problem count for 30%', () => {
@@ -50,7 +50,7 @@ describe('ProblemCoverageSlider', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/30% \(6\/20 problems\)|30% \(6\/20 道题\)/)).toBeInTheDocument();
+    expect(screen.getByText(/30% \(6\/20 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
   });
 
   it('should handle zero total problems', () => {
@@ -60,7 +60,7 @@ describe('ProblemCoverageSlider', () => {
       </LanguageProvider>
     );
 
-    expect(screen.getByText(/100% \(0\/0 problems\)|100% \(0\/0 道题\)/)).toBeInTheDocument();
+    expect(screen.getByText(/100% \(0\/0 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
   });
 
   it('should call onChange when slider value changes', () => {
@@ -186,7 +186,7 @@ describe('ProblemCoverageSlider', () => {
     );
 
     // 50% of 15 = 7.5, should round to 8
-    expect(screen.getByText(/50% \(8\/15 problems\)|50% \(8\/15 道题\)/)).toBeInTheDocument();
+    expect(screen.getByText(/50% \(8\/15 (estimated problems|预计问题数)\)/i)).toBeInTheDocument();
   });
 
   it('should have mobile-friendly styling', () => {

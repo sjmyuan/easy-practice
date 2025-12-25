@@ -53,8 +53,8 @@ describe('LandingView', () => {
     );
 
     // ProblemSetSelector should render problem set buttons
-    expect(screen.getByText('Addition within 10')).toBeInTheDocument();
-    expect(screen.getByText('Subtraction within 10')).toBeInTheDocument();
+    expect(screen.getByText(/(Addition within 10|10以内加法)/)).toBeInTheDocument();
+    expect(screen.getByText(/(Subtraction within 10|10以内减法)/)).toBeInTheDocument();
   });
 
   it('should call onSelect when a problem set is selected', () => {
@@ -68,7 +68,7 @@ describe('LandingView', () => {
       { wrapper: Wrapper }
     );
 
-    const button = screen.getByText('Addition within 10');
+    const button = screen.getByText(/(Addition within 10|10以内加法)/);
     button.click();
 
     expect(onSelect).toHaveBeenCalledWith('1');
@@ -85,7 +85,7 @@ describe('LandingView', () => {
     );
 
     const button = screen.getByRole('button', {
-      name: 'Addition within 10',
+      name: /(Addition within 10|10以内加法)/,
     });
     expect(button).toBeDisabled();
   });

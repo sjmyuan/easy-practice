@@ -3,10 +3,13 @@
 // Localized string type for bilingual content
 export type LocalizedString = string | { en: string; zh: string };
 
+// Localized content stored in database
+export type LocalizedContent = { en: string; zh: string };
+
 export interface ProblemSet {
   id?: string;
-  name: string;
-  description?: string;
+  name: string | LocalizedContent; // Can be plain string or localized object
+  description?: string | LocalizedContent;
   problemSetKey: string;
   difficulty?: string;
   enabled: boolean;

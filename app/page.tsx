@@ -1,6 +1,7 @@
 'use client';
 
 import { useApp } from '@/contexts';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ErrorView } from '@/components/ErrorView';
 import { LoadingView } from '@/components/LoadingView';
 import { LandingView } from '@/components/LandingView';
@@ -13,9 +14,23 @@ import { SettingsPanel } from '@/components/SettingsPanel';
 import { ChevronLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/db';
+import type { LocalizedContent } from '@/types';
+
+/**
+ * Get localized text from a string or LocalizedContent object
+ */
+function getLocalizedText(
+  text: string | LocalizedContent | undefined,
+  language: 'en' | 'zh'
+): string {
+  if (!text) return '';
+  if (typeof text === 'string') return text;
+  return text[language] || text.en || text.zh || '';
+}
 
 export default function Home() {
   const { state, actions } = useApp();
+  const { language } = useLanguage();
   const [totalProblems, setTotalProblems] = useState(20); // Default fallback
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -88,7 +103,7 @@ export default function Home() {
   const selectedProblemSet = state.availableProblemSets.find(
     (ps) => ps.id === state.selectedProblemSetId
   );
-  const pageTitle = selectedProblemSet?.name || 'Easy Practice';
+  const pageTitle = getLocalizedText(selectedProblemSet?.name, language) || 'Easy Practice';
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">

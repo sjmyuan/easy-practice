@@ -19,8 +19,9 @@ interface MockState {
   initializationError: string | null;
   availableProblemSets: Array<{
     id: string;
-    name: string;
-    description: string;
+    name: string | { en: string; zh: string };
+    description?: string | { en: string; zh: string };
+    problemSetKey: string;
     type: string;
     enabled: boolean;
     createdAt: number;
@@ -35,16 +36,18 @@ let mockState: MockState = {
   availableProblemSets: [
     {
       id: 'set-1',
-      name: 'Addition within 20',
-      description: 'Practice addition',
+      name: { en: 'Addition within 20', zh: '20以内加法' },
+      description: { en: 'Practice addition', zh: '练习加法' },
+      problemSetKey: 'addition-within-20',
       type: 'addition',
       enabled: true,
       createdAt: Date.now(),
     },
     {
       id: 'set-2',
-      name: 'Subtraction within 20',
-      description: 'Practice subtraction',
+      name: { en: 'Subtraction within 20', zh: '20以内减法' },
+      description: { en: 'Practice subtraction', zh: '练习减法' },
+      problemSetKey: 'subtraction-within-20',
       type: 'subtraction',
       enabled: true,
       createdAt: Date.now(),
@@ -55,13 +58,15 @@ let mockState: MockState = {
 
 // Mock the context
 vi.mock('@/contexts', () => ({
-  useApp: () => ({
-    state: mockState,
-    actions: {
-      selectProblemSet: mockSelectProblemSet,
-      initializeApp: vi.fn(),
-    },
-  }),
+  useApp: () => {
+    return {
+      state: mockState,
+      actions: {
+        selectProblemSet: mockSelectProblemSet,
+        initializeApp: vi.fn(),
+      },
+    };
+  },
 }));
 
 // Mock Next.js navigation
@@ -76,30 +81,33 @@ vi.mock('next/navigation', () => ({
 describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockState = {
+    // Mutate the existing object instead of reassigning
+    Object.assign(mockState, {
       isLoading: false,
       isInitialized: true,
       initializationError: null,
       availableProblemSets: [
         {
           id: 'set-1',
-          name: 'Addition within 20',
-          description: 'Practice addition',
+          name: { en: 'Addition within 20', zh: '20以内加法' },
+          description: { en: 'Practice addition', zh: '练习加法' },
+          problemSetKey: 'addition-within-20',
           type: 'addition',
           enabled: true,
           createdAt: Date.now(),
         },
         {
           id: 'set-2',
-          name: 'Subtraction within 20',
-          description: 'Practice subtraction',
+          name: { en: 'Subtraction within 20', zh: '20以内减法' },
+          description: { en: 'Practice subtraction', zh: '练习减法' },
+          problemSetKey: 'subtraction-within-20',
           type: 'subtraction',
           enabled: true,
           createdAt: Date.now(),
         },
       ],
       selectedProblemSetId: null,
-    };
+    });
   });
 
   describe('AC1: Portrait mode - no scrolling required', () => {
@@ -180,30 +188,33 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
 describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockState = {
+    // Mutate the existing object instead of reassigning
+    Object.assign(mockState, {
       isLoading: false,
       isInitialized: true,
       initializationError: null,
       availableProblemSets: [
         {
           id: 'set-1',
-          name: 'Addition within 20',
-          description: 'Practice addition',
+          name: { en: 'Addition within 20', zh: '20以内加法' },
+          description: { en: 'Practice addition', zh: '练习加法' },
+          problemSetKey: 'addition-within-20',
           type: 'addition',
           enabled: true,
           createdAt: Date.now(),
         },
         {
           id: 'set-2',
-          name: 'Subtraction within 20',
-          description: 'Practice subtraction',
+          name: { en: 'Subtraction within 20', zh: '20以内减法' },
+          description: { en: 'Practice subtraction', zh: '练习减法' },
+          problemSetKey: 'subtraction-within-20',
           type: 'subtraction',
           enabled: true,
           createdAt: Date.now(),
         },
       ],
       selectedProblemSetId: null,
-    };
+    });
   });
 
   describe('AC1: Text/buttons at least 16px for readability', () => {
@@ -217,7 +228,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     it('should have problem set selector text readable', () => {
       render(<Home />, { wrapper: Wrapper });
 
-      const heading = screen.getByText(/choose a problem set/i);
+      const heading = screen.getByTestId('problem-set-selector-title');
       expect(heading).toHaveClass('text-3xl');
     });
 
@@ -237,9 +248,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     it('should have button text that is readable (font-medium or font-semibold)', () => {
       render(<Home />, { wrapper: Wrapper });
 
-      const problemSetButton = screen.getByRole('button', {
-        name: /addition within 20/i,
-      });
+      const problemSetButton = screen.getByTestId('problem-set-button-addition-within-20');
       const heading = problemSetButton.querySelector('h3');
       expect(heading?.className).toMatch(/font-(medium|semibold|bold)/);
     });
@@ -265,9 +274,7 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
     it('should have buttons with sufficient padding', () => {
       render(<Home />, { wrapper: Wrapper });
 
-      const problemSetButton = screen.getByRole('button', {
-        name: /addition within 20/i,
-      });
+      const problemSetButton = screen.getByTestId('problem-set-button-addition-within-20');
       // p-6 includes both horizontal and vertical padding
       expect(problemSetButton.className).toMatch(/p-6|px-(6|8)|py-(6|8)/);
     });
@@ -309,39 +316,40 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
 describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockState = {
+    // Mutate the existing object instead of reassigning
+    Object.assign(mockState, {
       isLoading: false,
       isInitialized: true,
       initializationError: null,
       availableProblemSets: [
         {
-          id: 'addition-within-20',
-          name: 'Addition Within 20',
-          description: 'Practice addition problems',
+          id: 'set-1',
+          name: { en: 'Addition Within 20', zh: '20以内加法' },
+          description: { en: 'Practice addition problems', zh: '练习加法问题' },
+          problemSetKey: 'addition-within-20',
           type: 'addition',
           enabled: true,
           createdAt: Date.now(),
         },
         {
-          id: 'subtraction-within-20',
-          name: 'Subtraction Within 20',
-          description: 'Practice subtraction problems',
+          id: 'set-2',
+          name: { en: 'Subtraction Within 20', zh: '20以内减法' },
+          description: { en: 'Practice subtraction problems', zh: '练习减法问题' },
+          problemSetKey: 'subtraction-within-20',
           type: 'subtraction',
           enabled: true,
           createdAt: Date.now(),
         },
       ],
       selectedProblemSetId: null,
-    };
+    });
   });
 
   describe('AC1: Colorful visuals (illustrations, animations)', () => {
     it('should use colorful button styles (blue, green, red)', () => {
       render(<Home />, { wrapper: Wrapper });
 
-      const problemSetButton = screen.getByRole('button', {
-        name: /addition within 20/i,
-      });
+      const problemSetButton = screen.getByTestId('problem-set-button-addition-within-20');
       // Should have color classes applied (including border colors)
       expect(problemSetButton.className).toMatch(
         /bg-blue|bg-green|bg-red|bg-gray|bg-white|border-\[#/
@@ -370,7 +378,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
       render(<Home />, { wrapper: Wrapper });
 
       // Landing page should have clear heading
-      const heading = screen.getByText(/choose a problem set/i);
+      const heading = screen.getByTestId('problem-set-selector-title');
       expect(heading).toBeInTheDocument();
     });
   });
@@ -392,7 +400,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
       const heading = screen.getByRole('heading', { name: /easy practice/i });
       expect(heading.className).toMatch(/text-(3xl|4xl)/);
 
-      const problemSetHeading = screen.getByText(/choose a problem set/i);
+      const problemSetHeading = screen.getByTestId('problem-set-selector-title');
       expect(problemSetHeading).toHaveClass('text-3xl');
     });
 
@@ -409,9 +417,7 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
     it('should use varied colors for different button types', () => {
       render(<Home />, { wrapper: Wrapper });
 
-      const problemSetButton = screen.getByRole('button', {
-        name: /addition within 20/i,
-      });
+      const problemSetButton = screen.getByTestId('problem-set-button-addition-within-20');
       // Problem set buttons use bg-white with colored borders/hover states
       expect(problemSetButton.className).toMatch(
         /bg-white|border-gray-200|hover:border-blue-500/
