@@ -24,8 +24,9 @@ describe('ProblemDisplay Component', () => {
     render(<ProblemDisplay problem={mockProblem} />);
 
     const problemText = screen.getByText('5 + 7');
-    // Should have large text class for mobile readability
-    expect(problemText).toHaveClass('text-6xl');
+    // Should have responsive text classes for mobile readability
+    expect(problemText.className).toMatch(/text-(4xl|5xl|6xl)/);
+    expect(problemText.className).toMatch(/(sm:|md:)/);
   });
 
   it('should not display the answer', () => {
@@ -185,7 +186,7 @@ describe('ProblemDisplay Component', () => {
 
       // Answer should have different styling (smaller text, green color)
       const answerElement = screen.getByText(/12/);
-      expect(answerElement).toHaveClass('text-2xl');
+      expect(answerElement.className).toMatch(/text-(xl|2xl)/);
       expect(answerElement).toHaveClass('text-green-600');
     });
 
@@ -550,6 +551,133 @@ describe('ProblemDisplay Component', () => {
         const problemText = screen.getByText('What is your name?');
         expect(problemText).toHaveClass('text-center');
       });
+    });
+  });
+
+  describe('Responsive Font Sizing', () => {
+    it('should use larger font size for short problems (less than 50 characters)', () => {
+      const shortProblem: Problem = {
+        id: '1',
+        problemSetId: 'set-1',
+        problem: '5 + 7',
+        answer: '12',
+        createdAt: Date.now(),
+      };
+
+      render(<ProblemDisplay problem={shortProblem} />);
+      const problemText = screen.getByText('5 + 7');
+      
+      // Should have responsive classes for larger font on mobile and desktop
+      expect(problemText.className).toMatch(/text-(4xl|5xl|6xl)/);
+    });
+
+    it('should use smaller font size for long problems (50+ characters)', () => {
+      const longProblem: Problem = {
+        id: '2',
+        problemSetId: 'set-1',
+        problem: 'This is a very long problem statement that exceeds fifty characters in total length',
+        answer: 'answer',
+        createdAt: Date.now(),
+      };
+
+      render(<ProblemDisplay problem={longProblem} />);
+      const problemText = screen.getByText(longProblem.problem);
+      
+      // Should have responsive classes for smaller font
+      expect(problemText.className).toMatch(/text-(2xl|3xl)/);
+    });
+
+    it('should use larger font size for short answers', async () => {
+      const user = userEvent.setup();
+      const problemWithShortAnswer: Problem = {
+        id: '3',
+        problemSetId: 'set-1',
+        problem: '5 + 7',
+        answer: '12',
+        createdAt: Date.now(),
+      };
+
+      render(<ProblemDisplay problem={problemWithShortAnswer} />);
+      
+      const toggleButton = screen.getByRole('button', { name: /show answer/i });
+      await user.click(toggleButton);
+      
+      const answerText = screen.getByText('12');
+      
+      // Should have responsive classes for larger font on mobile and desktop
+      expect(answerText.className).toMatch(/text-(xl|2xl)/);
+    });
+
+    it('should use smaller font size for long answers (50+ characters)', async () => {
+      const user = userEvent.setup();
+      const problemWithLongAnswer: Problem = {
+        id: '4',
+        problemSetId: 'set-1',
+        problem: 'Question',
+        answer: 'This is a very long answer that exceeds fifty characters in total length',
+        createdAt: Date.now(),
+      };
+
+      render(<ProblemDisplay problem={problemWithLongAnswer} />);
+      
+      const toggleButton = screen.getByRole('button', { name: /show answer/i });
+      await user.click(toggleButton);
+      
+      const answerText = screen.getByText(problemWithLongAnswer.answer);
+      
+      // Should have responsive classes for smaller font
+      expect(answerText.className).toMatch(/text-(base|lg)/);
+    });
+
+    it('should not have fixed height that causes scrollbars', () => {
+      const longProblem: Problem = {
+        id: '5',
+        problemSetId: 'set-1',
+        problem: 'This is a very long problem statement that would have caused scrollbars with fixed height',
+        answer: 'answer',
+        createdAt: Date.now(),
+      };
+
+      render(<ProblemDisplay problem={longProblem} />);
+      const container = screen.getByRole('region', { name: /current math problem/i });
+      
+      // Should not have fixed height classes like h-80
+      expect(container.className).not.toMatch(/h-80/);
+      // Should not have overflow-hidden that prevents natural expansion
+      expect(container.className).not.toMatch(/max-h-\[28rem\]/);
+    });
+
+    it('should allow content to expand naturally without internal scrollbars', () => {
+      const longProblem: Problem = {
+        id: '6',
+        problemSetId: 'set-1',
+        problem: 'Very long problem that should expand the container naturally',
+        answer: 'answer',
+        createdAt: Date.now(),
+      };
+
+      render(<ProblemDisplay problem={longProblem} />);
+      const container = screen.getByRole('region', { name: /current math problem/i });
+      
+      // Inner content should not have overflow-y-auto
+      const innerDiv = container.querySelector('.overflow-y-auto');
+      expect(innerDiv).toBeNull();
+    });
+
+    it('should use mobile-friendly font sizes with responsive breakpoints', () => {
+      const problem: Problem = {
+        id: '7',
+        problemSetId: 'set-1',
+        problem: '10 + 20',
+        answer: '30',
+        createdAt: Date.now(),
+      };
+
+      render(<ProblemDisplay problem={problem} />);
+      const problemText = screen.getByText('10 + 20');
+      
+      // Should have mobile-first responsive classes (sm:, md:, lg: breakpoints)
+      expect(problemText.className).toMatch(/(sm:|md:|lg:)/);
     });
   });
 });

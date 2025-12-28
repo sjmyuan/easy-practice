@@ -11,6 +11,31 @@ interface ProblemDisplayProps {
   problem: Problem | null;
 }
 
+/**
+ * Calculate responsive font size classes based on content length
+ * @param text - The text content to measure
+ * @param isAnswer - Whether this is for the answer (uses smaller sizes)
+ * @returns Tailwind CSS classes for responsive font sizing
+ */
+function getResponsiveFontSize(text: string, isAnswer = false): string {
+  const length = text.length;
+  const isLong = length >= 50;
+
+  if (isAnswer) {
+    // Answer font sizes
+    if (isLong) {
+      return 'text-base sm:text-lg md:text-lg';
+    }
+    return 'text-xl sm:text-xl md:text-2xl';
+  }
+
+  // Problem font sizes
+  if (isLong) {
+    return 'text-2xl sm:text-3xl md:text-3xl';
+  }
+  return 'text-4xl sm:text-5xl md:text-6xl';
+}
+
 export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isProblemAudioPlaying, setIsProblemAudioPlaying] = useState(false);
@@ -96,7 +121,7 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   return (
     <div
       key={problem.id}
-      className="relative flex h-80 max-h-[28rem] min-h-[16rem] w-full items-stretch justify-center p-8 bg-white rounded-lg shadow overflow-hidden"
+      className="relative flex w-full items-stretch justify-center p-8 bg-white rounded-lg shadow"
       role="region"
       aria-label="Current math problem"
     >
@@ -143,15 +168,15 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
         </button>
       </div>
 
-      {/* Add extra top padding to prevent overlap with the button group */}
-      <div className="w-full flex flex-col items-center pt-16 overflow-y-auto">
-        <p className="text-center text-6xl font-bold text-gray-900 break-words">
+      {/* Content area with responsive padding */}
+      <div className="w-full flex flex-col items-center pt-16 pb-4 px-2">
+        <p className={`text-center font-bold text-gray-900 break-words ${getResponsiveFontSize(problem.problem)}`}>
           {problem.problem}
         </p>
 
         {showAnswer && (
-          <div className="mt-4 flex items-center gap-4">
-            <p className="text-center text-2xl font-medium text-green-600 break-words">
+          <div className="mt-4 flex items-center gap-4 flex-wrap justify-center">
+            <p className={`text-center font-medium text-green-600 break-words ${getResponsiveFontSize(problem.answer, true)}`}>
               {problem.answer}
             </p>
             {answerAudioUrl && (
