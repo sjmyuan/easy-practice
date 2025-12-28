@@ -58,6 +58,7 @@ export interface AppActions {
 
   // Session Actions
   startNewSession: () => Promise<void>;
+  endSessionEarly: () => Promise<void>;
 
   // Problem Set Key Selection Actions
   setProblemSetKey: (problemSetKey: string) => void;
@@ -446,6 +447,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [setLoading]);
 
+  const endSessionEarly = useCallback(async () => {
+    try {
+      // Get current state from ref
+      const { isSessionActive, sessionStartTime } = stateRef.current;
+
+      // Only end if session is active
+      if (!isSessionActive) {
+        return;
+      }
+
+      // Calculate session duration
+      const duration = sessionStartTime ? Date.now() - sessionStartTime : 0;
+
+      // End session and preserve statistics
+      setState((prev) => ({
+        ...prev,
+        isSessionActive: false,
+        currentProblem: null,
+        sessionDuration: duration,
+      }));
+    } catch (error) {
+      console.error('Failed to end session early:', error);
+      throw error;
+    }
+  }, []);
+
   const loadStruggledProblems = useCallback(async () => {
     try {
       setLoading(true);
@@ -540,6 +567,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setProblemSetKey,
       setProblemCoverage,
       startNewSession,
+      endSessionEarly,
       loadStruggledProblems,
       toggleSummary,
       resetAllData,
@@ -557,6 +585,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setProblemSetKey,
       setProblemCoverage,
       startNewSession,
+      endSessionEarly,
       loadStruggledProblems,
       toggleSummary,
       resetAllData,

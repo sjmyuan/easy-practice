@@ -32,7 +32,8 @@
     "showAnswer": "显示答案",
     "hideAnswer": "隐藏答案",
     "answer": "答案",
-    "backToLanding": "返回主页"
+    "backToLanding": "返回主页",
+    "closeSessionConfirm": "您要结束当前练习吗？"
   },
   "sessionComplete": {
     "title": "练习完成！",

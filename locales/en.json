@@ -32,7 +32,8 @@
     "showAnswer": "Show Answer",
     "hideAnswer": "Hide Answer",
     "answer": "Answer",
-    "backToLanding": "Back to Home"
+    "backToLanding": "Back to Home",
+    "closeSessionConfirm": "Do you want to complete the current session?"
   },
   "sessionComplete": {
     "title": "Session Complete!",

@@ -13,6 +13,7 @@ const Wrapper = ({ children }: { children: ReactNode }) => (
 
 const mockInitializeApp = vi.fn();
 const mockSelectProblemSet = vi.fn();
+const mockEndSessionEarly = vi.fn();
 const mockPush = vi.fn();
 
 const mockState: {
@@ -29,6 +30,13 @@ const mockState: {
     createdAt: number;
   }>;
   selectedProblemSetId: string | null;
+  isSessionActive?: boolean;
+  currentProblem?: unknown;
+  sessionCompletedCount?: number;
+  sessionQueue?: unknown[];
+  sessionStartTime?: number | null;
+  sessionPassCount?: number;
+  sessionFailCount?: number;
 } = {
   isLoading: false,
   isInitialized: true,
@@ -64,6 +72,7 @@ vi.mock('@/contexts', () => ({
       actions: {
         initializeApp: mockInitializeApp,
         selectProblemSet: mockSelectProblemSet,
+        endSessionEarly: mockEndSessionEarly,
       },
     };
   },
@@ -222,5 +231,101 @@ describe('Home Page (Landing)', () => {
     render(<Home />, { wrapper: Wrapper });
 
     expect(screen.getByText(/(Loading\.\.\.|加载中\.\.\.)/i)).toBeInTheDocument();
+  });
+});
+
+describe('Home Page (Session Close Feature)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Set up state for active session
+    Object.assign(mockState, {
+      isLoading: false,
+      isInitialized: true,
+      initializationError: null,
+      selectedProblemSetId: 'set-1',
+      isSessionActive: true,
+      sessionStartTime: Date.now() - 60000, // 1 minute ago
+      sessionCompletedCount: 2,
+      sessionQueue: ['p1', 'p2', 'p3', 'p4', 'p5'],
+      sessionPassCount: 1,
+      sessionFailCount: 1,
+      currentProblem: {
+        id: 'p3',
+        problemSetId: 'set-1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      },
+      availableProblemSets: [
+        {
+          id: 'set-1',
+          name: { en: 'Addition within 20', zh: '20以内加法' },
+          problemSetKey: 'addition-within-20',
+          type: 'addition',
+          enabled: true,
+          createdAt: Date.now(),
+        },
+      ],
+    });
+  });
+
+  it('should show close icon when session is active', () => {
+    render(<Home />, { wrapper: Wrapper });
+
+    const closeButton = screen.getByRole('button', { name: /close session/i });
+    expect(closeButton).toBeInTheDocument();
+  });
+
+  it('should hide back button when session is active', () => {
+    render(<Home />, { wrapper: Wrapper });
+
+    const backButton = screen.queryByLabelText(/back to landing page/i);
+    expect(backButton).not.toBeInTheDocument();
+  });
+
+  it('should show settings icon when session is not active', () => {
+    mockState.isSessionActive = false;
+    mockState.currentProblem = null;
+    mockState.sessionCompletedCount = 0;
+
+    render(<Home />, { wrapper: Wrapper });
+
+    const settingsButton = screen.getByRole('button', { name: /settings/i });
+    expect(settingsButton).toBeInTheDocument();
+  });
+
+  it('should call endSessionEarly when close button is clicked and confirmed', async () => {
+    const user = userEvent.setup();
+    
+    // Mock window.confirm to return true
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    render(<Home />, { wrapper: Wrapper });
+
+    const closeButton = screen.getByRole('button', { name: /close session/i });
+    await user.click(closeButton);
+
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalled();
+      expect(mockEndSessionEarly).toHaveBeenCalled();
+    });
+  });
+
+  it('should not call endSessionEarly when close button is clicked but not confirmed', async () => {
+    const user = userEvent.setup();
+    
+    // Mock window.confirm to return false
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    render(<Home />, { wrapper: Wrapper });
+
+    const closeButton = screen.getByRole('button', { name: /close session/i });
+    await user.click(closeButton);
+
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalled();
+    });
+
+    expect(mockEndSessionEarly).not.toHaveBeenCalled();
   });
 });

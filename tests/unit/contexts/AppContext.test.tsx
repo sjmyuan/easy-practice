@@ -1830,4 +1830,175 @@ describe('AppContext', () => {
       expect(result.current.state.problemCoverage).toBe(100);
     });
   });
+
+  describe('endSessionEarly action', () => {
+    it('should expose endSessionEarly action', async () => {
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      expect(result.current.actions.endSessionEarly).toBeDefined();
+      expect(typeof result.current.actions.endSessionEarly).toBe('function');
+    });
+
+    it('should end session early and calculate statistics', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const recordAttemptCall = vi.mocked(databaseService.recordAttempt);
+
+      const problem1 = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      const problem2 = {
+        id: 'p2',
+        problemSetId: 'ps1',
+        problem: '7 + 2',
+        answer: '9',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3', 'p4', 'p5']);
+      problemsGetCall
+        .mockResolvedValueOnce(problem1)
+        .mockResolvedValueOnce(problem2);
+      recordAttemptCall.mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Select problem set
+      act(() => {
+        result.current.actions.selectProblemSet('ps1');
+      });
+
+      // Start a new session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      // Record session start time
+      const sessionStartTime = result.current.state.sessionStartTime;
+      expect(sessionStartTime).not.toBeNull();
+
+      // Answer first problem - pass
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      expect(result.current.state.sessionCompletedCount).toBe(1);
+      expect(result.current.state.sessionPassCount).toBe(1);
+      expect(result.current.state.sessionFailCount).toBe(0);
+
+      // Answer second problem - fail
+      await act(async () => {
+        await result.current.actions.submitAnswer('fail');
+      });
+
+      expect(result.current.state.sessionCompletedCount).toBe(2);
+      expect(result.current.state.sessionPassCount).toBe(1);
+      expect(result.current.state.sessionFailCount).toBe(1);
+
+      // Session should still be active
+      expect(result.current.state.isSessionActive).toBe(true);
+
+      // End session early
+      await act(async () => {
+        await result.current.actions.endSessionEarly();
+      });
+
+      // Session should be inactive
+      expect(result.current.state.isSessionActive).toBe(false);
+      expect(result.current.state.currentProblem).toBeNull();
+
+      // Statistics should reflect completed problems only (2 out of 5)
+      expect(result.current.state.sessionCompletedCount).toBe(2);
+      expect(result.current.state.sessionPassCount).toBe(1);
+      expect(result.current.state.sessionFailCount).toBe(1);
+
+      // Session duration should be calculated
+      expect(result.current.state.sessionDuration).toBeGreaterThan(0);
+      expect(result.current.state.sessionDuration).toBeLessThan(
+        Date.now() - sessionStartTime! + 100
+      );
+    });
+
+    it('should do nothing if session is not active', async () => {
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Try to end session when not active
+      await act(async () => {
+        await result.current.actions.endSessionEarly();
+      });
+
+      // State should remain unchanged
+      expect(result.current.state.isSessionActive).toBe(false);
+      expect(result.current.state.sessionDuration).toBeNull();
+    });
+
+    it('should preserve statistics when ending early with no completed problems', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3']);
+      problemsGetCall.mockResolvedValue(problem);
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Select problem set
+      act(() => {
+        result.current.actions.selectProblemSet('ps1');
+      });
+
+      // Start a new session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      // End session immediately without answering any problems
+      await act(async () => {
+        await result.current.actions.endSessionEarly();
+      });
+
+      // Session should be inactive
+      expect(result.current.state.isSessionActive).toBe(false);
+
+      // Statistics should show 0 completed
+      expect(result.current.state.sessionCompletedCount).toBe(0);
+      expect(result.current.state.sessionPassCount).toBe(0);
+      expect(result.current.state.sessionFailCount).toBe(0);
+
+      // Duration should still be calculated
+      expect(result.current.state.sessionDuration).toBeGreaterThanOrEqual(0);
+    });
+  });
 });

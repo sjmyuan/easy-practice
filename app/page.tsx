@@ -10,6 +10,7 @@ import { SessionCompleteView } from '@/components/SessionCompleteView';
 import { PracticeSessionView } from '@/components/PracticeSessionView';
 import { SummaryView } from '@/components/SummaryView';
 import { SettingsIcon } from '@/components/SettingsIcon';
+import { CloseSessionIcon } from '@/components/CloseSessionIcon';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { ChevronLeft } from 'lucide-react';
 import { useState } from 'react';
@@ -29,7 +30,7 @@ function getLocalizedText(
 
 export default function Home() {
   const { state, actions } = useApp();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleChangeProblemSet = () => {
@@ -40,6 +41,14 @@ export default function Home() {
   const handleViewSummary = () => {
     actions.loadStruggledProblems();
     actions.toggleSummary();
+  };
+
+  const handleCloseSession = () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(t('session.closeSessionConfirm'));
+    if (confirmed) {
+      actions.endSessionEarly();
+    }
   };
 
   if (state.initializationError) {
@@ -96,14 +105,19 @@ export default function Home() {
         <div className="space-y-4">
           {/* Navigation Row */}
           <div className="flex items-center justify-between">
-            <button
-              onClick={handleChangeProblemSet}
-              className="rounded-lg p-2 text-gray-600 transition-all hover:scale-110 hover:text-blue-600"
-              aria-label="Back to landing page"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </button>
             {!state.isSessionActive && (
+              <button
+                onClick={handleChangeProblemSet}
+                className="rounded-lg p-2 text-gray-600 transition-all hover:scale-110 hover:text-blue-600"
+                aria-label="Back to landing page"
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </button>
+            )}
+            {state.isSessionActive && <div />}
+            {state.isSessionActive ? (
+              <CloseSessionIcon onClick={handleCloseSession} />
+            ) : (
               <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
             )}
           </div>
