@@ -980,4 +980,73 @@ describe('DatabaseService', () => {
       expect(problems[0].answerAudio).toBe('answer.wav');
     });
   });
+
+  describe('getProblemSetVersion', () => {
+    it('should return version for existing problem set', async () => {
+      const problemSetData: ProblemSetJSON = {
+        version: '2.5',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'test-set',
+        },
+        problems: [{ problem: '1 + 1', answer: '2' }],
+      };
+
+      await service.importProblemsFromJSON(problemSetData);
+
+      const version = await service.getProblemSetVersion('test-set');
+      expect(version).toBe('2.5');
+    });
+
+    it('should return null for non-existing problem set', async () => {
+      const version = await service.getProblemSetVersion('non-existent-key');
+      expect(version).toBeNull();
+    });
+
+    it('should return correct version for problem set with multiple imports', async () => {
+      // Import v1.0
+      const problemSetData1: ProblemSetJSON = {
+        version: '1.0',
+        problemSet: {
+          name: 'Test Set',
+          problemSetKey: 'multi-version-set',
+        },
+        problems: [{ problem: '1 + 1', answer: '2' }],
+      };
+
+      await service.importProblemsFromJSON(problemSetData1);
+
+      let version = await service.getProblemSetVersion('multi-version-set');
+      expect(version).toBe('1.0');
+
+      // Import v2.0 (upgrade)
+      const problemSetData2: ProblemSetJSON = {
+        version: '2.0',
+        problemSet: {
+          name: 'Test Set Updated',
+          problemSetKey: 'multi-version-set',
+        },
+        problems: [{ problem: '2 + 2', answer: '4' }],
+      };
+
+      await service.importProblemsFromJSON(problemSetData2);
+
+      version = await service.getProblemSetVersion('multi-version-set');
+      expect(version).toBe('2.0');
+    });
+
+    it('should handle problem set without version field', async () => {
+      // Manually add a problem set without version
+      await db.problemSets.add({
+        id: 'test-id',
+        name: 'Test Set',
+        problemSetKey: 'no-version-set',
+        enabled: true,
+        createdAt: Date.now(),
+      });
+
+      const version = await service.getProblemSetVersion('no-version-set');
+      expect(version).toBeUndefined();
+    });
+  });
 });

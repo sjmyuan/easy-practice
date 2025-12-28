@@ -58,6 +58,9 @@ describe('ProblemService - Session Queue Generation', () => {
 
       // Spy on database service methods
       const { databaseService } = await import('@/services/database.service');
+      const getVersionSpy = vi
+        .spyOn(databaseService, 'getProblemSetVersion')
+        .mockResolvedValue(null); // Problem set doesn't exist, so it should be imported
       const importSpy = vi
         .spyOn(databaseService, 'importProblemsFromJSON')
         .mockResolvedValue();
@@ -74,6 +77,192 @@ describe('ProblemService - Session Queue Generation', () => {
       expect(cleanupSpy).toHaveBeenCalledWith(mockManifest as any);
 
       // Restore spies
+      getVersionSpy.mockRestore();
+      importSpy.mockRestore();
+      cleanupSpy.mockRestore();
+    });
+
+    it('should not fetch problem set when local version matches manifest version', async () => {
+      const mockManifest = {
+        problemSets: [
+          {
+            name: 'Same Version Set',
+            problemSetKey: 'same-version-set',
+            version: '2.0',
+            path: '/problem-sets/same-version-set.json',
+          },
+        ],
+      };
+
+      // Mock fetch for manifest only (problem set should NOT be fetched)
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => mockManifest });
+      (global as any).fetch = fetchMock;
+
+      // Mock database service methods
+      const { databaseService } = await import('@/services/database.service');
+      const getVersionSpy = vi
+        .spyOn(databaseService, 'getProblemSetVersion')
+        .mockResolvedValue('2.0'); // Same version as manifest
+      const importSpy = vi
+        .spyOn(databaseService, 'importProblemsFromJSON')
+        .mockResolvedValue();
+      const cleanupSpy = vi
+        .spyOn(databaseService, 'deleteProblemSetsNotInManifest')
+        .mockResolvedValue();
+
+      // Call the method
+      await (
+        await import('@/services')
+      ).problemService.loadDefaultProblemSets();
+
+      // Should check version
+      expect(getVersionSpy).toHaveBeenCalledWith('same-version-set');
+      
+      // Should NOT fetch the problem set file (only manifest)
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      
+      // Should NOT import the problem set
+      expect(importSpy).not.toHaveBeenCalled();
+      
+      // Should still run cleanup
+      expect(cleanupSpy).toHaveBeenCalledWith(mockManifest as any);
+
+      // Restore spies
+      getVersionSpy.mockRestore();
+      importSpy.mockRestore();
+      cleanupSpy.mockRestore();
+    });
+
+    it('should fetch and import problem set when manifest version is higher', async () => {
+      const mockManifest = {
+        problemSets: [
+          {
+            name: 'Upgraded Set',
+            problemSetKey: 'upgraded-set',
+            version: '2.0',
+            path: '/problem-sets/upgraded-set.json',
+          },
+        ],
+      };
+
+      const mockProblemSetData = {
+        version: '2.0',
+        problemSet: {
+          name: 'Upgraded Set',
+          problemSetKey: 'upgraded-set',
+        },
+        problems: [{ problem: '2 + 2', answer: '4' }],
+      };
+
+      // Mock fetch for manifest and problem set file
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => mockManifest })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockProblemSetData,
+        });
+      (global as any).fetch = fetchMock;
+
+      // Mock database service methods
+      const { databaseService } = await import('@/services/database.service');
+      const getVersionSpy = vi
+        .spyOn(databaseService, 'getProblemSetVersion')
+        .mockResolvedValue('1.0'); // Lower version than manifest
+      const importSpy = vi
+        .spyOn(databaseService, 'importProblemsFromJSON')
+        .mockResolvedValue();
+      const cleanupSpy = vi
+        .spyOn(databaseService, 'deleteProblemSetsNotInManifest')
+        .mockResolvedValue();
+
+      // Call the method
+      await (
+        await import('@/services')
+      ).problemService.loadDefaultProblemSets();
+
+      // Should check version
+      expect(getVersionSpy).toHaveBeenCalledWith('upgraded-set');
+      
+      // Should fetch both manifest and problem set file
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      
+      // Should import the problem set
+      expect(importSpy).toHaveBeenCalledWith(mockProblemSetData);
+      
+      // Should run cleanup
+      expect(cleanupSpy).toHaveBeenCalledWith(mockManifest as any);
+
+      // Restore spies
+      getVersionSpy.mockRestore();
+      importSpy.mockRestore();
+      cleanupSpy.mockRestore();
+    });
+
+    it('should fetch and import problem set when it does not exist locally', async () => {
+      const mockManifest = {
+        problemSets: [
+          {
+            name: 'New Set',
+            problemSetKey: 'new-set',
+            version: '1.0',
+            path: '/problem-sets/new-set.json',
+          },
+        ],
+      };
+
+      const mockProblemSetData = {
+        version: '1.0',
+        problemSet: {
+          name: 'New Set',
+          problemSetKey: 'new-set',
+        },
+        problems: [{ problem: '3 + 3', answer: '6' }],
+      };
+
+      // Mock fetch for manifest and problem set file
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => mockManifest })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockProblemSetData,
+        });
+      (global as any).fetch = fetchMock;
+
+      // Mock database service methods
+      const { databaseService } = await import('@/services/database.service');
+      const getVersionSpy = vi
+        .spyOn(databaseService, 'getProblemSetVersion')
+        .mockResolvedValue(null); // Problem set doesn't exist locally
+      const importSpy = vi
+        .spyOn(databaseService, 'importProblemsFromJSON')
+        .mockResolvedValue();
+      const cleanupSpy = vi
+        .spyOn(databaseService, 'deleteProblemSetsNotInManifest')
+        .mockResolvedValue();
+
+      // Call the method
+      await (
+        await import('@/services')
+      ).problemService.loadDefaultProblemSets();
+
+      // Should check version
+      expect(getVersionSpy).toHaveBeenCalledWith('new-set');
+      
+      // Should fetch both manifest and problem set file
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      
+      // Should import the problem set
+      expect(importSpy).toHaveBeenCalledWith(mockProblemSetData);
+      
+      // Should run cleanup
+      expect(cleanupSpy).toHaveBeenCalledWith(mockManifest as any);
+
+      // Restore spies
+      getVersionSpy.mockRestore();
       importSpy.mockRestore();
       cleanupSpy.mockRestore();
     });

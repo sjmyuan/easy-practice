@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { databaseService } from './database.service';
 import type { Problem, ProblemSetJSON, ProblemSetManifest } from '@/types';
 import { TOP_PROBLEMS_POOL } from '@/lib/constants';
+import { compareVersions } from '@/lib/utils';
 
 export class ProblemService {
   /**
@@ -32,15 +33,35 @@ export class ProblemService {
 
   /**
    * Load default problem sets from public folder using manifest
+   * Optimized to only fetch and import problem sets when:
+   * 1. The problem set doesn't exist locally (null version)
+   * 2. The manifest version is higher than the local version
    */
   async loadDefaultProblemSets(): Promise<void> {
     try {
       // Load manifest
       const manifest = await this.loadManifest();
 
-      // Import each problem set from manifest
+      // Import each problem set from manifest only if needed
       for (const entry of manifest.problemSets) {
         try {
+          // Check current version in database
+          const localVersion = await databaseService.getProblemSetVersion(
+            entry.problemSetKey
+          );
+
+          // Determine if we need to fetch and import
+          const shouldImport =
+            localVersion === null || // New problem set
+            localVersion === undefined || // Problem set without version field
+            compareVersions(entry.version, localVersion) > 0; // Newer version available
+
+          if (!shouldImport) {
+            // Skip fetching if local version is up to date
+            continue;
+          }
+
+          // Fetch and import the problem set
           const response = await fetch(entry.path);
           if (!response.ok) {
             console.warn(

@@ -293,6 +293,23 @@ export class DatabaseService {
   }
 
   /**
+   * Get the version of a problem set by its problemSetKey
+   * Returns the version string if found, null if not found, or undefined if no version is set
+   */
+  async getProblemSetVersion(problemSetKey: string): Promise<string | null | undefined> {
+    const problemSet = await db.problemSets
+      .where('problemSetKey')
+      .equals(problemSetKey)
+      .first();
+    
+    if (!problemSet) {
+      return null;
+    }
+    
+    return problemSet.version;
+  }
+
+  /**
    * Toggle problem set enabled state
    */
   async toggleProblemSet(id: string, enabled: boolean): Promise<void> {
