@@ -14,6 +14,8 @@ interface SettingsPanelProps {
   onProblemCoverageChange: (coverage: number) => void;
   onResetData: () => void;
   selectedProblemSetKey?: string;
+  sessionHistoryLimit?: number;
+  onSessionHistoryLimitChange?: (limit: number) => void;
 }
 
 export function SettingsPanel({
@@ -23,6 +25,8 @@ export function SettingsPanel({
   onProblemCoverageChange,
   onResetData,
   selectedProblemSetKey,
+  sessionHistoryLimit,
+  onSessionHistoryLimitChange,
 }: SettingsPanelProps) {
   const { t } = useLanguage();
   
@@ -78,6 +82,31 @@ export function SettingsPanel({
                 onChange={onProblemCoverageChange}
               />
             </div>
+
+            {/* Session History Limit Dropdown */}
+            {sessionHistoryLimit !== undefined && onSessionHistoryLimitChange && (
+              <div>
+                <label 
+                  htmlFor="session-history-limit"
+                  className="mb-3 block text-lg font-medium text-gray-700"
+                >
+                  {t('settings.sessionHistoryLimit')}
+                </label>
+                <select
+                  id="session-history-limit"
+                  aria-label="Session history limit"
+                  value={sessionHistoryLimit}
+                  onChange={(e) => onSessionHistoryLimitChange(Number(e.target.value))}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-all hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={30}>30</option>
+                  <option value={40}>40</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+            )}
 
             {/* Reset Data Button */}
             <div>

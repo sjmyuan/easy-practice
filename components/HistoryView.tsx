@@ -1,0 +1,150 @@
+// components/HistoryView.tsx
+'use client';
+
+import React from 'react';
+import type { Session } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+interface HistoryViewProps {
+  sessions: Session[];
+  onClose: () => void;
+}
+
+export function HistoryView({ sessions, onClose }: HistoryViewProps) {
+  const { t } = useLanguage();
+
+  const formatDuration = (milliseconds: number): string => {
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (hours > 0) {
+      const remainingMinutes = minutes % 60;
+      const remainingSeconds = seconds % 60;
+      return `${hours}h ${remainingMinutes}m ${remainingSeconds}s`;
+    } else if (minutes > 0) {
+      const remainingSeconds = seconds % 60;
+      return `${minutes}m ${remainingSeconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  };
+
+  const formatDate = (timestamp: number): string => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  if (sessions.length === 0) {
+    return (
+      <div
+        className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
+        role="region"
+        aria-label="Session history"
+      >
+        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t('history.title')}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-2xl text-gray-500 transition-colors hover:text-gray-700"
+              aria-label="Close history"
+            >
+              ×
+            </button>
+          </div>
+          <p className="py-8 text-center text-gray-500">
+            {t('history.noSessions')}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
+      role="region"
+      aria-label="Session history"
+    >
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {t('history.title')}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-2xl text-gray-500 transition-colors hover:text-gray-700"
+            aria-label="Close history"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {sessions.map((session, index) => (
+            <div
+              key={session.id || index}
+              className="rounded-lg border border-gray-200 p-4"
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {t('history.session')} #{sessions.length - index}
+                </h3>
+                <span className="text-sm text-gray-500">
+                  {formatDate(session.endTime)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {t('history.accuracy')}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {session.accuracy}%
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {t('history.duration')}
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {formatDuration(session.duration)}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {t('history.problems')}
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {session.totalProblems}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {t('history.passed')} / {t('history.failed')}
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {session.passCount} / {session.failCount}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

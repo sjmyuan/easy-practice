@@ -20,7 +20,7 @@ describe('PreSessionView', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render view summary button', () => {
+  it('should render view history button', () => {
     render(
       <LanguageProvider>
         <PreSessionView
@@ -32,7 +32,7 @@ describe('PreSessionView', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: /view summary|查看总结/i })
+      screen.getByRole('button', { name: /view history|查看历史记录/i })
     ).toBeInTheDocument();
   });
 
@@ -56,7 +56,7 @@ describe('PreSessionView', () => {
     expect(onStart).toHaveBeenCalledTimes(1);
   });
 
-  it('should call onViewSummary when view summary button is clicked', () => {
+  it('should call onViewSummary when view history button is clicked', () => {
     const onViewSummary = vi.fn();
     render(
       <LanguageProvider>
@@ -68,10 +68,10 @@ describe('PreSessionView', () => {
       </LanguageProvider>
     );
 
-    const viewSummaryButton = screen.getByRole('button', {
-      name: /(view summary|查看总结)/i,
+    const viewHistoryButton = screen.getByRole('button', {
+      name: /(view history|查看历史记录)/i,
     });
-    viewSummaryButton.click();
+    viewHistoryButton.click();
 
     expect(onViewSummary).toHaveBeenCalledTimes(1);
   });
@@ -90,12 +90,12 @@ describe('PreSessionView', () => {
     const startButton = screen.getByRole('button', {
       name: /start new session|开始新练习/i,
     });
-    const viewSummaryButton = screen.getByRole('button', {
-      name: /view summary|查看总结/i,
+    const viewHistoryButton = screen.getByRole('button', {
+      name: /view history|查看历史记录/i,
     });
 
     expect(startButton).toBeDisabled();
-    expect(viewSummaryButton).toBeDisabled();
+    expect(viewHistoryButton).toBeDisabled();
   });
 
   it('should render buttons in a vertical layout', () => {

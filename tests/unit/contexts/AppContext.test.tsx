@@ -5,6 +5,7 @@ import { renderHook, act, waitFor, cleanup } from '@testing-library/react';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { databaseService, problemService } from '@/services';
 import { db } from '@/lib/db';
+import type { ProblemSet } from '@/types';
 import type { ReactNode } from 'react';
 
 // Mock the services
@@ -13,11 +14,12 @@ vi.mock('@/services', () => ({
     getProblemSets: vi.fn(),
     toggleProblemSet: vi.fn(),
     recordAttempt: vi.fn(),
-    getStruggledProblems: vi.fn(),
     resetStatistics: vi.fn(),
     resetStatisticsByProblemSetId: vi.fn(),
     exportData: vi.fn(),
     importData: vi.fn(),
+    saveSession: vi.fn(),
+    getSessionHistory: vi.fn(),
   },
   problemService: {
     hasProblems: vi.fn(),
@@ -25,6 +27,7 @@ vi.mock('@/services', () => ({
     getNextProblem: vi.fn(),
     loadProblemSetFromFile: vi.fn(),
     generateSessionQueue: vi.fn(),
+    getProblemsForSession: vi.fn(),
   },
 }));
 
@@ -83,7 +86,7 @@ describe('AppContext', () => {
 
       // Trigger another state update
       act(() => {
-        result.current.actions.toggleSummary();
+        result.current.actions.toggleHistory();
       });
 
       // Actions reference should still be the same
@@ -217,7 +220,7 @@ describe('AppContext', () => {
       });
 
       act(() => {
-        result.current.actions.toggleSummary();
+        result.current.actions.toggleHistory();
       });
 
       // Wait to ensure no additional calls
@@ -758,171 +761,6 @@ describe('AppContext', () => {
     });
   });
 
-  describe('Issue C: Clear struggled problems cache on type switch', () => {
-    it('should clear struggledProblems array when switching types', async () => {
-      const mockStruggledProblems = [
-        {
-          problemId: '1',
-          problem: '1 + 1',
-          answer: '2',
-          problemSetKey: 'addition-within-20',
-          failCount: 2,
-          totalAttempts: 5,
-          failureRate: 0.4,
-          lastAttemptedAt: Date.now(),
-          priority: 60,
-        },
-      ];
-
-      vi.mocked(databaseService.getStruggledProblems).mockResolvedValue(
-        mockStruggledProblems
-      );
-
-      const { result } = renderHook(() => useApp(), { wrapper });
-
-      await waitFor(() => {
-        expect(result.current.state.isInitialized).toBe(true);
-      });
-
-      // Load struggled problems for addition
-      await act(async () => {
-        await result.current.actions.loadStruggledProblems();
-      });
-
-      // Verify struggled problems are loaded
-      expect(result.current.state.struggledProblems).toHaveLength(1);
-      expect(result.current.state.struggledProblems[0].problemSetKey).toBe(
-        'addition-within-20'
-      );
-
-      // Switch type to subtraction
-      act(() => {
-        result.current.actions.setProblemSetKey('subtraction');
-      });
-
-      // Struggled problems should be cleared
-      expect(result.current.state.struggledProblems).toEqual([]);
-    });
-
-    it('should clear struggledProblems when switching from subtraction to addition', async () => {
-      const mockStruggledProblems = [
-        {
-          problemId: '2',
-          problem: '10 - 5',
-          answer: '5',
-          problemSetKey: 'subtraction-within-20',
-          failCount: 3,
-          totalAttempts: 7,
-          failureRate: 0.43,
-          lastAttemptedAt: Date.now(),
-          priority: 70,
-        },
-      ];
-
-      vi.mocked(databaseService.getStruggledProblems).mockResolvedValue(
-        mockStruggledProblems
-      );
-
-      const { result } = renderHook(() => useApp(), { wrapper });
-
-      await waitFor(() => {
-        expect(result.current.state.isInitialized).toBe(true);
-      });
-
-      // Switch to subtraction first
-      act(() => {
-        result.current.actions.setProblemSetKey('subtraction');
-      });
-
-      // Load struggled problems for subtraction
-      await act(async () => {
-        await result.current.actions.loadStruggledProblems();
-      });
-
-      // Verify struggled problems are loaded
-      expect(result.current.state.struggledProblems).toHaveLength(1);
-      expect(result.current.state.struggledProblems[0].problemSetKey).toBe(
-        'subtraction-within-20'
-      );
-
-      // Switch type back to addition
-      act(() => {
-        result.current.actions.setProblemSetKey('addition');
-      });
-
-      // Struggled problems should be cleared
-      expect(result.current.state.struggledProblems).toEqual([]);
-    });
-
-    it('should require loading struggled problems after switching types', async () => {
-      const additionProblems = [
-        {
-          problemId: '1',
-          problem: '1 + 1',
-          answer: '2',
-          problemSetKey: 'addition-within-20',
-          failCount: 2,
-          totalAttempts: 5,
-          failureRate: 0.4,
-          lastAttemptedAt: Date.now(),
-          priority: 60,
-        },
-      ];
-
-      const subtractionProblems = [
-        {
-          problemId: '2',
-          problem: '10 - 5',
-          answer: '5',
-          problemSetKey: 'subtraction-within-20',
-          failCount: 3,
-          totalAttempts: 7,
-          failureRate: 0.43,
-          lastAttemptedAt: Date.now(),
-          priority: 70,
-        },
-      ];
-
-      const getStruggledProblemsCall = vi.mocked(
-        databaseService.getStruggledProblems
-      );
-      getStruggledProblemsCall
-        .mockResolvedValueOnce(additionProblems)
-        .mockResolvedValueOnce(subtractionProblems);
-
-      const { result } = renderHook(() => useApp(), { wrapper });
-
-      await waitFor(() => {
-        expect(result.current.state.isInitialized).toBe(true);
-      });
-
-      // Load addition struggled problems
-      await act(async () => {
-        await result.current.actions.loadStruggledProblems();
-      });
-
-      expect(result.current.state.struggledProblems).toEqual(additionProblems);
-
-      // Switch to subtraction
-      act(() => {
-        result.current.actions.setProblemSetKey('subtraction');
-      });
-
-      // Struggled problems should be cleared
-      expect(result.current.state.struggledProblems).toEqual([]);
-
-      // Load subtraction struggled problems
-      await act(async () => {
-        await result.current.actions.loadStruggledProblems();
-      });
-
-      // Should now have subtraction problems
-      expect(result.current.state.struggledProblems).toEqual(
-        subtractionProblems
-      );
-    });
-  });
-
   describe('Reset Data by Type', () => {
     it('should reset statistics for ALL problem sets', async () => {
       const resetStatisticsCall = vi.fn().mockResolvedValue(undefined);
@@ -946,9 +784,6 @@ describe('AppContext', () => {
 
       // Verify resetStatistics was called (not resetStatisticsByProblemSetId)
       expect(resetStatisticsCall).toHaveBeenCalledTimes(1);
-
-      // Verify only struggledProblems cache was cleared
-      expect(result.current.state.struggledProblems).toEqual([]);
     });
 
     it('should preserve currentProblem and session state after reset', async () => {
@@ -988,7 +823,6 @@ describe('AppContext', () => {
 
       // Verify statistics were reset globally
       expect(resetStatisticsCall).toHaveBeenCalledTimes(1);
-      expect(result.current.state.struggledProblems).toEqual([]);
 
       // Verify UI state was preserved
       expect(result.current.state.currentProblem).toEqual(problemBeforeReset);
@@ -1065,7 +899,6 @@ describe('AppContext', () => {
 
       // Verify statistics were reset globally
       expect(resetStatisticsCall).toHaveBeenCalledTimes(1);
-      expect(result.current.state.struggledProblems).toEqual([]);
 
       // Verify session completion state was preserved
       expect(result.current.state.isSessionActive).toBe(false);
@@ -1142,99 +975,6 @@ describe('AppContext', () => {
       );
 
       consoleErrorSpy.mockRestore();
-    });
-  });
-
-  describe('Issue B: loadStruggledProblems passes selectedProblemSetId to database', () => {
-    it('should call getStruggledProblems with the selected problem set ID when loading struggled problems', async () => {
-      const getStruggledProblemsCall = vi.mocked(
-        databaseService.getStruggledProblems
-      );
-      getStruggledProblemsCall.mockResolvedValue([]);
-
-      const { result } = renderHook(() => useApp(), { wrapper });
-
-      await waitFor(() => {
-        expect(result.current.state.isInitialized).toBe(true);
-      });
-
-      // Select a problem set
-      act(() => {
-        result.current.actions.selectProblemSet('1');
-      });
-
-      // Load struggled problems
-      await act(async () => {
-        await result.current.actions.loadStruggledProblems();
-      });
-
-      // Verify getStruggledProblems was called with the problem set ID
-      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, '1');
-    });
-
-    it('should call getStruggledProblems without ID when no problem set is selected', async () => {
-      const getStruggledProblemsCall = vi.mocked(
-        databaseService.getStruggledProblems
-      );
-      getStruggledProblemsCall.mockResolvedValue([]);
-
-      const { result } = renderHook(() => useApp(), { wrapper });
-
-      await waitFor(() => {
-        expect(result.current.state.isInitialized).toBe(true);
-      });
-
-      // No problem set selected (selectedProblemSetId is null)
-      expect(result.current.state.selectedProblemSetId).toBeNull();
-
-      // Load struggled problems
-      await act(async () => {
-        await result.current.actions.loadStruggledProblems();
-      });
-
-      // Verify getStruggledProblems was called without a problem set ID (all problems)
-      expect(getStruggledProblemsCall).toHaveBeenCalledWith(20, undefined);
-    });
-
-    it('should update struggledProblems state with filtered results', async () => {
-      const mockStruggledProblems = [
-        {
-          problemId: '1',
-          problem: '5 - 3',
-          answer: '2',
-          problemSetKey: 'subtraction-within-20',
-          failCount: 2,
-          totalAttempts: 5,
-          failureRate: 0.4,
-          lastAttemptedAt: Date.now(),
-          priority: 60,
-        },
-      ];
-
-      vi.mocked(databaseService.getStruggledProblems).mockResolvedValue(
-        mockStruggledProblems
-      );
-
-      const { result } = renderHook(() => useApp(), { wrapper });
-
-      await waitFor(() => {
-        expect(result.current.state.isInitialized).toBe(true);
-      });
-
-      // Select a problem set
-      act(() => {
-        result.current.actions.selectProblemSet('1');
-      });
-
-      // Load struggled problems
-      await act(async () => {
-        await result.current.actions.loadStruggledProblems();
-      });
-
-      // Verify state was updated with filtered results
-      expect(result.current.state.struggledProblems).toEqual(
-        mockStruggledProblems
-      );
     });
   });
 
@@ -1999,6 +1739,348 @@ describe('AppContext', () => {
 
       // Duration should still be calculated
       expect(result.current.state.sessionDuration).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('Session History Feature', () => {
+    describe('showHistory state', () => {
+      it('should have showHistory as false by default', async () => {
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        expect(result.current.state.showHistory).toBe(false);
+      });
+
+      it('should toggle showHistory state', async () => {
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Toggle to true
+        act(() => {
+          result.current.actions.toggleHistory();
+        });
+
+        expect(result.current.state.showHistory).toBe(true);
+
+        // Toggle back to false
+        act(() => {
+          result.current.actions.toggleHistory();
+        });
+
+        expect(result.current.state.showHistory).toBe(false);
+      });
+    });
+
+    describe('sessionHistoryLimit state', () => {
+      it('should have default sessionHistoryLimit of 10', async () => {
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        expect(result.current.state.sessionHistoryLimit).toBe(10);
+      });
+
+      it('should update sessionHistoryLimit and save to localStorage', async () => {
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        act(() => {
+          result.current.actions.setSessionHistoryLimit(20);
+        });
+
+        expect(result.current.state.sessionHistoryLimit).toBe(20);
+        expect(localStorage.getItem('sessionHistoryLimit')).toBe('20');
+      });
+
+      it('should load sessionHistoryLimit from localStorage on init', async () => {
+        localStorage.setItem('sessionHistoryLimit', '30');
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        expect(result.current.state.sessionHistoryLimit).toBe(30);
+      });
+
+      it('should handle invalid sessionHistoryLimit in localStorage', async () => {
+        localStorage.setItem('sessionHistoryLimit', 'invalid');
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Should default to 10
+        expect(result.current.state.sessionHistoryLimit).toBe(10);
+      });
+
+      it('should only accept valid limit values (10, 20, 30, 40, 50)', async () => {
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Valid values
+        const validLimits = [10, 20, 30, 40, 50];
+        for (const limit of validLimits) {
+          act(() => {
+            result.current.actions.setSessionHistoryLimit(limit);
+          });
+          expect(result.current.state.sessionHistoryLimit).toBe(limit);
+        }
+      });
+    });
+
+    describe('sessionHistory state', () => {
+      it('should have empty sessionHistory by default', async () => {
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        expect(result.current.state.sessionHistory).toEqual([]);
+      });
+
+      it('should load session history for selected problem set', async () => {
+        const mockSessions = [
+          {
+            id: 'session-1',
+            problemSetId: '1',
+            startTime: Date.now() - 120000,
+            endTime: Date.now() - 60000,
+            duration: 60000,
+            passCount: 8,
+            failCount: 2,
+            totalProblems: 10,
+            accuracy: 80,
+            createdAt: Date.now() - 120000,
+          },
+          {
+            id: 'session-2',
+            problemSetId: '1',
+            startTime: Date.now() - 60000,
+            endTime: Date.now(),
+            duration: 60000,
+            passCount: 10,
+            failCount: 0,
+            totalProblems: 10,
+            accuracy: 100,
+            createdAt: Date.now() - 60000,
+          },
+        ];
+
+        vi.mocked(databaseService.getSessionHistory).mockResolvedValue(
+          mockSessions
+        );
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Select a problem set
+        act(() => {
+          result.current.actions.selectProblemSet('1');
+        });
+
+        // Load session history
+        await act(async () => {
+          await result.current.actions.loadSessionHistory();
+        });
+
+        expect(result.current.state.sessionHistory).toEqual(mockSessions);
+        expect(databaseService.getSessionHistory).toHaveBeenCalledWith('1', 10);
+      });
+
+      it('should pass sessionHistoryLimit to getSessionHistory', async () => {
+        vi.mocked(databaseService.getSessionHistory).mockResolvedValue([]);
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Set custom limit
+        act(() => {
+          result.current.actions.setSessionHistoryLimit(20);
+        });
+
+        // Select a problem set
+        act(() => {
+          result.current.actions.selectProblemSet('1');
+        });
+
+        // Load session history
+        await act(async () => {
+          await result.current.actions.loadSessionHistory();
+        });
+
+        expect(databaseService.getSessionHistory).toHaveBeenCalledWith('1', 20);
+      });
+
+      it('should not load session history when no problem set is selected', async () => {
+        vi.mocked(databaseService.getSessionHistory).mockResolvedValue([]);
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Ensure no problem set is selected
+        expect(result.current.state.selectedProblemSetId).toBeNull();
+
+        // Try to load session history
+        await act(async () => {
+          await result.current.actions.loadSessionHistory();
+        });
+
+        // getSessionHistory should not be called
+        expect(databaseService.getSessionHistory).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('saveSession on session complete', () => {
+      it('should save session when session completes successfully', async () => {
+        vi.mocked(databaseService.saveSession).mockResolvedValue('session-1');
+
+        const mockProblemSet: ProblemSet = {
+          id: '1',
+          name: 'Test Set',
+          problemSetKey: 'test-set',
+          enabled: true,
+          createdAt: Date.now(),
+        };
+
+        const mockProblems = Array.from({ length: 2 }, (_, i) => ({
+          id: `problem-${i + 1}`,
+          problemSetId: '1',
+          problem: `1 + ${i + 1}`,
+          answer: `${i + 2}`,
+          createdAt: Date.now(),
+        }));
+
+        vi.mocked(databaseService.getProblemSets).mockResolvedValue([
+          mockProblemSet,
+        ]);
+        vi.mocked(problemService.generateSessionQueue).mockResolvedValue(
+          mockProblems.map((p) => p.id!)
+        );
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Select problem set
+        act(() => {
+          result.current.actions.selectProblemSet('1');
+        });
+
+        // Start session
+        await act(async () => {
+          await result.current.actions.startNewSession();
+        });
+
+        const startTime = result.current.state.sessionStartTime!;
+
+        // Mock problems for each answer
+        for (let i = 0; i < 2; i++) {
+          vi.mocked(db.problems.get).mockResolvedValue(mockProblems[i]);
+          vi.mocked(databaseService.recordAttempt).mockResolvedValue();
+
+          await act(async () => {
+            await result.current.actions.submitAnswer(i === 0 ? 'pass' : 'fail');
+          });
+        }
+
+        // Verify session was saved
+        await waitFor(() => {
+          expect(databaseService.saveSession).toHaveBeenCalled();
+        });
+
+        const saveSessionCall = vi.mocked(databaseService.saveSession).mock
+          .calls[0][0];
+
+        expect(saveSessionCall.problemSetId).toBe('1');
+        expect(saveSessionCall.totalProblems).toBe(2);
+        expect(saveSessionCall.passCount).toBe(1);
+        expect(saveSessionCall.failCount).toBe(1);
+        expect(saveSessionCall.accuracy).toBe(50);
+        expect(saveSessionCall.startTime).toBe(startTime);
+        expect(saveSessionCall.endTime).toBeGreaterThanOrEqual(startTime);
+        expect(saveSessionCall.duration).toBeGreaterThanOrEqual(0);
+      });
+
+      it('should not save session when ended early', async () => {
+        vi.mocked(databaseService.saveSession).mockResolvedValue('session-1');
+
+        const mockProblemSet: ProblemSet = {
+          id: '1',
+          name: 'Test Set',
+          problemSetKey: 'test-set',
+          enabled: true,
+          createdAt: Date.now(),
+        };
+
+        const mockProblems = Array.from({ length: 3 }, (_, i) => ({
+          id: `problem-${i + 1}`,
+          problemSetId: '1',
+          problem: `1 + ${i + 1}`,
+          answer: `${i + 2}`,
+          createdAt: Date.now(),
+        }));
+
+        vi.mocked(databaseService.getProblemSets).mockResolvedValue([
+          mockProblemSet,
+        ]);
+        vi.mocked(problemService.generateSessionQueue).mockResolvedValue(
+          mockProblems.map((p) => p.id!)
+        );
+
+        const { result } = renderHook(() => useApp(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.isInitialized).toBe(true);
+        });
+
+        // Select problem set
+        act(() => {
+          result.current.actions.selectProblemSet('1');
+        });
+
+        // Start session
+        await act(async () => {
+          await result.current.actions.startNewSession();
+        });
+
+        // End session early (before completing all problems)
+        await act(async () => {
+          await result.current.actions.endSessionEarly();
+        });
+
+        // Verify session was NOT saved
+        expect(databaseService.saveSession).not.toHaveBeenCalled();
+      });
     });
   });
 });

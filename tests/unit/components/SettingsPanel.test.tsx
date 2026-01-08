@@ -244,4 +244,86 @@ describe('SettingsPanel', () => {
     const backdrop = screen.getByTestId('settings-backdrop');
     expect(backdrop).toHaveClass('opacity-100');
   });
+
+  // Session History Limit tests
+  describe('Session History Limit', () => {
+    const propsWithHistory = {
+      ...defaultProps,
+      sessionHistoryLimit: 20,
+      onSessionHistoryLimitChange: vi.fn(),
+    };
+
+    it('should render session history limit label', () => {
+      render(
+        <LanguageProvider>
+          <SettingsPanel {...propsWithHistory} />
+        </LanguageProvider>
+      );
+
+      expect(screen.getByText(/Session History Limit|会话历史记录限制/)).toBeInTheDocument();
+    });
+
+    it('should render session history limit dropdown', () => {
+      render(
+        <LanguageProvider>
+          <SettingsPanel {...propsWithHistory} />
+        </LanguageProvider>
+      );
+
+      const select = screen.getByRole('combobox', { name: /session history limit/i });
+      expect(select).toBeInTheDocument();
+    });
+
+    it('should display current session history limit value', () => {
+      render(
+        <LanguageProvider>
+          <SettingsPanel {...propsWithHistory} />
+        </LanguageProvider>
+      );
+
+      const select = screen.getByRole('combobox', { name: /session history limit/i }) as HTMLSelectElement;
+      expect(select.value).toBe('20');
+    });
+
+    it('should have options for 10, 20, 30, 40, 50 sessions', () => {
+      render(
+        <LanguageProvider>
+          <SettingsPanel {...propsWithHistory} />
+        </LanguageProvider>
+      );
+
+      const select = screen.getByRole('combobox', { name: /session history limit/i });
+      const options = Array.from(select.querySelectorAll('option'));
+      const optionValues = options.map(opt => opt.value);
+
+      expect(optionValues).toEqual(['10', '20', '30', '40', '50']);
+    });
+
+    it('should call onSessionHistoryLimitChange when dropdown value changes', async () => {
+      const onSessionHistoryLimitChange = vi.fn();
+      const user = userEvent.setup();
+
+      render(
+        <LanguageProvider>
+          <SettingsPanel {...propsWithHistory} onSessionHistoryLimitChange={onSessionHistoryLimitChange} />
+        </LanguageProvider>
+      );
+
+      const select = screen.getByRole('combobox', { name: /session history limit/i });
+      await user.selectOptions(select, '30');
+
+      expect(onSessionHistoryLimitChange).toHaveBeenCalledWith(30);
+    });
+
+    it('should not render history limit dropdown when props not provided', () => {
+      render(
+        <LanguageProvider>
+          <SettingsPanel {...defaultProps} />
+        </LanguageProvider>
+      );
+
+      const select = screen.queryByRole('combobox', { name: /session history limit/i });
+      expect(select).not.toBeInTheDocument();
+    });
+  });
 });

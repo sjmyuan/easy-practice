@@ -26,7 +26,7 @@ export function PreSessionView({
             disabled={isLoading}
             className="h-12 w-full rounded-2xl bg-[#4A90E2] px-6 font-medium text-white shadow-lg transition-all hover:bg-[#3A80D2] hover:shadow-xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
           >
-            {t('preSession.viewSummary')}
+            {t('preSession.viewHistory')}
           </button>
         </div>
       </div>

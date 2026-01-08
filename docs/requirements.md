@@ -4,6 +4,40 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 ## Design Decisions
 
+### Session History Feature (January 2, 2026)
+
+**Decision**: Replaced the "Struggled Problems Summary" feature with a "Session History" feature that tracks and displays the last N completed practice sessions for each problem set.
+
+**Rationale**:
+
+- Provides a more comprehensive view of child's learning progress over time rather than just problem-level failures
+- Session-level metrics (accuracy, duration, problems attempted) give parents better insights into practice patterns
+- Configurable history limit (10/20/30/40/50 sessions) allows parents to control how much historical data to track
+- Reduces UI clutter by showing aggregate session statistics instead of long lists of individual failed problems
+- Better aligns with parental needs: tracking overall progress and trends rather than memorizing specific problem failures
+- Supports multiple use cases: monitoring improvement over time, identifying best practice times/durations, celebrating achievements
+
+**Implementation Details**:
+
+- Database layer: Added `sessions` table with comprehensive session metrics (id, problemSetId, startTime, endTime, duration, passCount, failCount, totalProblems, accuracy, createdAt)
+- Service layer: Implemented `saveSession()` to persist completed sessions and `getSessionHistory(problemSetId, limit)` to retrieve session history
+- Context layer: Added session history state management (`showHistory`, `sessionHistoryLimit`, `sessionHistory`) with corresponding actions (`loadSessionHistory`, `toggleHistory`, `setSessionHistoryLimit`)
+- UI components:
+  - **HistoryView**: Modal overlay displaying session cards with formatted metrics (accuracy %, duration in HH:MM:SS format, pass/fail counts, completion timestamp)
+  - **SettingsPanel**: Added session history limit dropdown (10/20/30/40/50 options) for user configuration
+  - **PreSessionView & SessionCompleteView**: Updated "View Summary" button to "View History"
+- Localization: Complete bilingual support with `history.*` translation keys replacing `summary.*` keys in en.json and zh.json
+- Removed components: Deleted old `SummaryView` component and related struggled problems tracking code
+
+**Impact**:
+
+- Enhanced parental insights with session-level progress tracking instead of problem-level failure tracking
+- Improved user experience with configurable history limits and clear visual presentation
+- Better data persistence: sessions are saved to IndexedDB and persist across app restarts
+- Cleaner codebase: removed complex struggled problems tracking logic in favor of simpler session storage
+- All 435 tests passing, including 21 new tests for HistoryView component
+- Maintains backward compatibility: reset data still works, just resets session history instead of struggled problems
+
 ### Single Page Application (SPA) Architecture (December 29, 2025)
 
 **Decision**: Refactored the application from a multi-page architecture to a Single Page Application (SPA) by merging the practice page functionality into the landing page, eliminating client-side navigation.
@@ -32,12 +66,12 @@ A mobile-first web application that helps parents facilitate practice for their 
   - `ErrorView`: Centralized error display with retry functionality
   - `LoadingView`: Consistent loading state presentation
   - `LandingView`: Problem set selection interface
-  - `PreSessionView`: Pre-session controls (start session, view summary, settings)
+  - `PreSessionView`: Pre-session controls (start session, view history, settings)
   - `SessionCompleteView`: Post-session statistics and actions
   - `PracticeSessionView`: Active session interface (timer, progress, problem display, answer buttons)
 - Removed practice page directory: `app/practice/`
 - Updated all navigation actions to use state changes instead of routing
-- Maintained all existing functionality including settings panel, summary view, and session management
+- Maintained all existing functionality including settings panel, session history view, and session management
 
 **Impact**:
 
@@ -301,15 +335,27 @@ As a busy parent, I want to quickly mark each problem as passed or failed so tha
 - ✅ Given a math problem is displayed, when the parent taps "Fail," then the problem is marked as failed and stored locally.
 - ✅ Given the parent marks a problem, when the next problem is generated, then the previous problem's status should persist.
 
-#### User Story 2: View Summary of Struggled Problems ✅ COMPLETED
+#### User Story 2: View Session History ✅ COMPLETED (Refactored January 2, 2026)
 
-As a busy parent, I want to see a summary of which problems my child has struggled with so that I can focus on those areas during future practice sessions.
+As a busy parent, I want to see a history of recent practice sessions so that I can track my child's progress over time and identify patterns in their learning.
 
 ##### Acceptance Criteria:
 
-- ✅ Given the parent marks problems as failed, when viewing the summary, then the list of struggled problems should be displayed.
-- ✅ Given there are no failed problems, when viewing the summary, then the app should display a message like "No struggled problems found."
-- ✅ Given the parent views the summary, when they tap on a specific problem, then the app should highlight its details (e.g., frequency of failure).
+- ✅ Given the parent completes practice sessions, when viewing the history, then the last N completed sessions for the currently selected problem set should be displayed.
+- ✅ Given there are no completed sessions, when viewing the history, then the app should display a message like "No completed sessions yet."
+- ✅ Given the parent views the session history, when they look at each session card, then they should see accuracy percentage, duration, total problems, pass count, fail count, and completion timestamp.
+- ✅ Given the parent wants to control the history size, when they access settings, then they should be able to configure the session history limit (10, 20, 30, 40, or 50 sessions).
+- ✅ Given the session history modal is open, when the parent taps the close button or outside the modal, then the modal should close and return to the previous view.
+
+**Implementation Details**:
+- Database: Sessions table with id, problemSetId, startTime, endTime, duration, passCount, failCount, totalProblems, accuracy, createdAt fields
+- Service Layer: `saveSession()` and `getSessionHistory(problemSetId, limit)` functions in database.service.ts
+- Context: `showHistory`, `sessionHistoryLimit`, `sessionHistory` state with `loadSessionHistory()`, `toggleHistory()`, `setSessionHistoryLimit()` actions
+- Component: HistoryView modal displaying session cards with formatted duration (HH:MM:SS), accuracy percentage, and statistics
+- Settings: Session history limit dropdown in SettingsPanel (10/20/30/40/50 options)
+- Localization: Complete bilingual support with history.* translation keys in en.json and zh.json
+
+**Replaced**: Previously "View Summary of Struggled Problems" which showed individual failed problems. New feature provides holistic session-level tracking instead of problem-level failure tracking.
 
 #### User Story 3: Reset Performance Data ✅ COMPLETED
 

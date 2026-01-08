@@ -10,7 +10,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import type { Problem, ProblemSet, StruggledProblemSummary } from '@/types';
+import type { Problem, ProblemSet, Session } from '@/types';
 import { databaseService, problemService } from '@/services';
 import { db } from '@/lib/db';
 import { RECENT_PROBLEMS_LIMIT } from '@/lib/constants';
@@ -34,11 +34,12 @@ export interface AppState {
   selectedProblemSetKey: string;
   availableProblemSets: ProblemSet[];
   isLoading: boolean;
-  showSummary: boolean;
+  showHistory: boolean;
   problemCoverage: number; // Percentage of problems to include (30, 50, 80, 100)
+  sessionHistoryLimit: number; // Number of sessions to display (10, 20, 30, 40, 50)
 
   // Statistics
-  struggledProblems: StruggledProblemSummary[];
+  sessionHistory: Session[];
 
   // Initialization
   isInitialized: boolean;
@@ -66,9 +67,10 @@ export interface AppActions {
   // Problem Coverage Actions
   setProblemCoverage: (coverage: number) => void;
 
-  // Summary Actions
-  loadStruggledProblems: () => Promise<void>;
-  toggleSummary: () => void;
+  // History Actions
+  loadSessionHistory: () => Promise<void>;
+  toggleHistory: () => void;
+  setSessionHistoryLimit: (limit: number) => void;
 
   // Data Management Actions
   resetAllData: () => Promise<void>;
@@ -85,6 +87,7 @@ export interface AppContextValue {
 }
 
 const PROBLEM_COVERAGE_KEY = 'problemCoverage';
+const SESSION_HISTORY_LIMIT_KEY = 'sessionHistoryLimit';
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
@@ -104,6 +107,22 @@ function loadProblemCoverageFromStorage(): number {
   return 100; // Default
 }
 
+// Load session history limit from localStorage
+function loadSessionHistoryLimitFromStorage(): number {
+  try {
+    const stored = localStorage.getItem(SESSION_HISTORY_LIMIT_KEY);
+    if (stored) {
+      const parsed = parseInt(stored, 10);
+      if ([10, 20, 30, 40, 50].includes(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load session history limit from localStorage:', error);
+  }
+  return 10; // Default
+}
+
 const initialState: AppState = {
   currentProblem: null,
   recentProblemIds: [],
@@ -118,11 +137,12 @@ const initialState: AppState = {
   selectedProblemSetKey: 'addition-within-20',
   availableProblemSets: [],
   isLoading: false,
-  showSummary: false,
-  struggledProblems: [],
+  showHistory: false,
+  sessionHistory: [],
   isInitialized: false,
   initializationError: null,
   problemCoverage: 100, // Default, will be overridden in AppProvider
+  sessionHistoryLimit: 10, // Default, will be overridden in AppProvider
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -130,6 +150,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(() => ({
     ...initialState,
     problemCoverage: loadProblemCoverageFromStorage(),
+    sessionHistoryLimit: loadSessionHistoryLimitFromStorage(),
   }));
   const stateRef = useRef<AppState>(state);
 
@@ -256,6 +277,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           sessionStartTime,
           sessionPassCount,
           sessionFailCount,
+          selectedProblemSetId,
         } = stateRef.current;
         const problemId = currentProblem?.id;
 
@@ -280,6 +302,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             const duration = sessionStartTime
               ? Date.now() - sessionStartTime
               : 0;
+            const endTime = Date.now();
+            const accuracy = sessionQueue.length > 0
+              ? Math.round((newPassCount / sessionQueue.length) * 100)
+              : 0;
+
+            // Save session to database
+            if (selectedProblemSetId && sessionStartTime) {
+              await databaseService.saveSession({
+                problemSetId: selectedProblemSetId,
+                startTime: sessionStartTime,
+                endTime: endTime,
+                duration: duration,
+                passCount: newPassCount,
+                failCount: newFailCount,
+                totalProblems: sessionQueue.length,
+                accuracy: accuracy,
+              });
+            }
 
             // Session complete
             setState((prev) => ({
@@ -331,8 +371,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionDuration: null,
         sessionPassCount: 0,
         sessionFailCount: 0,
-        // Clear struggled problems cache when switching problem set keys
-        struggledProblems: [],
+        // Clear session history when switching problem set keys
       };
       // Update stateRef synchronously within setState updater
       stateRef.current = newState;
@@ -373,8 +412,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionDuration: null,
         sessionPassCount: 0,
         sessionFailCount: 0,
-        // Clear struggled problems cache
-        struggledProblems: [],
       };
       // Update stateRef synchronously within setState updater
       stateRef.current = newState;
@@ -473,26 +510,45 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const loadStruggledProblems = useCallback(async () => {
+  const loadSessionHistory = useCallback(async () => {
     try {
       setLoading(true);
-      const { selectedProblemSetId } = stateRef.current;
+      const { selectedProblemSetId, sessionHistoryLimit } = stateRef.current;
 
-      const problems = await databaseService.getStruggledProblems(
-        20,
-        selectedProblemSetId || undefined
+      if (!selectedProblemSetId) {
+        // No problem set selected, don't load history
+        return;
+      }
+
+      const sessions = await databaseService.getSessionHistory(
+        selectedProblemSetId,
+        sessionHistoryLimit
       );
-      setState((prev) => ({ ...prev, struggledProblems: problems }));
+      setState((prev) => ({ ...prev, sessionHistory: sessions }));
     } catch (error) {
-      console.error('Failed to load struggled problems:', error);
+      console.error('Failed to load session history:', error);
       throw error;
     } finally {
       setLoading(false);
     }
   }, [setLoading]);
 
-  const toggleSummary = useCallback(() => {
-    setState((prev) => ({ ...prev, showSummary: !prev.showSummary }));
+  const toggleHistory = useCallback(() => {
+    setState((prev) => ({ ...prev, showHistory: !prev.showHistory }));
+  }, []);
+
+  const setSessionHistoryLimit = useCallback((limit: number) => {
+    // Validate limit (must be one of the allowed values)
+    if (![10, 20, 30, 40, 50].includes(limit)) {
+      console.warn(`Invalid session history limit: ${limit}`);
+      return;
+    }
+
+    // Save to localStorage
+    localStorage.setItem(SESSION_HISTORY_LIMIT_KEY, limit.toString());
+
+    // Update state
+    setState((prev) => ({ ...prev, sessionHistoryLimit: limit }));
   }, []);
 
   const resetAllData = useCallback(async () => {
@@ -502,11 +558,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Reset statistics for ALL problem sets globally
       await databaseService.resetStatistics();
 
-      // Only clear the struggled problems cache, preserve UI state
-      setState((prev) => ({
-        ...prev,
-        struggledProblems: [],
-      }));
+      // No state changes needed - all statistics are in database
     } catch (error) {
       console.error('Failed to reset data:', error);
       throw error;
@@ -568,8 +620,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setProblemCoverage,
       startNewSession,
       endSessionEarly,
-      loadStruggledProblems,
-      toggleSummary,
+      loadSessionHistory,
+      toggleHistory,
+      setSessionHistoryLimit,
       resetAllData,
       exportData,
       importData,
@@ -586,8 +639,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setProblemCoverage,
       startNewSession,
       endSessionEarly,
-      loadStruggledProblems,
-      toggleSummary,
+      loadSessionHistory,
+      toggleHistory,
+      setSessionHistoryLimit,
       resetAllData,
       exportData,
       importData,

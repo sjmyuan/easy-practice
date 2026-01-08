@@ -119,7 +119,7 @@ describe('SessionCompleteView', () => {
     expect(onStartNewSession).toHaveBeenCalledTimes(1);
   });
 
-  it('should call onViewSummary when view summary button is clicked', () => {
+  it('should call onViewSummary when view history button is clicked', () => {
     const onViewSummary = vi.fn();
     render(
       <LanguageProvider>
@@ -135,7 +135,7 @@ describe('SessionCompleteView', () => {
       </LanguageProvider>
     );
 
-    const button = screen.getByRole('button', { name: /view summary|查看总结/i });
+    const button = screen.getByRole('button', { name: /view history|查看历史记录/i });
     button.click();
 
     expect(onViewSummary).toHaveBeenCalledTimes(1);
@@ -159,11 +159,11 @@ describe('SessionCompleteView', () => {
     const startButton = screen.getByRole('button', {
       name: /start new session|开始新练习/i,
     });
-    const viewSummaryButton = screen.getByRole('button', {
-      name: /view summary|查看总结/i,
+    const viewHistoryButton = screen.getByRole('button', {
+      name: /view history|查看历史记录/i,
     });
 
     expect(startButton).toBeDisabled();
-    expect(viewSummaryButton).toBeDisabled();
+    expect(viewHistoryButton).toBeDisabled();
   });
 });

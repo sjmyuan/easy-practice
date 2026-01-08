@@ -18,6 +18,7 @@
   "preSession": {
     "startSession": "Start New Session",
     "viewSummary": "View Summary",
+    "viewHistory": "View History",
     "resetData": "Reset Data",
     "settings": "Settings",
     "problemCoverage": "Problem Coverage",
@@ -46,14 +47,16 @@
     "startNewSession": "Start New Session",
     "changeProblemSet": "Change Problem Set"
   },
-  "summary": {
-    "title": "Struggled Problems Summary",
-    "noStruggledProblems": "No struggled problems",
-    "problem": "Problem",
-    "attempts": "Attempts",
-    "passRate": "Pass Rate",
-    "priority": "Priority",
-    "close": "Close"
+  "history": {
+    "title": "Session History",
+    "noSessions": "No session history available",
+    "session": "Session",
+    "duration": "Duration",
+    "accuracy": "Accuracy",
+    "problems": "Problems",
+    "passed": "Passed",
+    "failed": "Failed",
+    "completedAt": "Completed At"
   },
   "settings": {
     "title": "Settings",
@@ -62,6 +65,7 @@
     "english": "English",
     "problemCoverage": "Problem Coverage",
     "coverageDescription": "Choose the percentage of problems to practice (based on priority)",
+    "sessionHistoryLimit": "Session History Limit",
     "resetData": "Reset Data",
     "resetDataDescription": "Clear all statistics data for all problem sets",
     "resetConfirm": "Are you sure you want to reset all statistics data? This will clear data for ALL problem sets and cannot be undone."

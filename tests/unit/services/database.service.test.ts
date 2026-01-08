@@ -1049,4 +1049,233 @@ describe('DatabaseService', () => {
       expect(version).toBeUndefined();
     });
   });
+
+  describe('saveSession', () => {
+    beforeEach(async () => {
+      // Clear sessions table before each test
+      await db.sessions.clear();
+    });
+
+    it('should save a session with all required fields', async () => {
+      const sessionData = {
+        problemSetId: 'test-problem-set-1',
+        startTime: Date.now(),
+        endTime: Date.now() + 60000,
+        duration: 60000,
+        passCount: 8,
+        failCount: 2,
+        totalProblems: 10,
+        accuracy: 80,
+      };
+
+      const sessionId = await service.saveSession(sessionData);
+
+      expect(sessionId).toBeDefined();
+      expect(typeof sessionId).toBe('string');
+
+      const savedSession = await db.sessions.get(sessionId);
+      expect(savedSession).toBeDefined();
+      expect(savedSession?.problemSetId).toBe('test-problem-set-1');
+      expect(savedSession?.passCount).toBe(8);
+      expect(savedSession?.failCount).toBe(2);
+      expect(savedSession?.totalProblems).toBe(10);
+      expect(savedSession?.accuracy).toBe(80);
+      expect(savedSession?.duration).toBe(60000);
+      expect(savedSession?.createdAt).toBeDefined();
+    });
+
+    it('should calculate accuracy correctly', async () => {
+      const sessionData = {
+        problemSetId: 'test-problem-set-1',
+        startTime: Date.now(),
+        endTime: Date.now() + 120000,
+        duration: 120000,
+        passCount: 10,
+        failCount: 0,
+        totalProblems: 10,
+        accuracy: 100,
+      };
+
+      const sessionId = await service.saveSession(sessionData);
+      const savedSession = await db.sessions.get(sessionId);
+
+      expect(savedSession?.accuracy).toBe(100);
+      expect((savedSession?.passCount ?? 0) + (savedSession?.failCount ?? 0)).toBe(savedSession?.totalProblems);
+    });
+
+    it('should handle zero problems session', async () => {
+      const sessionData = {
+        problemSetId: 'test-problem-set-1',
+        startTime: Date.now(),
+        endTime: Date.now() + 1000,
+        duration: 1000,
+        passCount: 0,
+        failCount: 0,
+        totalProblems: 0,
+        accuracy: 0,
+      };
+
+      const sessionId = await service.saveSession(sessionData);
+      const savedSession = await db.sessions.get(sessionId);
+
+      expect(savedSession).toBeDefined();
+      expect(savedSession?.totalProblems).toBe(0);
+      expect(savedSession?.accuracy).toBe(0);
+    });
+  });
+
+  describe('getSessionHistory', () => {
+    beforeEach(async () => {
+      await db.sessions.clear();
+      await db.problemSets.clear();
+    });
+
+    it('should return empty array when no sessions exist', async () => {
+      const sessions = await service.getSessionHistory('problem-set-1', 10);
+
+      expect(sessions).toBeDefined();
+      expect(Array.isArray(sessions)).toBe(true);
+      expect(sessions.length).toBe(0);
+    });
+
+    it('should return sessions for specific problem set only', async () => {
+      // Create sessions for different problem sets
+      await service.saveSession({
+        problemSetId: 'problem-set-1',
+        startTime: Date.now(),
+        endTime: Date.now() + 60000,
+        duration: 60000,
+        passCount: 8,
+        failCount: 2,
+        totalProblems: 10,
+        accuracy: 80,
+      });
+
+      await service.saveSession({
+        problemSetId: 'problem-set-2',
+        startTime: Date.now(),
+        endTime: Date.now() + 60000,
+        duration: 60000,
+        passCount: 7,
+        failCount: 3,
+        totalProblems: 10,
+        accuracy: 70,
+      });
+
+      await service.saveSession({
+        problemSetId: 'problem-set-1',
+        startTime: Date.now(),
+        endTime: Date.now() + 120000,
+        duration: 120000,
+        passCount: 9,
+        failCount: 1,
+        totalProblems: 10,
+        accuracy: 90,
+      });
+
+      const sessions = await service.getSessionHistory('problem-set-1', 10);
+
+      expect(sessions.length).toBe(2);
+      expect(sessions.every(s => s.problemSetId === 'problem-set-1')).toBe(true);
+    });
+
+    it('should return sessions in descending order by createdAt', async () => {
+      const now = Date.now();
+
+      // Add sessions with different timestamps
+      await service.saveSession({
+        problemSetId: 'problem-set-1',
+        startTime: now,
+        endTime: now + 60000,
+        duration: 60000,
+        passCount: 5,
+        failCount: 5,
+        totalProblems: 10,
+        accuracy: 50,
+      });
+
+      // Wait a bit to ensure different timestamps
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      await service.saveSession({
+        problemSetId: 'problem-set-1',
+        startTime: now + 120000,
+        endTime: now + 180000,
+        duration: 60000,
+        passCount: 8,
+        failCount: 2,
+        totalProblems: 10,
+        accuracy: 80,
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      await service.saveSession({
+        problemSetId: 'problem-set-1',
+        startTime: now + 240000,
+        endTime: now + 300000,
+        duration: 60000,
+        passCount: 10,
+        failCount: 0,
+        totalProblems: 10,
+        accuracy: 100,
+      });
+
+      const sessions = await service.getSessionHistory('problem-set-1', 10);
+
+      expect(sessions.length).toBe(3);
+      // Most recent should be first
+      expect(sessions[0].accuracy).toBe(100);
+      expect(sessions[1].accuracy).toBe(80);
+      expect(sessions[2].accuracy).toBe(50);
+    });
+
+    it('should limit results to specified count', async () => {
+      // Add 15 sessions
+      for (let i = 0; i < 15; i++) {
+        await service.saveSession({
+          problemSetId: 'problem-set-1',
+          startTime: Date.now() + i * 60000,
+          endTime: Date.now() + (i + 1) * 60000,
+          duration: 60000,
+          passCount: 10,
+          failCount: 0,
+          totalProblems: 10,
+          accuracy: 100,
+        });
+        // Small delay to ensure different timestamps
+        await new Promise(resolve => setTimeout(resolve, 5));
+      }
+
+      const sessions10 = await service.getSessionHistory('problem-set-1', 10);
+      expect(sessions10.length).toBe(10);
+
+      const sessions20 = await service.getSessionHistory('problem-set-1', 20);
+      expect(sessions20.length).toBe(15); // Only 15 exist
+
+      const sessions5 = await service.getSessionHistory('problem-set-1', 5);
+      expect(sessions5.length).toBe(5);
+    });
+
+    it('should handle default limit parameter', async () => {
+      // Add 15 sessions
+      for (let i = 0; i < 15; i++) {
+        await service.saveSession({
+          problemSetId: 'problem-set-1',
+          startTime: Date.now() + i * 60000,
+          endTime: Date.now() + (i + 1) * 60000,
+          duration: 60000,
+          passCount: 10,
+          failCount: 0,
+          totalProblems: 10,
+          accuracy: 100,
+        });
+        await new Promise(resolve => setTimeout(resolve, 5));
+      }
+
+      // If limit is not specified, should default to 10
+      const sessions = await service.getSessionHistory('problem-set-1');
+      expect(sessions.length).toBe(10);
+    });
+  });
 });

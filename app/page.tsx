@@ -8,7 +8,7 @@ import { LandingView } from '@/components/LandingView';
 import { PreSessionView } from '@/components/PreSessionView';
 import { SessionCompleteView } from '@/components/SessionCompleteView';
 import { PracticeSessionView } from '@/components/PracticeSessionView';
-import { SummaryView } from '@/components/SummaryView';
+import { HistoryView } from '@/components/HistoryView';
 import { SettingsIcon } from '@/components/SettingsIcon';
 import { CloseSessionIcon } from '@/components/CloseSessionIcon';
 import { SettingsPanel } from '@/components/SettingsPanel';
@@ -39,8 +39,8 @@ export default function Home() {
   };
 
   const handleViewSummary = () => {
-    actions.loadStruggledProblems();
-    actions.toggleSummary();
+    actions.loadSessionHistory();
+    actions.toggleHistory();
   };
 
   const handleCloseSession = () => {
@@ -159,10 +159,11 @@ export default function Home() {
         )}
       </div>
 
-      {state.showSummary && (
-        <SummaryView
-          problems={state.struggledProblems}
-          onClose={actions.toggleSummary}
+      {/* Session History View */}
+      {state.showHistory && (
+        <HistoryView
+          sessions={state.sessionHistory}
+          onClose={actions.toggleHistory}
         />
       )}
 
@@ -173,6 +174,8 @@ export default function Home() {
         onProblemCoverageChange={actions.setProblemCoverage}
         onResetData={actions.resetAllData}
         selectedProblemSetKey={state.selectedProblemSetKey}
+        sessionHistoryLimit={state.sessionHistoryLimit}
+        onSessionHistoryLimitChange={actions.setSessionHistoryLimit}
       />
     </main>
   );

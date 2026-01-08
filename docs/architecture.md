@@ -2,11 +2,85 @@
 
 ## Easy Practice for Parents
 
-**Version:** 1.7.1  
-**Date:** December 25, 2025  
+**Version:** 1.8.0  
+**Date:** January 2, 2026  
 **Status:** In Progress - Epics 1-5 Completed
 
 ## Recent Updates
+
+### Session History Feature Refactor (January 2, 2026)
+
+- **Feature Replacement**:
+  - Replaced "Struggled Problems Summary" with "Session History" feature
+  - Tracks completed practice sessions instead of individual problem failures
+  - Provides holistic view of learning progress over time
+- **Database Layer**:
+  - Added `sessions` table to IndexedDB schema (via Dexie)
+  - Session entity fields: `id` (auto-increment), `problemSetId`, `startTime`, `endTime`, `duration`, `passCount`, `failCount`, `totalProblems`, `accuracy` (calculated), `createdAt` (timestamp)
+  - Indexed on `problemSetId` and `createdAt` for efficient querying
+- **Service Layer**:
+  - Implemented `saveSession(sessionData)`: Persists completed session to database
+  - Implemented `getSessionHistory(problemSetId, limit)`: Retrieves last N sessions for a problem set, ordered by completion time (newest first)
+  - 34 tests covering database operations (sessions table schema, CRUD operations, edge cases)
+- **Context Layer (AppContext)**:
+  - Removed: `showSummary`, `struggledProblems` state and `toggleSummary`, `loadStruggledProblems` actions
+  - Added state:
+    - `showHistory` (boolean): Controls HistoryView modal visibility
+    - `sessionHistoryLimit` (number): Number of sessions to retrieve (default: 10, options: 10/20/30/40/50)
+    - `sessionHistory` (Session[]): Array of completed sessions for current problem set
+  - Added actions:
+    - `loadSessionHistory()`: Fetches session history from database for current problem set
+    - `toggleHistory()`: Opens/closes HistoryView modal
+    - `setSessionHistoryLimit(limit)`: Updates history limit preference (persisted to localStorage)
+  - Integrated `saveSession()` call when session completes
+  - 62 tests covering session history state management and lifecycle
+- **UI Components**:
+  - **HistoryView Component** (new):
+    - Modal overlay displaying session history cards
+    - Each card shows: accuracy percentage (with color coding), duration (HH:MM:SS format), total problems, pass/fail counts, completion timestamp (localized)
+    - Helper functions: `formatDuration(milliseconds)` → "Xh Ym Zs", `formatDate(timestamp)` → locale string
+    - Empty state: "No completed sessions yet" when history is empty
+    - Bilingual support via `useLanguage` hook
+    - 21 tests covering rendering, formatting, interactions, edge cases
+  - **SettingsPanel Component** (updated):
+    - Added session history limit dropdown (10/20/30/40/50 options)
+    - Conditional rendering: dropdown only shown when `sessionHistoryLimit` prop provided
+    - 23 tests total (6 new tests for history limit feature)
+  - **PreSessionView & SessionCompleteView** (updated):
+    - Changed button text from "View Summary" to "View History"
+    - Button calls `onViewSummary` prop (which triggers `loadSessionHistory` + `toggleHistory`)
+  - **Removed Components**:
+    - Deleted `SummaryView.tsx` and `SummaryView.test.tsx`
+    - Removed all struggled problems tracking UI code
+- **Localization**:
+  - Replaced `summary.*` translation keys with `history.*` keys:
+    - `history.title`: "Session History" / "会话历史记录"
+    - `history.noSessions`: "No completed sessions yet" / "还没有完成的练习记录"
+    - `history.session`: "Session" / "练习"
+    - `history.duration`: "Duration" / "时长"
+    - `history.accuracy`: "Accuracy" / "准确率"
+    - `history.problems`: "Problems" / "题目"
+    - `history.passed`: "Passed" / "通过"
+    - `history.failed`: "Failed" / "失败"
+    - `history.completedAt`: "Completed" / "完成时间"
+  - Added `preSession.viewHistory`: "View History" / "查看历史记录"
+  - Added `settings.sessionHistoryLimit`: "Session History Limit" / "会话历史记录限制"
+- **Page Integration**:
+  - Updated `app/page.tsx` to integrate HistoryView component
+  - Implemented `handleViewSummary()`: calls `actions.loadSessionHistory()` + `actions.toggleHistory()`
+  - Added HistoryView render: conditional on `state.showHistory`
+  - Passed `sessionHistoryLimit` and `onSessionHistoryLimitChange` props to SettingsPanel
+- **Test Coverage**:
+  - All 435 tests passing after refactor
+  - 21 new tests for HistoryView component
+  - 6 new tests for SettingsPanel history limit feature
+  - Updated test assertions in PreSessionView and SessionCompleteView to match new button text
+- **Impact**:
+  - Enhanced parental insights: session-level progress tracking with trends over time
+  - Improved UX: configurable history limits, clear visual presentation with session cards
+  - Better data persistence: sessions stored in IndexedDB, survive app restarts
+  - Cleaner codebase: simpler session storage vs. complex problem failure tracking
+  - Maintained backward compatibility: reset data still works (resets session history)
 
 ### Audio Auto-play and UI Improvements (December 25, 2025)
 

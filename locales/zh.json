@@ -17,8 +17,7 @@
   },
   "preSession": {
     "startSession": "开始新练习",
-    "viewSummary": "查看总结",
-    "resetData": "重置数据",
+    "viewSummary": "查看总结",    "viewHistory": "查看历史记录",    "resetData": "重置数据",
     "settings": "设置",
     "problemCoverage": "问题覆盖率",
     "estimatedProblems": "预计问题数"
@@ -46,14 +45,16 @@
     "startNewSession": "开始新练习",
     "changeProblemSet": "更换练习集"
   },
-  "summary": {
-    "title": "困难题目总结",
-    "noStruggledProblems": "没有困难题目",
-    "problem": "问题",
-    "attempts": "尝试次数",
-    "passRate": "通过率",
-    "priority": "优先级",
-    "close": "关闭"
+  "history": {
+    "title": "会话历史记录",
+    "noSessions": "没有可用的会话历史记录",
+    "session": "会话",
+    "duration": "持续时间",
+    "accuracy": "准确率",
+    "problems": "问题数",
+    "passed": "通过",
+    "failed": "失败",
+    "completedAt": "完成时间"
   },
   "settings": {
     "title": "设置",
@@ -62,6 +63,7 @@
     "english": "English",
     "problemCoverage": "问题覆盖率",
     "coverageDescription": "选择要练习的问题百分比（基于优先级）",
+    "sessionHistoryLimit": "会话历史记录限制",
     "resetData": "重置数据",
     "resetDataDescription": "清除所有练习集的统计数据",
     "resetConfirm": "确定要重置所有统计数据吗？这将清除所有练习集的数据，且此操作无法撤销。"
