@@ -2,11 +2,122 @@
 
 ## Easy Practice for Parents
 
-**Version:** 1.7.1  
-**Date:** December 25, 2025  
+**Version:** 1.8.2  
+**Date:** January 9, 2026  
 **Status:** In Progress - Epics 1-5 Completed
 
 ## Recent Updates
+
+### Bug Fix: Session Not Saved When Closing Early (January 9, 2026)
+
+- **Issue**: When users closed a practice session early (before completing all problems), the session was not saved to the database, causing the history view to remain empty
+- **Root Cause**: `endSessionEarly()` function calculated session duration and updated state but did not call `databaseService.saveSession()`
+- **Fix Implementation**:
+  - Updated `endSessionEarly()` in AppContext to save session to database when there are completed problems
+  - Saves session with accurate statistics: `totalProblems` set to `sessionCompletedCount` (not full queue length)
+  - Calculates accuracy based on completed problems: `Math.round((sessionPassCount / sessionCompletedCount) * 100)`
+  - Only saves if `sessionCompletedCount > 0` to avoid empty sessions
+  - Added validation: requires `selectedProblemSetKey`, `sessionStartTime`, and at least one completed problem
+- **Testing**:
+  - Added 2 new tests verifying session save behavior when ending early
+  - Test 1: Verifies session is saved with correct statistics when ending early with completed problems
+  - Test 2: Verifies session is NOT saved when ending early with zero completed problems
+  - All 440 tests passing
+- **Impact**:
+  - History view now correctly displays sessions that were closed early
+  - Session statistics accurately reflect only the problems that were completed before closing
+  - Parents can track partial practice sessions without needing to complete all problems
+
+### Bug Fix: History View Empty Issue (January 9, 2026)
+
+- **Issue**: History view always appeared empty despite completed sessions being saved
+- **Root Cause**: `loadSessionHistory()` was checking for `selectedProblemSetId` (which was always null) instead of using `selectedProblemSetKey`
+- **Fix Implementation**:
+  - **Session Storage Migration**: Changed Session type from `problemSetId: string` to `problemSetKey: string`
+  - **Database Schema Update**: Updated sessions table index from `problemSetId` to `problemSetKey` in `lib/db.ts`
+  - **Service Layer Update**: Modified `saveSession()` to accept and store `problemSetKey`, updated `getSessionHistory()` to filter by `problemSetKey`
+  - **State Management Cleanup**: Completely removed `selectedProblemSetId` from AppContext state to eliminate confusion between IDs and keys
+  - **History Loading Fix**: Updated `loadSessionHistory()` to use `selectedProblemSetKey` directly without null checks
+  - **Landing View Logic**: Restored landing view conditional rendering based on empty `selectedProblemSetKey` check
+- **Impact**:
+  - History view now correctly loads and displays session history filtered by selected problem set
+  - Reduced state complexity by using only `selectedProblemSetKey` for problem set tracking
+  - Landing view properly displays when no problem set is selected (empty `selectedProblemSetKey`)
+  - All 438 tests passing after comprehensive test updates
+
+### Session History Feature Refactor (January 2, 2026)
+
+- **Feature Replacement**:
+  - Replaced "Struggled Problems Summary" with "Session History" feature
+  - Tracks completed practice sessions instead of individual problem failures
+  - Provides holistic view of learning progress over time
+- **Database Layer**:
+  - Added `sessions` table to IndexedDB schema (via Dexie)
+  - Session entity fields: `id` (auto-increment), `problemSetKey`, `startTime`, `endTime`, `duration`, `passCount`, `failCount`, `totalProblems`, `accuracy` (calculated), `createdAt` (timestamp)
+  - Indexed on `problemSetKey` and `createdAt` for efficient querying
+- **Service Layer**:
+  - Implemented `saveSession(sessionData)`: Persists completed session to database
+  - Implemented `getSessionHistory(problemSetKey, limit)`: Retrieves last N sessions for a problem set, ordered by completion time (newest first)
+  - 34 tests covering database operations (sessions table schema, CRUD operations, edge cases)
+- **Context Layer (AppContext)**:
+  - Removed: `showSummary`, `struggledProblems` state and `toggleSummary`, `loadStruggledProblems` actions
+  - Added state:
+    - `showHistory` (boolean): Controls HistoryView modal visibility
+    - `sessionHistoryLimit` (number): Number of sessions to retrieve (default: 10, options: 10/20/30/40/50)
+    - `sessionHistory` (Session[]): Array of completed sessions for current problem set
+  - Added actions:
+    - `loadSessionHistory()`: Fetches session history from database for current problem set
+    - `toggleHistory()`: Opens/closes HistoryView modal
+    - `setSessionHistoryLimit(limit)`: Updates history limit preference (persisted to localStorage)
+  - Integrated `saveSession()` call when session completes
+  - 62 tests covering session history state management and lifecycle
+- **UI Components**:
+  - **HistoryView Component** (new):
+    - Modal overlay displaying session history cards
+    - Each card shows: accuracy percentage (with color coding), duration (HH:MM:SS format), total problems, pass/fail counts, completion timestamp (localized)
+    - Helper functions: `formatDuration(milliseconds)` → "Xh Ym Zs", `formatDate(timestamp)` → locale string
+    - Empty state: "No completed sessions yet" when history is empty
+    - Bilingual support via `useLanguage` hook
+    - 21 tests covering rendering, formatting, interactions, edge cases
+  - **SettingsPanel Component** (updated):
+    - Added session history limit dropdown (10/20/30/40/50 options)
+    - Conditional rendering: dropdown only shown when `sessionHistoryLimit` prop provided
+    - 23 tests total (6 new tests for history limit feature)
+  - **PreSessionView & SessionCompleteView** (updated):
+    - Changed button text from "View Summary" to "View History"
+    - Button calls `onViewSummary` prop (which triggers `loadSessionHistory` + `toggleHistory`)
+  - **Removed Components**:
+    - Deleted `SummaryView.tsx` and `SummaryView.test.tsx`
+    - Removed all struggled problems tracking UI code
+- **Localization**:
+  - Replaced `summary.*` translation keys with `history.*` keys:
+    - `history.title`: "Session History" / "会话历史记录"
+    - `history.noSessions`: "No completed sessions yet" / "还没有完成的练习记录"
+    - `history.session`: "Session" / "练习"
+    - `history.duration`: "Duration" / "时长"
+    - `history.accuracy`: "Accuracy" / "准确率"
+    - `history.problems`: "Problems" / "题目"
+    - `history.passed`: "Passed" / "通过"
+    - `history.failed`: "Failed" / "失败"
+    - `history.completedAt`: "Completed" / "完成时间"
+  - Added `preSession.viewHistory`: "View History" / "查看历史记录"
+  - Added `settings.sessionHistoryLimit`: "Session History Limit" / "会话历史记录限制"
+- **Page Integration**:
+  - Updated `app/page.tsx` to integrate HistoryView component
+  - Implemented `handleViewSummary()`: calls `actions.loadSessionHistory()` + `actions.toggleHistory()`
+  - Added HistoryView render: conditional on `state.showHistory`
+  - Passed `sessionHistoryLimit` and `onSessionHistoryLimitChange` props to SettingsPanel
+- **Test Coverage**:
+  - All 435 tests passing after refactor
+  - 21 new tests for HistoryView component
+  - 6 new tests for SettingsPanel history limit feature
+  - Updated test assertions in PreSessionView and SessionCompleteView to match new button text
+- **Impact**:
+  - Enhanced parental insights: session-level progress tracking with trends over time
+  - Improved UX: configurable history limits, clear visual presentation with session cards
+  - Better data persistence: sessions stored in IndexedDB, survive app restarts
+  - Cleaner codebase: simpler session storage vs. complex problem failure tracking
+  - Maintained backward compatibility: reset data still works (resets session history)
 
 ### Audio Auto-play and UI Improvements (December 25, 2025)
 
@@ -148,7 +259,7 @@
 - **View Management**:
   - All views now rendered conditionally within `app/page.tsx` based on application state
   - View selection logic:
-    - `selectedProblemSetId === null` → **LandingView** (problem set selection)
+    - `selectedProblemSetKey` is empty → **LandingView** (problem set selection)
     - `isSessionActive === true` → **PracticeSessionView** (active session)
     - `sessionCompletedCount > 0` → **SessionCompleteView** (post-session results)
     - Default (problem set selected, no active session) → **PreSessionView** (pre-session controls)
@@ -246,9 +357,9 @@
     - Moved from landing page into settings panel
     - Toggle button with flag icons (🇨🇳 for Chinese, 🇺🇸 for English)
     - Full keyboard accessibility with proper ARIA labels
-  - **ProblemCoverageSlider** (`components/ProblemCoverageSlider.tsx`):
-    - Simplified to show only percentage (30%, 50%, 80%, 100%)
-    - Removed problem count display (different problem sets have different totals)
+  - **ProblemCoverageDropdown** (`components/ProblemCoverageDropdown.tsx`):
+    - Dropdown select element for choosing coverage percentage (30%, 50%, 80%, 100%)
+    - Replaces slider UI with dropdown for more direct value selection
     - No longer requires `totalProblems` prop
 - **State Management**:
   - Local state `isSettingsOpen` in landing/pre-session views controls modal visibility
@@ -282,13 +393,13 @@
   - 17 tests for SettingsPanel component (updated for global settings)
   - 11 tests for LandingView component (including settings panel integration)
   - Updated AppContext tests for global reset and localStorage persistence
-  - Updated ProblemCoverageSlider tests (removed problem count assertions)
+  - Updated ProblemCoverageDropdown tests (dropdown UI replaces slider)
   - All 364 tests passing
 - **Components Modified**:
   - `components/SettingsIcon.tsx` (added min-h-[48px] for accessibility)
   - `components/SettingsPanel.tsx` (added LanguageSelector, removed totalProblems prop)
   - `components/LandingView.tsx` (added SettingsIcon and SettingsPanel)
-  - `components/ProblemCoverageSlider.tsx` (removed problem count display)
+  - `components/ProblemCoverageDropdown.tsx` (replaced slider with dropdown select)
   - `contexts/AppContext.tsx` (localStorage persistence, global reset)
   - `app/page.tsx` (removed totalProblems state)
   - `locales/en.json` (updated reset confirmation messages)

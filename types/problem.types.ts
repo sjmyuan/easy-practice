@@ -58,6 +58,19 @@ export interface StruggledProblemSummary {
   priority: number;
 }
 
+export interface Session {
+  id?: string;
+  problemSetKey: string;
+  startTime: number; // timestamp
+  endTime: number; // timestamp
+  duration: number; // milliseconds
+  passCount: number;
+  failCount: number;
+  totalProblems: number;
+  accuracy: number; // percentage
+  createdAt: number; // timestamp
+}
+
 // JSON Import Format
 export interface ProblemSetJSON {
   version: string;

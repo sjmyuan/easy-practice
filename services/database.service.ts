@@ -10,6 +10,7 @@ import type {
   ProblemSetJSON,
   LocalizedString,
   LocalizedContent,
+  Session,
 } from '@/types';
 
 /**
@@ -647,6 +648,76 @@ export class DatabaseService {
         }
       }
     );
+  }
+
+  /**
+   * Save a session to the database
+   */
+  async saveSession(sessionData: {
+    problemSetKey: string;
+    startTime: number;
+    endTime: number;
+    duration: number;
+    passCount: number;
+    failCount: number;
+    totalProblems: number;
+    accuracy: number;
+  }): Promise<string> {
+    const sessionId = generateId();
+    
+    await db.sessions.add({
+      id: sessionId,
+      problemSetKey: sessionData.problemSetKey,
+      startTime: sessionData.startTime,
+      endTime: sessionData.endTime,
+      duration: sessionData.duration,
+      passCount: sessionData.passCount,
+      failCount: sessionData.failCount,
+      totalProblems: sessionData.totalProblems,
+      accuracy: sessionData.accuracy,
+      createdAt: Date.now(),
+    });
+
+    return sessionId;
+  }
+
+  /**
+   * Get session history for a problem set
+   * Returns sessions in descending order by createdAt (most recent first)
+   */
+  async getSessionHistory(
+    problemSetKey: string,
+    limit: number = 10
+  ): Promise<Array<{
+    id: string;
+    problemSetKey: string;
+    startTime: number;
+    endTime: number;
+    duration: number;
+    passCount: number;
+    failCount: number;
+    totalProblems: number;
+    accuracy: number;
+    createdAt: number;
+  }>> {
+    const sessions = await db.sessions
+      .where('problemSetKey')
+      .equals(problemSetKey)
+      .reverse()
+      .sortBy('createdAt');
+
+    return sessions.slice(0, limit).map(session => ({
+      id: session.id!,
+      problemSetKey: session.problemSetKey,
+      startTime: session.startTime,
+      endTime: session.endTime,
+      duration: session.duration,
+      passCount: session.passCount,
+      failCount: session.failCount,
+      totalProblems: session.totalProblems,
+      accuracy: session.accuracy,
+      createdAt: session.createdAt,
+    }));
   }
 }
 

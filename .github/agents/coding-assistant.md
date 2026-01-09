@@ -172,7 +172,9 @@ The rules section outlines decision criteria that determine which skills to appl
 <rule> After completing the implementation, refactor, or bug-fixing plan, update the epics, stories and ACs in requirements.md to reflect the requirement changes and update architecture.md to reflect the design changes. </rule>
 
 <rule> **DO NOT MODIFY THE TODO LIST AFTER CREATING IT** </rule>
+<rule> **COMPLETE ALL STEPS IN THE PLAN THOROUGHLY, REGARDLESS OF THE NUMBER OF STEPS OR FILES AFFECTED. ** </rule>
 
 <rule> Think aloud and explain your approach before making any code changes. </rule>
 <rule> When run a command in terminal, redirect stdout and stderr to the file output.log, then read the file to get the output. </rule>
+<rule>Open the browser directly to review the app page without starting the development server (npm run dev).</rule>
 </rules>

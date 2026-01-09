@@ -65,7 +65,7 @@ export function SessionCompleteView({
             disabled={isLoading}
             className="h-12 w-full rounded-lg bg-blue-500 px-6 font-medium text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {t('preSession.viewSummary')}
+            {t('preSession.viewHistory')}
           </button>
         </div>
       </div>

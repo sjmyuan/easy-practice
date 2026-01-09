@@ -10,7 +10,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import type { Problem, ProblemSet, StruggledProblemSummary } from '@/types';
+import type { Problem, ProblemSet, Session } from '@/types';
 import { databaseService, problemService } from '@/services';
 import { db } from '@/lib/db';
 import { RECENT_PROBLEMS_LIMIT } from '@/lib/constants';
@@ -24,7 +24,6 @@ export interface AppState {
   isSessionActive: boolean;
   sessionQueue: string[]; // Array of problem IDs in the session
   sessionCompletedCount: number;
-  selectedProblemSetId: string | null; // Currently selected problem set
   sessionStartTime: number | null; // Timestamp when session started
   sessionDuration: number | null; // Duration in milliseconds when session completed
   sessionPassCount: number; // Number of pass answers in current session
@@ -34,11 +33,12 @@ export interface AppState {
   selectedProblemSetKey: string;
   availableProblemSets: ProblemSet[];
   isLoading: boolean;
-  showSummary: boolean;
+  showHistory: boolean;
   problemCoverage: number; // Percentage of problems to include (30, 50, 80, 100)
+  sessionHistoryLimit: number; // Number of sessions to display (10, 20, 30, 40, 50)
 
   // Statistics
-  struggledProblems: StruggledProblemSummary[];
+  sessionHistory: Session[];
 
   // Initialization
   isInitialized: boolean;
@@ -66,9 +66,10 @@ export interface AppActions {
   // Problem Coverage Actions
   setProblemCoverage: (coverage: number) => void;
 
-  // Summary Actions
-  loadStruggledProblems: () => Promise<void>;
-  toggleSummary: () => void;
+  // History Actions
+  loadSessionHistory: () => Promise<void>;
+  toggleHistory: () => void;
+  setSessionHistoryLimit: (limit: number) => void;
 
   // Data Management Actions
   resetAllData: () => Promise<void>;
@@ -85,6 +86,7 @@ export interface AppContextValue {
 }
 
 const PROBLEM_COVERAGE_KEY = 'problemCoverage';
+const SESSION_HISTORY_LIMIT_KEY = 'sessionHistoryLimit';
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
@@ -104,25 +106,41 @@ function loadProblemCoverageFromStorage(): number {
   return 100; // Default
 }
 
+// Load session history limit from localStorage
+function loadSessionHistoryLimitFromStorage(): number {
+  try {
+    const stored = localStorage.getItem(SESSION_HISTORY_LIMIT_KEY);
+    if (stored) {
+      const parsed = parseInt(stored, 10);
+      if ([10, 20, 30, 40, 50].includes(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load session history limit from localStorage:', error);
+  }
+  return 10; // Default
+}
+
 const initialState: AppState = {
   currentProblem: null,
   recentProblemIds: [],
   isSessionActive: false,
   sessionQueue: [],
   sessionCompletedCount: 0,
-  selectedProblemSetId: null,
   sessionStartTime: null,
   sessionDuration: null,
   sessionPassCount: 0,
   sessionFailCount: 0,
-  selectedProblemSetKey: 'addition-within-20',
+  selectedProblemSetKey: '',
   availableProblemSets: [],
   isLoading: false,
-  showSummary: false,
-  struggledProblems: [],
+  showHistory: false,
+  sessionHistory: [],
   isInitialized: false,
   initializationError: null,
   problemCoverage: 100, // Default, will be overridden in AppProvider
+  sessionHistoryLimit: 10, // Default, will be overridden in AppProvider
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -130,6 +148,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(() => ({
     ...initialState,
     problemCoverage: loadProblemCoverageFromStorage(),
+    sessionHistoryLimit: loadSessionHistoryLimitFromStorage(),
   }));
   const stateRef = useRef<AppState>(state);
 
@@ -256,6 +275,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           sessionStartTime,
           sessionPassCount,
           sessionFailCount,
+          selectedProblemSetKey,
         } = stateRef.current;
         const problemId = currentProblem?.id;
 
@@ -280,6 +300,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             const duration = sessionStartTime
               ? Date.now() - sessionStartTime
               : 0;
+            const endTime = Date.now();
+            const accuracy = sessionQueue.length > 0
+              ? Math.round((newPassCount / sessionQueue.length) * 100)
+              : 0;
+
+            // Save session to database
+            if (selectedProblemSetKey && sessionStartTime) {
+              await databaseService.saveSession({
+                problemSetKey: selectedProblemSetKey,
+                startTime: sessionStartTime,
+                endTime: endTime,
+                duration: duration,
+                passCount: newPassCount,
+                failCount: newFailCount,
+                totalProblems: sessionQueue.length,
+                accuracy: accuracy,
+              });
+            }
 
             // Session complete
             setState((prev) => ({
@@ -331,8 +369,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionDuration: null,
         sessionPassCount: 0,
         sessionFailCount: 0,
-        // Clear struggled problems cache when switching problem set keys
-        struggledProblems: [],
+        // Clear session history when switching problem set keys
       };
       // Update stateRef synchronously within setState updater
       stateRef.current = newState;
@@ -352,6 +389,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const selectProblemSet = useCallback((problemSetId: string) => {
     setState((prev) => {
+      // If empty problemSetId, clear selection (show landing view)
+      if (!problemSetId || problemSetId === '') {
+        const newState = {
+          ...prev,
+          selectedProblemSetKey: '',
+          recentProblemIds: [],
+          currentProblem: null,
+          // Reset session when clearing problem set
+          isSessionActive: false,
+          sessionQueue: [],
+          sessionCompletedCount: 0,
+          sessionStartTime: null,
+          sessionDuration: null,
+          sessionPassCount: 0,
+          sessionFailCount: 0,
+        };
+        stateRef.current = newState;
+        return newState;
+      }
+
       // Find the selected problem set to get its problemSetKey
       const selectedSet = prev.availableProblemSets.find(
         (ps) => ps.id === problemSetId
@@ -361,7 +418,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const newState = {
         ...prev,
-        selectedProblemSetId: problemSetId,
         selectedProblemSetKey: problemSetKey, // Update problemSetKey to match selected set
         recentProblemIds: [],
         currentProblem: null,
@@ -373,8 +429,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionDuration: null,
         sessionPassCount: 0,
         sessionFailCount: 0,
-        // Clear struggled problems cache
-        struggledProblems: [],
       };
       // Update stateRef synchronously within setState updater
       stateRef.current = newState;
@@ -387,21 +441,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       // Get current state from ref
-      const { selectedProblemSetKey, selectedProblemSetId, problemCoverage } =
+      const { selectedProblemSetKey, problemCoverage } =
         stateRef.current;
 
-      // Generate session queue based on selected problem set or problemSetKey
-      const queue = selectedProblemSetId
-        ? await problemService.generateSessionQueue(
-            selectedProblemSetId,
-            true,
-            problemCoverage
-          )
-        : await problemService.generateSessionQueue(
-            selectedProblemSetKey,
-            false,
-            problemCoverage
-          );
+      // Generate session queue based on selected problem set key
+      const queue = await problemService.generateSessionQueue(
+        selectedProblemSetKey,
+        false,
+        problemCoverage
+      );
 
       // If no problems in queue, don't start session
       if (queue.length === 0) {
@@ -450,7 +498,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const endSessionEarly = useCallback(async () => {
     try {
       // Get current state from ref
-      const { isSessionActive, sessionStartTime } = stateRef.current;
+      const {
+        isSessionActive,
+        sessionStartTime,
+        sessionQueue,
+        sessionPassCount,
+        sessionFailCount,
+        sessionCompletedCount,
+        selectedProblemSetKey,
+      } = stateRef.current;
 
       // Only end if session is active
       if (!isSessionActive) {
@@ -459,6 +515,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Calculate session duration
       const duration = sessionStartTime ? Date.now() - sessionStartTime : 0;
+      const endTime = Date.now();
+      const accuracy =
+        sessionCompletedCount > 0
+          ? Math.round((sessionPassCount / sessionCompletedCount) * 100)
+          : 0;
+
+      // Save session to database (even if incomplete)
+      if (selectedProblemSetKey && sessionStartTime && sessionCompletedCount > 0) {
+        await databaseService.saveSession({
+          problemSetKey: selectedProblemSetKey,
+          startTime: sessionStartTime,
+          endTime: endTime,
+          duration: duration,
+          passCount: sessionPassCount,
+          failCount: sessionFailCount,
+          totalProblems: sessionCompletedCount,
+          accuracy: accuracy,
+        });
+      }
 
       // End session and preserve statistics
       setState((prev) => ({
@@ -473,26 +548,40 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const loadStruggledProblems = useCallback(async () => {
+  const loadSessionHistory = useCallback(async () => {
     try {
       setLoading(true);
-      const { selectedProblemSetId } = stateRef.current;
+      const { selectedProblemSetKey, sessionHistoryLimit } = stateRef.current;
 
-      const problems = await databaseService.getStruggledProblems(
-        20,
-        selectedProblemSetId || undefined
+      const sessions = await databaseService.getSessionHistory(
+        selectedProblemSetKey,
+        sessionHistoryLimit
       );
-      setState((prev) => ({ ...prev, struggledProblems: problems }));
+      setState((prev) => ({ ...prev, sessionHistory: sessions }));
     } catch (error) {
-      console.error('Failed to load struggled problems:', error);
+      console.error('Failed to load session history:', error);
       throw error;
     } finally {
       setLoading(false);
     }
   }, [setLoading]);
 
-  const toggleSummary = useCallback(() => {
-    setState((prev) => ({ ...prev, showSummary: !prev.showSummary }));
+  const toggleHistory = useCallback(() => {
+    setState((prev) => ({ ...prev, showHistory: !prev.showHistory }));
+  }, []);
+
+  const setSessionHistoryLimit = useCallback((limit: number) => {
+    // Validate limit (must be one of the allowed values)
+    if (![10, 20, 30, 40, 50].includes(limit)) {
+      console.warn(`Invalid session history limit: ${limit}`);
+      return;
+    }
+
+    // Save to localStorage
+    localStorage.setItem(SESSION_HISTORY_LIMIT_KEY, limit.toString());
+
+    // Update state
+    setState((prev) => ({ ...prev, sessionHistoryLimit: limit }));
   }, []);
 
   const resetAllData = useCallback(async () => {
@@ -502,11 +591,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Reset statistics for ALL problem sets globally
       await databaseService.resetStatistics();
 
-      // Only clear the struggled problems cache, preserve UI state
-      setState((prev) => ({
-        ...prev,
-        struggledProblems: [],
-      }));
+      // No state changes needed - all statistics are in database
     } catch (error) {
       console.error('Failed to reset data:', error);
       throw error;
@@ -568,8 +653,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setProblemCoverage,
       startNewSession,
       endSessionEarly,
-      loadStruggledProblems,
-      toggleSummary,
+      loadSessionHistory,
+      toggleHistory,
+      setSessionHistoryLimit,
       resetAllData,
       exportData,
       importData,
@@ -586,8 +672,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setProblemCoverage,
       startNewSession,
       endSessionEarly,
-      loadStruggledProblems,
-      toggleSummary,
+      loadSessionHistory,
+      toggleHistory,
+      setSessionHistoryLimit,
       resetAllData,
       exportData,
       importData,

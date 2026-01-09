@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "problemSet": {
     "name": {
       "en": "Common English Dialogues (Grade 1)",
@@ -87,6 +87,66 @@
       "answer": "Three.",
       "problem_audio": "a1c33c4adab9ecef567b23ba1856f0c4.wav",
       "answer_audio": "bab22fac44b67c66f19955d944d4878a.wav"
+    },
+    {
+      "problem": "What's your name?",
+      "answer": "My name is Sean.",
+      "problem_audio": "4a0804b810b8cf5c0a5956b27014b8c5.wav",
+      "answer_audio": "f7a9b80833e93c7e86edc91d77de0ed0.wav"
+    },
+    {
+      "problem": "What's this?",
+      "answer": "It's my cap.",
+      "problem_audio": "9a86f3bf9f160bb050c2816991e38d2f.wav",
+      "answer_audio": "23ec829fb8f7555abeb7919262666906.wav"
+    },
+    {
+      "problem": "What's your favorite color?",
+      "answer": "I like purple.",
+      "problem_audio": "605f302ebc9f7fbacba60b15f551a633.wav",
+      "answer_audio": "537fa04f0d5dcdcb09f6f1d6939359b3.wav"
+    },
+    {
+      "problem": "What's your phone number?",
+      "answer": "123-456-7890.",
+      "problem_audio": "b2372d86a146bf534a8d7bb4d8d51d92.wav",
+      "answer_audio": "57b4710a5d53014faf1abb7935b38422.wav"
+    },
+    {
+      "problem": "What time is it?",
+      "answer": "9 o'clock.",
+      "problem_audio": "67e07d17d43ee2e70633123fdaba8181.wav",
+      "answer_audio": "71a15e15e30a372c66239daf104dd109.wav"
+    },
+    {
+      "problem": "What would you like to drink?",
+      "answer": "I would like some milk.",
+      "problem_audio": "527e040e5819f1b74eaef4f2b698f4d5.wav",
+      "answer_audio": "c70ae27ea3e5864df605676ac46eab18.wav"
+    },
+    {
+      "problem": "What are you doing?",
+      "answer": "I'm playing games.",
+      "problem_audio": "5933280e2f64151c9bb7cb83e8b0858b.wav",
+      "answer_audio": "01b4b693c17cd93333f9f9ba93a2b5d8.wav"
+    },
+    {
+      "problem": "What's wrong?",
+      "answer": "Nothing, I have a stomachache.",
+      "problem_audio": "5e7e2961cd1a8c598d0cd1e786ea176a.wav",
+      "answer_audio": "9947509acbb2883f4b6aa579590b0224.wav"
+    },
+    {
+      "problem": "What happened?",
+      "answer": "I got A on my exam.",
+      "problem_audio": "fa692d85f08c92a585ed8b3fed7f1d52.wav",
+      "answer_audio": "7f15b3223adc18087a54ad1c63437085.wav"
+    },
+    {
+      "problem": "What class are you in?",
+      "answer": "I'm in class 7, grade 1.",
+      "problem_audio": "a6eee58bd726ae407e74fe88d5b76244.wav",
+      "answer_audio": "af92aeb89ab07053a7d3a7c3683c77e1.wav"
     }
   ]
 }

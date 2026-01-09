@@ -5,6 +5,7 @@ import type {
   Problem,
   ProblemAttempt,
   ProblemStatistics,
+  Session,
 } from '@/types';
 
 export class MathPracticeDB extends Dexie {
@@ -12,6 +13,7 @@ export class MathPracticeDB extends Dexie {
   problems!: EntityTable<Problem, 'id'>;
   attempts!: EntityTable<ProblemAttempt, 'id'>;
   statistics!: EntityTable<ProblemStatistics, 'problemId'>;
+  sessions!: EntityTable<Session, 'id'>;
 
   constructor() {
     super('MathPracticeDB');
@@ -21,6 +23,15 @@ export class MathPracticeDB extends Dexie {
       problems: 'id, problemSetId, createdAt',
       attempts: 'id, problemId, attemptedAt, result',
       statistics: 'problemId, priority, failureRate, lastAttemptedAt',
+    });
+
+    // Version 2: Add sessions table
+    this.version(2).stores({
+      problemSets: 'id, problemSetKey, enabled, createdAt',
+      problems: 'id, problemSetId, createdAt',
+      attempts: 'id, problemId, attemptedAt, result',
+      statistics: 'problemId, priority, failureRate, lastAttemptedAt',
+      sessions: 'id, problemSetKey, createdAt',
     });
   }
 }

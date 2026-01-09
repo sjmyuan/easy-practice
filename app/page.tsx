@@ -8,7 +8,7 @@ import { LandingView } from '@/components/LandingView';
 import { PreSessionView } from '@/components/PreSessionView';
 import { SessionCompleteView } from '@/components/SessionCompleteView';
 import { PracticeSessionView } from '@/components/PracticeSessionView';
-import { SummaryView } from '@/components/SummaryView';
+import { HistoryView } from '@/components/HistoryView';
 import { SettingsIcon } from '@/components/SettingsIcon';
 import { CloseSessionIcon } from '@/components/CloseSessionIcon';
 import { SettingsPanel } from '@/components/SettingsPanel';
@@ -39,8 +39,8 @@ export default function Home() {
   };
 
   const handleViewSummary = () => {
-    actions.loadStruggledProblems();
-    actions.toggleSummary();
+    actions.loadSessionHistory();
+    actions.toggleHistory();
   };
 
   const handleCloseSession = () => {
@@ -57,15 +57,16 @@ export default function Home() {
         message={state.initializationError}
         onRetry={() => actions.initializeApp()}
       />
-    );
-  }
+    );  }
 
   if (!state.isInitialized) {
     return <LoadingView />;
   }
 
-  // Landing view - no problem set selected
-  if (!state.selectedProblemSetId) {
+  // Landing view - when selectedProblemSetKey is empty
+  const isLandingView = !state.selectedProblemSetKey || state.selectedProblemSetKey === '';
+  
+  if (isLandingView) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">
         <div className="w-full max-w-2xl space-y-8 rounded-3xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
@@ -88,6 +89,8 @@ export default function Home() {
           problemCoverage={state.problemCoverage}
           onProblemCoverageChange={actions.setProblemCoverage}
           onResetData={actions.resetAllData}
+          sessionHistoryLimit={state.sessionHistoryLimit}
+          onSessionHistoryLimitChange={actions.setSessionHistoryLimit}
         />
       </main>
     );
@@ -95,7 +98,7 @@ export default function Home() {
 
   // Get selected problem set name for display
   const selectedProblemSet = state.availableProblemSets.find(
-    (ps) => ps.id === state.selectedProblemSetId
+    (ps) => ps.problemSetKey === state.selectedProblemSetKey
   );
   const pageTitle = getLocalizedText(selectedProblemSet?.name, language) || 'Easy Practice';
 
@@ -159,10 +162,11 @@ export default function Home() {
         )}
       </div>
 
-      {state.showSummary && (
-        <SummaryView
-          problems={state.struggledProblems}
-          onClose={actions.toggleSummary}
+      {/* Session History View */}
+      {state.showHistory && (
+        <HistoryView
+          sessions={state.sessionHistory}
+          onClose={actions.toggleHistory}
         />
       )}
 
@@ -173,6 +177,8 @@ export default function Home() {
         onProblemCoverageChange={actions.setProblemCoverage}
         onResetData={actions.resetAllData}
         selectedProblemSetKey={state.selectedProblemSetKey}
+        sessionHistoryLimit={state.sessionHistoryLimit}
+        onSessionHistoryLimitChange={actions.setSessionHistoryLimit}
       />
     </main>
   );

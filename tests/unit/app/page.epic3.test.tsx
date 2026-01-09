@@ -26,7 +26,6 @@ interface MockState {
     enabled: boolean;
     createdAt: number;
   }>;
-  selectedProblemSetId: string | null;
 }
 
 const mockState: MockState = {
@@ -53,7 +52,6 @@ const mockState: MockState = {
       createdAt: Date.now(),
     },
   ],
-  selectedProblemSetId: null,
 };
 
 // Mock the context
@@ -106,7 +104,6 @@ describe('Epic 3: Mobile-First Design - User Story 1: Responsive Design', () => 
           createdAt: Date.now(),
         },
       ],
-      selectedProblemSetId: null,
     });
   });
 
@@ -213,7 +210,6 @@ describe('Epic 3: Mobile-First Design - User Story 2: Large Text and Buttons', (
           createdAt: Date.now(),
         },
       ],
-      selectedProblemSetId: null,
     });
   });
 
@@ -331,7 +327,6 @@ describe('Epic 3: Mobile-First Design - User Story 3: Engaging Visuals', () => {
           createdAt: Date.now(),
         },
       ],
-      selectedProblemSetId: null,
     });
   });
 
