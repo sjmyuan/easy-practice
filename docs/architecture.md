@@ -2,11 +2,48 @@
 
 ## Easy Practice for Parents
 
-**Version:** 1.8.0  
-**Date:** January 2, 2026  
+**Version:** 1.8.2  
+**Date:** January 9, 2026  
 **Status:** In Progress - Epics 1-5 Completed
 
 ## Recent Updates
+
+### Bug Fix: Session Not Saved When Closing Early (January 9, 2026)
+
+- **Issue**: When users closed a practice session early (before completing all problems), the session was not saved to the database, causing the history view to remain empty
+- **Root Cause**: `endSessionEarly()` function calculated session duration and updated state but did not call `databaseService.saveSession()`
+- **Fix Implementation**:
+  - Updated `endSessionEarly()` in AppContext to save session to database when there are completed problems
+  - Saves session with accurate statistics: `totalProblems` set to `sessionCompletedCount` (not full queue length)
+  - Calculates accuracy based on completed problems: `Math.round((sessionPassCount / sessionCompletedCount) * 100)`
+  - Only saves if `sessionCompletedCount > 0` to avoid empty sessions
+  - Added validation: requires `selectedProblemSetKey`, `sessionStartTime`, and at least one completed problem
+- **Testing**:
+  - Added 2 new tests verifying session save behavior when ending early
+  - Test 1: Verifies session is saved with correct statistics when ending early with completed problems
+  - Test 2: Verifies session is NOT saved when ending early with zero completed problems
+  - All 440 tests passing
+- **Impact**:
+  - History view now correctly displays sessions that were closed early
+  - Session statistics accurately reflect only the problems that were completed before closing
+  - Parents can track partial practice sessions without needing to complete all problems
+
+### Bug Fix: History View Empty Issue (January 9, 2026)
+
+- **Issue**: History view always appeared empty despite completed sessions being saved
+- **Root Cause**: `loadSessionHistory()` was checking for `selectedProblemSetId` (which was always null) instead of using `selectedProblemSetKey`
+- **Fix Implementation**:
+  - **Session Storage Migration**: Changed Session type from `problemSetId: string` to `problemSetKey: string`
+  - **Database Schema Update**: Updated sessions table index from `problemSetId` to `problemSetKey` in `lib/db.ts`
+  - **Service Layer Update**: Modified `saveSession()` to accept and store `problemSetKey`, updated `getSessionHistory()` to filter by `problemSetKey`
+  - **State Management Cleanup**: Completely removed `selectedProblemSetId` from AppContext state to eliminate confusion between IDs and keys
+  - **History Loading Fix**: Updated `loadSessionHistory()` to use `selectedProblemSetKey` directly without null checks
+  - **Landing View Logic**: Restored landing view conditional rendering based on empty `selectedProblemSetKey` check
+- **Impact**:
+  - History view now correctly loads and displays session history filtered by selected problem set
+  - Reduced state complexity by using only `selectedProblemSetKey` for problem set tracking
+  - Landing view properly displays when no problem set is selected (empty `selectedProblemSetKey`)
+  - All 438 tests passing after comprehensive test updates
 
 ### Session History Feature Refactor (January 2, 2026)
 
@@ -16,11 +53,11 @@
   - Provides holistic view of learning progress over time
 - **Database Layer**:
   - Added `sessions` table to IndexedDB schema (via Dexie)
-  - Session entity fields: `id` (auto-increment), `problemSetId`, `startTime`, `endTime`, `duration`, `passCount`, `failCount`, `totalProblems`, `accuracy` (calculated), `createdAt` (timestamp)
-  - Indexed on `problemSetId` and `createdAt` for efficient querying
+  - Session entity fields: `id` (auto-increment), `problemSetKey`, `startTime`, `endTime`, `duration`, `passCount`, `failCount`, `totalProblems`, `accuracy` (calculated), `createdAt` (timestamp)
+  - Indexed on `problemSetKey` and `createdAt` for efficient querying
 - **Service Layer**:
   - Implemented `saveSession(sessionData)`: Persists completed session to database
-  - Implemented `getSessionHistory(problemSetId, limit)`: Retrieves last N sessions for a problem set, ordered by completion time (newest first)
+  - Implemented `getSessionHistory(problemSetKey, limit)`: Retrieves last N sessions for a problem set, ordered by completion time (newest first)
   - 34 tests covering database operations (sessions table schema, CRUD operations, edge cases)
 - **Context Layer (AppContext)**:
   - Removed: `showSummary`, `struggledProblems` state and `toggleSummary`, `loadStruggledProblems` actions
@@ -222,7 +259,7 @@
 - **View Management**:
   - All views now rendered conditionally within `app/page.tsx` based on application state
   - View selection logic:
-    - `selectedProblemSetId === null` → **LandingView** (problem set selection)
+    - `selectedProblemSetKey` is empty → **LandingView** (problem set selection)
     - `isSessionActive === true` → **PracticeSessionView** (active session)
     - `sessionCompletedCount > 0` → **SessionCompleteView** (post-session results)
     - Default (problem set selected, no active session) → **PreSessionView** (pre-session controls)

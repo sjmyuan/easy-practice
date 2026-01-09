@@ -19,8 +19,8 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 **Implementation Details**:
 
-- Database layer: Added `sessions` table with comprehensive session metrics (id, problemSetId, startTime, endTime, duration, passCount, failCount, totalProblems, accuracy, createdAt)
-- Service layer: Implemented `saveSession()` to persist completed sessions and `getSessionHistory(problemSetId, limit)` to retrieve session history
+- Database layer: Added `sessions` table with comprehensive session metrics (id, problemSetKey, startTime, endTime, duration, passCount, failCount, totalProblems, accuracy, createdAt)
+- Service layer: Implemented `saveSession()` to persist completed sessions and `getSessionHistory(problemSetKey, limit)` to retrieve session history
 - Context layer: Added session history state management (`showHistory`, `sessionHistoryLimit`, `sessionHistory`) with corresponding actions (`loadSessionHistory`, `toggleHistory`, `setSessionHistoryLimit`)
 - UI components:
   - **HistoryView**: Modal overlay displaying session cards with formatted metrics (accuracy %, duration in HH:MM:SS format, pass/fail counts, completion timestamp)
@@ -56,9 +56,9 @@ A mobile-first web application that helps parents facilitate practice for their 
 
 - Merged `app/practice/page.tsx` functionality into `app/page.tsx`
 - Removed all `useRouter()` and `router.push()` calls
-- Implemented view selection via conditional rendering based on `state.selectedProblemSetId` and session state
+- Implemented view selection via conditional rendering based on `state.selectedProblemSetKey` and session state
 - View hierarchy:
-  - **LandingView**: Shown when `selectedProblemSetId === null` (problem set selection)
+  - **LandingView**: Shown when `selectedProblemSetKey` is empty (problem set selection)
   - **PracticeSessionView**: Shown when `isSessionActive === true` (active practice session)
   - **SessionCompleteView**: Shown when `sessionCompletedCount > 0` (post-session results)
   - **PreSessionView**: Shown when problem set is selected but no active session (pre-session configuration)
@@ -348,8 +348,8 @@ As a busy parent, I want to see a history of recent practice sessions so that I 
 - ✅ Given the session history modal is open, when the parent taps the close button or outside the modal, then the modal should close and return to the previous view.
 
 **Implementation Details**:
-- Database: Sessions table with id, problemSetId, startTime, endTime, duration, passCount, failCount, totalProblems, accuracy, createdAt fields
-- Service Layer: `saveSession()` and `getSessionHistory(problemSetId, limit)` functions in database.service.ts
+- Database: Sessions table with id, problemSetKey, startTime, endTime, duration, passCount, failCount, totalProblems, accuracy, createdAt fields
+- Service Layer: `saveSession()` and `getSessionHistory(problemSetKey, limit)` functions in database.service.ts
 - Context: `showHistory`, `sessionHistoryLimit`, `sessionHistory` state with `loadSessionHistory()`, `toggleHistory()`, `setSessionHistoryLimit()` actions
 - Component: HistoryView modal displaying session cards with formatted duration (HH:MM:SS), accuracy percentage, and statistics
 - Settings: Session history limit dropdown in SettingsPanel (10/20/30/40/50 options)

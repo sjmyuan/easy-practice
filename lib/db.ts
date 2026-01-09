@@ -31,7 +31,7 @@ export class MathPracticeDB extends Dexie {
       problems: 'id, problemSetId, createdAt',
       attempts: 'id, problemId, attemptedAt, result',
       statistics: 'problemId, priority, failureRate, lastAttemptedAt',
-      sessions: 'id, problemSetId, createdAt',
+      sessions: 'id, problemSetKey, createdAt',
     });
   }
 }

@@ -24,7 +24,6 @@ export interface AppState {
   isSessionActive: boolean;
   sessionQueue: string[]; // Array of problem IDs in the session
   sessionCompletedCount: number;
-  selectedProblemSetId: string | null; // Currently selected problem set
   sessionStartTime: number | null; // Timestamp when session started
   sessionDuration: number | null; // Duration in milliseconds when session completed
   sessionPassCount: number; // Number of pass answers in current session
@@ -129,12 +128,11 @@ const initialState: AppState = {
   isSessionActive: false,
   sessionQueue: [],
   sessionCompletedCount: 0,
-  selectedProblemSetId: null,
   sessionStartTime: null,
   sessionDuration: null,
   sessionPassCount: 0,
   sessionFailCount: 0,
-  selectedProblemSetKey: 'addition-within-20',
+  selectedProblemSetKey: '',
   availableProblemSets: [],
   isLoading: false,
   showHistory: false,
@@ -277,7 +275,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           sessionStartTime,
           sessionPassCount,
           sessionFailCount,
-          selectedProblemSetId,
+          selectedProblemSetKey,
         } = stateRef.current;
         const problemId = currentProblem?.id;
 
@@ -308,9 +306,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               : 0;
 
             // Save session to database
-            if (selectedProblemSetId && sessionStartTime) {
+            if (selectedProblemSetKey && sessionStartTime) {
               await databaseService.saveSession({
-                problemSetId: selectedProblemSetId,
+                problemSetKey: selectedProblemSetKey,
                 startTime: sessionStartTime,
                 endTime: endTime,
                 duration: duration,
@@ -391,6 +389,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const selectProblemSet = useCallback((problemSetId: string) => {
     setState((prev) => {
+      // If empty problemSetId, clear selection (show landing view)
+      if (!problemSetId || problemSetId === '') {
+        const newState = {
+          ...prev,
+          selectedProblemSetKey: '',
+          recentProblemIds: [],
+          currentProblem: null,
+          // Reset session when clearing problem set
+          isSessionActive: false,
+          sessionQueue: [],
+          sessionCompletedCount: 0,
+          sessionStartTime: null,
+          sessionDuration: null,
+          sessionPassCount: 0,
+          sessionFailCount: 0,
+        };
+        stateRef.current = newState;
+        return newState;
+      }
+
       // Find the selected problem set to get its problemSetKey
       const selectedSet = prev.availableProblemSets.find(
         (ps) => ps.id === problemSetId
@@ -400,7 +418,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const newState = {
         ...prev,
-        selectedProblemSetId: problemSetId,
         selectedProblemSetKey: problemSetKey, // Update problemSetKey to match selected set
         recentProblemIds: [],
         currentProblem: null,
@@ -424,21 +441,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       // Get current state from ref
-      const { selectedProblemSetKey, selectedProblemSetId, problemCoverage } =
+      const { selectedProblemSetKey, problemCoverage } =
         stateRef.current;
 
-      // Generate session queue based on selected problem set or problemSetKey
-      const queue = selectedProblemSetId
-        ? await problemService.generateSessionQueue(
-            selectedProblemSetId,
-            true,
-            problemCoverage
-          )
-        : await problemService.generateSessionQueue(
-            selectedProblemSetKey,
-            false,
-            problemCoverage
-          );
+      // Generate session queue based on selected problem set key
+      const queue = await problemService.generateSessionQueue(
+        selectedProblemSetKey,
+        false,
+        problemCoverage
+      );
 
       // If no problems in queue, don't start session
       if (queue.length === 0) {
@@ -487,7 +498,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const endSessionEarly = useCallback(async () => {
     try {
       // Get current state from ref
-      const { isSessionActive, sessionStartTime } = stateRef.current;
+      const {
+        isSessionActive,
+        sessionStartTime,
+        sessionQueue,
+        sessionPassCount,
+        sessionFailCount,
+        sessionCompletedCount,
+        selectedProblemSetKey,
+      } = stateRef.current;
 
       // Only end if session is active
       if (!isSessionActive) {
@@ -496,6 +515,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Calculate session duration
       const duration = sessionStartTime ? Date.now() - sessionStartTime : 0;
+      const endTime = Date.now();
+      const accuracy =
+        sessionCompletedCount > 0
+          ? Math.round((sessionPassCount / sessionCompletedCount) * 100)
+          : 0;
+
+      // Save session to database (even if incomplete)
+      if (selectedProblemSetKey && sessionStartTime && sessionCompletedCount > 0) {
+        await databaseService.saveSession({
+          problemSetKey: selectedProblemSetKey,
+          startTime: sessionStartTime,
+          endTime: endTime,
+          duration: duration,
+          passCount: sessionPassCount,
+          failCount: sessionFailCount,
+          totalProblems: sessionCompletedCount,
+          accuracy: accuracy,
+        });
+      }
 
       // End session and preserve statistics
       setState((prev) => ({
@@ -513,15 +551,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadSessionHistory = useCallback(async () => {
     try {
       setLoading(true);
-      const { selectedProblemSetId, sessionHistoryLimit } = stateRef.current;
-
-      if (!selectedProblemSetId) {
-        // No problem set selected, don't load history
-        return;
-      }
+      const { selectedProblemSetKey, sessionHistoryLimit } = stateRef.current;
 
       const sessions = await databaseService.getSessionHistory(
-        selectedProblemSetId,
+        selectedProblemSetKey,
         sessionHistoryLimit
       );
       setState((prev) => ({ ...prev, sessionHistory: sessions }));

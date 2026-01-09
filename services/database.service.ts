@@ -654,7 +654,7 @@ export class DatabaseService {
    * Save a session to the database
    */
   async saveSession(sessionData: {
-    problemSetId: string;
+    problemSetKey: string;
     startTime: number;
     endTime: number;
     duration: number;
@@ -667,7 +667,7 @@ export class DatabaseService {
     
     await db.sessions.add({
       id: sessionId,
-      problemSetId: sessionData.problemSetId,
+      problemSetKey: sessionData.problemSetKey,
       startTime: sessionData.startTime,
       endTime: sessionData.endTime,
       duration: sessionData.duration,
@@ -686,11 +686,11 @@ export class DatabaseService {
    * Returns sessions in descending order by createdAt (most recent first)
    */
   async getSessionHistory(
-    problemSetId: string,
+    problemSetKey: string,
     limit: number = 10
   ): Promise<Array<{
     id: string;
-    problemSetId: string;
+    problemSetKey: string;
     startTime: number;
     endTime: number;
     duration: number;
@@ -701,14 +701,14 @@ export class DatabaseService {
     createdAt: number;
   }>> {
     const sessions = await db.sessions
-      .where('problemSetId')
-      .equals(problemSetId)
+      .where('problemSetKey')
+      .equals(problemSetKey)
       .reverse()
       .sortBy('createdAt');
 
     return sessions.slice(0, limit).map(session => ({
       id: session.id!,
-      problemSetId: session.problemSetId,
+      problemSetKey: session.problemSetKey,
       startTime: session.startTime,
       endTime: session.endTime,
       duration: session.duration,

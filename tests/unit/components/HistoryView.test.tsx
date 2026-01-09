@@ -51,7 +51,7 @@ describe('HistoryView', () => {
       const sessions: Session[] = [
         {
           id: 'session-1',
-          problemSetId: 'ps-1',
+          problemSetKey: 'ps-1',
           startTime: Date.now() - 600000, // 10 minutes ago
           endTime: Date.now() - 300000, // 5 minutes ago
           duration: 300000, // 5 minutes
@@ -73,7 +73,7 @@ describe('HistoryView', () => {
       const sessions: Session[] = [
         {
           id: 'session-1',
-          problemSetId: 'ps-1',
+          problemSetKey: 'ps-1',
           startTime: Date.now() - 600000,
           endTime: Date.now() - 300000,
           duration: 300000,
@@ -85,7 +85,7 @@ describe('HistoryView', () => {
         },
         {
           id: 'session-2',
-          problemSetId: 'ps-1',
+          problemSetKey: 'ps-1',
           startTime: Date.now() - 1200000,
           endTime: Date.now() - 900000,
           duration: 300000,
@@ -108,7 +108,7 @@ describe('HistoryView', () => {
   describe('Session Cards', () => {
     const mockSession: Session = {
       id: 'session-1',
-      problemSetId: 'ps-1',
+      problemSetKey: 'ps-1',
       startTime: Date.now() - 600000,
       endTime: Date.now() - 300000,
       duration: 300000, // 5 minutes
@@ -128,7 +128,11 @@ describe('HistoryView', () => {
     it('should display total problems count', () => {
       render(<HistoryView sessions={[mockSession]} onClose={mockOnClose} />);
 
-      expect(screen.getByText(/10/)).toBeInTheDocument();
+      // Look for the "Problems" label and verify the count is displayed
+      expect(screen.getByText('Problems')).toBeInTheDocument();
+      // The number 10 should appear as the value under Problems label
+      const problemElements = screen.getAllByText(/10/);
+      expect(problemElements.length).toBeGreaterThan(0);
     });
 
     it('should display pass count', () => {
@@ -146,8 +150,8 @@ describe('HistoryView', () => {
     it('should display session duration in minutes', () => {
       render(<HistoryView sessions={[mockSession]} onClose={mockOnClose} />);
 
-      // 300000 ms = 5 minutes
-      expect(screen.getByText(/5/)).toBeInTheDocument();
+      // 300000 ms = 5 minutes - look for more specific pattern
+      expect(screen.getByText(/5m 0s/)).toBeInTheDocument();
     });
 
     it('should display completion date', () => {
@@ -167,7 +171,7 @@ describe('HistoryView', () => {
     it('should show 100% accuracy for perfect session', () => {
       const session: Session = {
         id: 'session-1',
-        problemSetId: 'ps-1',
+        problemSetKey: 'ps-1',
         startTime: Date.now() - 600000,
         endTime: Date.now() - 300000,
         duration: 300000,
@@ -186,7 +190,7 @@ describe('HistoryView', () => {
     it('should show 0% accuracy for all failed session', () => {
       const session: Session = {
         id: 'session-1',
-        problemSetId: 'ps-1',
+        problemSetKey: 'ps-1',
         startTime: Date.now() - 600000,
         endTime: Date.now() - 300000,
         duration: 300000,
@@ -205,7 +209,7 @@ describe('HistoryView', () => {
     it('should display accuracy with no decimal places', () => {
       const session: Session = {
         id: 'session-1',
-        problemSetId: 'ps-1',
+        problemSetKey: 'ps-1',
         startTime: Date.now() - 600000,
         endTime: Date.now() - 300000,
         duration: 300000,
@@ -227,7 +231,7 @@ describe('HistoryView', () => {
     it('should display duration in seconds for short sessions', () => {
       const session: Session = {
         id: 'session-1',
-        problemSetId: 'ps-1',
+        problemSetKey: 'ps-1',
         startTime: Date.now() - 45000,
         endTime: Date.now(),
         duration: 45000, // 45 seconds
@@ -247,7 +251,7 @@ describe('HistoryView', () => {
     it('should display duration in minutes and seconds for medium sessions', () => {
       const session: Session = {
         id: 'session-1',
-        problemSetId: 'ps-1',
+        problemSetKey: 'ps-1',
         startTime: Date.now() - 125000,
         endTime: Date.now(),
         duration: 125000, // 2 minutes 5 seconds
@@ -267,7 +271,7 @@ describe('HistoryView', () => {
     it('should display duration in hours, minutes, seconds for long sessions', () => {
       const session: Session = {
         id: 'session-1',
-        problemSetId: 'ps-1',
+        problemSetKey: 'ps-1',
         startTime: Date.now() - 3725000,
         endTime: Date.now(),
         duration: 3725000, // 1 hour 2 minutes 5 seconds
@@ -299,7 +303,7 @@ describe('HistoryView', () => {
       const sessions: Session[] = [
         {
           id: 'session-1',
-          problemSetId: 'ps-1',
+          problemSetKey: 'ps-1',
           startTime: Date.now() - 600000,
           endTime: Date.now() - 300000,
           duration: 300000,
@@ -341,7 +345,7 @@ describe('HistoryView', () => {
       const sessions: Session[] = [
         {
           id: 'session-1',
-          problemSetId: 'ps-1',
+          problemSetKey: 'ps-1',
           startTime: Date.now() - 1200000,
           endTime: Date.now() - 900000,
           duration: 300000,
@@ -353,7 +357,7 @@ describe('HistoryView', () => {
         },
         {
           id: 'session-2',
-          problemSetId: 'ps-1',
+          problemSetKey: 'ps-1',
           startTime: Date.now() - 600000,
           endTime: Date.now() - 300000,
           duration: 300000,

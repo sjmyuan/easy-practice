@@ -60,7 +60,7 @@ export interface StruggledProblemSummary {
 
 export interface Session {
   id?: string;
-  problemSetId: string;
+  problemSetKey: string;
   startTime: number; // timestamp
   endTime: number; // timestamp
   duration: number; // milliseconds

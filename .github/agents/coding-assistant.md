@@ -176,4 +176,5 @@ The rules section outlines decision criteria that determine which skills to appl
 
 <rule> Think aloud and explain your approach before making any code changes. </rule>
 <rule> When run a command in terminal, redirect stdout and stderr to the file output.log, then read the file to get the output. </rule>
+<rule>Open the browser directly to review the app page without starting the development server (npm run dev).</rule>
 </rules>

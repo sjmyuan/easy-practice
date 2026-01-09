@@ -22,7 +22,7 @@ describe('MathPracticeDB Schema', () => {
     it('should allow adding a session record', async () => {
       const sessionData = {
         id: 'test-session-1',
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 60000,
         duration: 60000,
@@ -37,7 +37,7 @@ describe('MathPracticeDB Schema', () => {
 
       const retrieved = await testDb.sessions.get('test-session-1');
       expect(retrieved).toBeDefined();
-      expect(retrieved?.problemSetId).toBe('problem-set-1');
+      expect(retrieved?.problemSetKey).toBe('problem-set-1');
       expect(retrieved?.passCount).toBe(8);
       expect(retrieved?.failCount).toBe(2);
       expect(retrieved?.accuracy).toBe(80);
@@ -46,7 +46,7 @@ describe('MathPracticeDB Schema', () => {
     it('should allow querying sessions by problemSetId', async () => {
       const session1 = {
         id: 'session-1',
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 60000,
         duration: 60000,
@@ -59,7 +59,7 @@ describe('MathPracticeDB Schema', () => {
 
       const session2 = {
         id: 'session-2',
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 120000,
         duration: 120000,
@@ -72,7 +72,7 @@ describe('MathPracticeDB Schema', () => {
 
       const session3 = {
         id: 'session-3',
-        problemSetId: 'problem-set-2',
+        problemSetKey: 'problem-set-2',
         startTime: Date.now(),
         endTime: Date.now() + 90000,
         duration: 90000,
@@ -88,20 +88,20 @@ describe('MathPracticeDB Schema', () => {
       await testDb.sessions.add(session3);
 
       const problemSet1Sessions = await testDb.sessions
-        .where('problemSetId')
+        .where('problemSetKey')
         .equals('problem-set-1')
         .toArray();
 
       expect(problemSet1Sessions).toHaveLength(2);
-      expect(problemSet1Sessions[0].problemSetId).toBe('problem-set-1');
-      expect(problemSet1Sessions[1].problemSetId).toBe('problem-set-1');
+      expect(problemSet1Sessions[0].problemSetKey).toBe('problem-set-1');
+      expect(problemSet1Sessions[1].problemSetKey).toBe('problem-set-1');
     });
 
     it('should allow sorting sessions by createdAt', async () => {
       const now = Date.now();
       const session1 = {
         id: 'session-1',
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: now,
         endTime: now + 60000,
         duration: 60000,
@@ -114,7 +114,7 @@ describe('MathPracticeDB Schema', () => {
 
       const session2 = {
         id: 'session-2',
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: now + 120000,
         endTime: now + 180000,
         duration: 60000,
@@ -129,7 +129,7 @@ describe('MathPracticeDB Schema', () => {
       await testDb.sessions.add(session2);
 
       const sessions = await testDb.sessions
-        .where('problemSetId')
+        .where('problemSetKey')
         .equals('problem-set-1')
         .reverse()
         .sortBy('createdAt');
@@ -146,7 +146,7 @@ describe('MathPracticeDB Schema', () => {
       for (let i = 0; i < 15; i++) {
         await testDb.sessions.add({
           id: `session-${i}`,
-          problemSetId: 'problem-set-1',
+          problemSetKey: 'problem-set-1',
           startTime: now + i * 60000,
           endTime: now + (i + 1) * 60000,
           duration: 60000,
@@ -159,7 +159,7 @@ describe('MathPracticeDB Schema', () => {
       }
 
       const sessions = await testDb.sessions
-        .where('problemSetId')
+        .where('problemSetKey')
         .equals('problem-set-1')
         .reverse()
         .sortBy('createdAt');

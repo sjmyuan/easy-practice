@@ -1508,6 +1508,15 @@ describe('AppContext', () => {
         expect(result.current.state.isInitialized).toBe(true);
       });
 
+      // Select a problem set first (using the id from mock data)
+      act(() => {
+        result.current.actions.selectProblemSet('1');
+      });
+
+      await waitFor(() => {
+        expect(result.current.state.selectedProblemSetKey).toBe('addition-within-20');
+      });
+
       // Set coverage to 80%
       act(() => {
         result.current.actions.setProblemCoverage(80);
@@ -1740,6 +1749,134 @@ describe('AppContext', () => {
       // Duration should still be calculated
       expect(result.current.state.sessionDuration).toBeGreaterThanOrEqual(0);
     });
+
+    it('should save session to database when ending early with completed problems', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const saveSessionCall = vi.mocked(databaseService.saveSession);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3']);
+      problemsGetCall.mockResolvedValue(problem);
+      saveSessionCall.mockResolvedValue("session-123");
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Select problem set
+      act(() => {
+        result.current.actions.selectProblemSet('1');
+      });
+
+      await waitFor(() => {
+        expect(result.current.state.selectedProblemSetKey).toBe('addition-within-20');
+      });
+
+      // Start a new session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      const sessionStartTime = result.current.state.sessionStartTime;
+
+      // Answer first problem - pass
+      await act(async () => {
+        await result.current.actions.submitAnswer('pass');
+      });
+
+      // Answer second problem - fail
+      await act(async () => {
+        await result.current.actions.submitAnswer('fail');
+      });
+
+      expect(result.current.state.sessionCompletedCount).toBe(2);
+      expect(result.current.state.sessionPassCount).toBe(1);
+      expect(result.current.state.sessionFailCount).toBe(1);
+
+      // Clear previous saveSession calls
+      saveSessionCall.mockClear();
+
+      // End session early (before completing all 3 problems)
+      await act(async () => {
+        await result.current.actions.endSessionEarly();
+      });
+
+      // Session should be saved to database
+      expect(saveSessionCall).toHaveBeenCalledTimes(1);
+      expect(saveSessionCall).toHaveBeenCalledWith(
+        expect.objectContaining({
+          problemSetKey: 'addition-within-20',
+          startTime: sessionStartTime,
+          passCount: 1,
+          failCount: 1,
+          totalProblems: 2, // Only 2 completed out of 3
+          accuracy: 50, // 1 pass out of 2 completed
+        })
+      );
+    });
+
+    it('should not save session when ending early with no completed problems', async () => {
+      const generateSessionQueueCall = vi.mocked(
+        problemService.generateSessionQueue
+      );
+      const problemsGetCall = vi.mocked(db.problems.get);
+      const saveSessionCall = vi.mocked(databaseService.saveSession);
+
+      const problem = {
+        id: 'p1',
+        problemSetId: 'ps1',
+        problem: '5 + 3',
+        answer: '8',
+        createdAt: Date.now(),
+      };
+
+      generateSessionQueueCall.mockResolvedValue(['p1', 'p2', 'p3']);
+      problemsGetCall.mockResolvedValue(problem);
+      saveSessionCall.mockResolvedValue("session-123");
+
+      const { result } = renderHook(() => useApp(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.isInitialized).toBe(true);
+      });
+
+      // Select problem set
+      act(() => {
+        result.current.actions.selectProblemSet('1');
+      });
+
+      await waitFor(() => {
+        expect(result.current.state.selectedProblemSetKey).toBe('addition-within-20');
+      });
+
+      // Start a new session
+      await act(async () => {
+        await result.current.actions.startNewSession();
+      });
+
+      // Clear previous saveSession calls
+      saveSessionCall.mockClear();
+
+      // End session immediately without answering any problems
+      await act(async () => {
+        await result.current.actions.endSessionEarly();
+      });
+
+      // Session should NOT be saved (no completed problems)
+      expect(saveSessionCall).not.toHaveBeenCalled();
+    });
   });
 
   describe('Session History Feature', () => {
@@ -1861,7 +1998,7 @@ describe('AppContext', () => {
         const mockSessions = [
           {
             id: 'session-1',
-            problemSetId: '1',
+            problemSetKey: 'addition-within-20',
             startTime: Date.now() - 120000,
             endTime: Date.now() - 60000,
             duration: 60000,
@@ -1873,7 +2010,7 @@ describe('AppContext', () => {
           },
           {
             id: 'session-2',
-            problemSetId: '1',
+            problemSetKey: 'addition-within-20',
             startTime: Date.now() - 60000,
             endTime: Date.now(),
             duration: 60000,
@@ -1906,7 +2043,7 @@ describe('AppContext', () => {
         });
 
         expect(result.current.state.sessionHistory).toEqual(mockSessions);
-        expect(databaseService.getSessionHistory).toHaveBeenCalledWith('1', 10);
+        expect(databaseService.getSessionHistory).toHaveBeenCalledWith('addition-within-20', 10);
       });
 
       it('should pass sessionHistoryLimit to getSessionHistory', async () => {
@@ -1933,10 +2070,10 @@ describe('AppContext', () => {
           await result.current.actions.loadSessionHistory();
         });
 
-        expect(databaseService.getSessionHistory).toHaveBeenCalledWith('1', 20);
+        expect(databaseService.getSessionHistory).toHaveBeenCalledWith('addition-within-20', 20);
       });
 
-      it('should not load session history when no problem set is selected', async () => {
+      it('should load session history using default problemSetKey', async () => {
         vi.mocked(databaseService.getSessionHistory).mockResolvedValue([]);
 
         const { result } = renderHook(() => useApp(), { wrapper });
@@ -1945,16 +2082,25 @@ describe('AppContext', () => {
           expect(result.current.state.isInitialized).toBe(true);
         });
 
-        // Ensure no problem set is selected
-        expect(result.current.state.selectedProblemSetId).toBeNull();
+        // Default selectedProblemSetKey is empty
+        expect(result.current.state.selectedProblemSetKey).toBe('');
 
-        // Try to load session history
+        // Select a problem set first
+        act(() => {
+          result.current.actions.selectProblemSet('1');
+        });
+
+        await waitFor(() => {
+          expect(result.current.state.selectedProblemSetKey).toBe('addition-within-20');
+        });
+
+        // Load session history
         await act(async () => {
           await result.current.actions.loadSessionHistory();
         });
 
-        // getSessionHistory should not be called
-        expect(databaseService.getSessionHistory).not.toHaveBeenCalled();
+        // getSessionHistory should be called with selected problemSetKey
+        expect(databaseService.getSessionHistory).toHaveBeenCalledWith('addition-within-20', 10);
       });
     });
 
@@ -2021,7 +2167,7 @@ describe('AppContext', () => {
         const saveSessionCall = vi.mocked(databaseService.saveSession).mock
           .calls[0][0];
 
-        expect(saveSessionCall.problemSetId).toBe('1');
+        expect(saveSessionCall.problemSetKey).toBe('test-set');
         expect(saveSessionCall.totalProblems).toBe(2);
         expect(saveSessionCall.passCount).toBe(1);
         expect(saveSessionCall.failCount).toBe(1);

@@ -1058,7 +1058,7 @@ describe('DatabaseService', () => {
 
     it('should save a session with all required fields', async () => {
       const sessionData = {
-        problemSetId: 'test-problem-set-1',
+        problemSetKey: 'test-problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 60000,
         duration: 60000,
@@ -1075,7 +1075,7 @@ describe('DatabaseService', () => {
 
       const savedSession = await db.sessions.get(sessionId);
       expect(savedSession).toBeDefined();
-      expect(savedSession?.problemSetId).toBe('test-problem-set-1');
+      expect(savedSession?.problemSetKey).toBe('test-problem-set-1');
       expect(savedSession?.passCount).toBe(8);
       expect(savedSession?.failCount).toBe(2);
       expect(savedSession?.totalProblems).toBe(10);
@@ -1086,7 +1086,7 @@ describe('DatabaseService', () => {
 
     it('should calculate accuracy correctly', async () => {
       const sessionData = {
-        problemSetId: 'test-problem-set-1',
+        problemSetKey: 'test-problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 120000,
         duration: 120000,
@@ -1105,7 +1105,7 @@ describe('DatabaseService', () => {
 
     it('should handle zero problems session', async () => {
       const sessionData = {
-        problemSetId: 'test-problem-set-1',
+        problemSetKey: 'test-problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 1000,
         duration: 1000,
@@ -1141,7 +1141,7 @@ describe('DatabaseService', () => {
     it('should return sessions for specific problem set only', async () => {
       // Create sessions for different problem sets
       await service.saveSession({
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 60000,
         duration: 60000,
@@ -1152,7 +1152,7 @@ describe('DatabaseService', () => {
       });
 
       await service.saveSession({
-        problemSetId: 'problem-set-2',
+        problemSetKey: 'problem-set-2',
         startTime: Date.now(),
         endTime: Date.now() + 60000,
         duration: 60000,
@@ -1163,7 +1163,7 @@ describe('DatabaseService', () => {
       });
 
       await service.saveSession({
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: Date.now(),
         endTime: Date.now() + 120000,
         duration: 120000,
@@ -1176,7 +1176,7 @@ describe('DatabaseService', () => {
       const sessions = await service.getSessionHistory('problem-set-1', 10);
 
       expect(sessions.length).toBe(2);
-      expect(sessions.every(s => s.problemSetId === 'problem-set-1')).toBe(true);
+      expect(sessions.every(s => s.problemSetKey === 'problem-set-1')).toBe(true);
     });
 
     it('should return sessions in descending order by createdAt', async () => {
@@ -1184,7 +1184,7 @@ describe('DatabaseService', () => {
 
       // Add sessions with different timestamps
       await service.saveSession({
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: now,
         endTime: now + 60000,
         duration: 60000,
@@ -1198,7 +1198,7 @@ describe('DatabaseService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       await service.saveSession({
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: now + 120000,
         endTime: now + 180000,
         duration: 60000,
@@ -1211,7 +1211,7 @@ describe('DatabaseService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       await service.saveSession({
-        problemSetId: 'problem-set-1',
+        problemSetKey: 'problem-set-1',
         startTime: now + 240000,
         endTime: now + 300000,
         duration: 60000,
@@ -1234,7 +1234,7 @@ describe('DatabaseService', () => {
       // Add 15 sessions
       for (let i = 0; i < 15; i++) {
         await service.saveSession({
-          problemSetId: 'problem-set-1',
+          problemSetKey: 'problem-set-1',
           startTime: Date.now() + i * 60000,
           endTime: Date.now() + (i + 1) * 60000,
           duration: 60000,
@@ -1261,7 +1261,7 @@ describe('DatabaseService', () => {
       // Add 15 sessions
       for (let i = 0; i < 15; i++) {
         await service.saveSession({
-          problemSetId: 'problem-set-1',
+          problemSetKey: 'problem-set-1',
           startTime: Date.now() + i * 60000,
           endTime: Date.now() + (i + 1) * 60000,
           duration: 60000,
@@ -1276,6 +1276,109 @@ describe('DatabaseService', () => {
       // If limit is not specified, should default to 10
       const sessions = await service.getSessionHistory('problem-set-1');
       expect(sessions.length).toBe(10);
+    });
+  });
+
+  describe('saveSession with problemSetKey', () => {
+    beforeEach(async () => {
+      await db.sessions.clear();
+    });
+
+    it('should save a session with problemSetKey instead of problemSetId', async () => {
+      const sessionData = {
+        problemSetKey: 'addition-within-20',
+        startTime: Date.now(),
+        endTime: Date.now() + 60000,
+        duration: 60000,
+        passCount: 8,
+        failCount: 2,
+        totalProblems: 10,
+        accuracy: 80,
+      };
+
+      const sessionId = await service.saveSession(sessionData);
+
+      expect(sessionId).toBeDefined();
+      expect(typeof sessionId).toBe('string');
+
+      const savedSession = await db.sessions.get(sessionId);
+      expect(savedSession).toBeDefined();
+      expect(savedSession?.problemSetKey).toBe('addition-within-20');
+      expect(savedSession?.passCount).toBe(8);
+      expect(savedSession?.failCount).toBe(2);
+      expect(savedSession?.totalProblems).toBe(10);
+      expect(savedSession?.accuracy).toBe(80);
+      expect(savedSession?.duration).toBe(60000);
+      expect(savedSession?.createdAt).toBeDefined();
+    });
+  });
+
+  describe('getSessionHistory with problemSetKey', () => {
+    beforeEach(async () => {
+      await db.sessions.clear();
+    });
+
+    it('should return sessions filtered by problemSetKey', async () => {
+      // Create sessions for different problem set keys
+      await service.saveSession({
+        problemSetKey: 'addition-within-20',
+        startTime: Date.now(),
+        endTime: Date.now() + 60000,
+        duration: 60000,
+        passCount: 8,
+        failCount: 2,
+        totalProblems: 10,
+        accuracy: 80,
+      });
+
+      await service.saveSession({
+        problemSetKey: 'subtraction-within-20',
+        startTime: Date.now(),
+        endTime: Date.now() + 60000,
+        duration: 60000,
+        passCount: 7,
+        failCount: 3,
+        totalProblems: 10,
+        accuracy: 70,
+      });
+
+      await service.saveSession({
+        problemSetKey: 'addition-within-20',
+        startTime: Date.now(),
+        endTime: Date.now() + 120000,
+        duration: 120000,
+        passCount: 9,
+        failCount: 1,
+        totalProblems: 10,
+        accuracy: 90,
+      });
+
+      const sessions = await service.getSessionHistory('addition-within-20', 10);
+
+      expect(sessions).toBeDefined();
+      expect(Array.isArray(sessions)).toBe(true);
+      expect(sessions.length).toBe(2);
+      expect(sessions[0].problemSetKey).toBe('addition-within-20');
+      expect(sessions[1].problemSetKey).toBe('addition-within-20');
+    });
+
+    it('should return empty array when no sessions match problemSetKey', async () => {
+      await service.saveSession({
+        problemSetKey: 'addition-within-20',
+        startTime: Date.now(),
+        endTime: Date.now() + 60000,
+        duration: 60000,
+        passCount: 8,
+        failCount: 2,
+        totalProblems: 10,
+        accuracy: 80,
+      });
+
+      const sessions = await service.getSessionHistory('subtraction-within-20', 10);
+
+      expect(sessions).toBeDefined();
+      expect(Array.isArray(sessions)).toBe(true);
+      expect(sessions.length).toBe(0);
     });
   });
 });
