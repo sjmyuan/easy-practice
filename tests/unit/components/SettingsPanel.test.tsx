@@ -110,7 +110,7 @@ describe('SettingsPanel', () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
-  it('should render ProblemCoverageSlider', () => {
+  it('should render ProblemCoverageDropdown', () => {
     render(
       <LanguageProvider>
         <SettingsPanel {...defaultProps} />
@@ -132,17 +132,15 @@ describe('SettingsPanel', () => {
     ).toBeInTheDocument();
   });
 
-  it('should pass problemCoverage to ProblemCoverageSlider', () => {
+  it('should pass problemCoverage to ProblemCoverageDropdown', () => {
     render(
       <LanguageProvider>
         <SettingsPanel {...defaultProps} problemCoverage={80} />
       </LanguageProvider>
     );
 
-    const slider = screen.getByRole('slider');
-    // Slider uses steps 0-3 for values 30, 50, 80, 100
-    // 80% corresponds to step 2
-    expect(slider).toHaveValue('2');
+    const dropdown = screen.getByRole('combobox', { name: /problem coverage/i }) as HTMLSelectElement;
+    expect(dropdown.value).toBe('80');
   });
 
   it('should call onProblemCoverageChange when slider changes', () => {
@@ -157,8 +155,8 @@ describe('SettingsPanel', () => {
       </LanguageProvider>
     );
 
-    const slider = screen.getByRole('slider');
-    fireEvent.change(slider, { target: { value: '3' } });
+    const dropdown = screen.getByRole('combobox', { name: /problem coverage/i });
+    fireEvent.change(dropdown, { target: { value: '100' } });
 
     expect(onProblemCoverageChange).toHaveBeenCalledWith(100);
   });

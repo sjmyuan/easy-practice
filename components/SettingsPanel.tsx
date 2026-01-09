@@ -2,7 +2,7 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { ProblemCoverageSlider } from './ProblemCoverageSlider';
+import { ProblemCoverageDropdown } from './ProblemCoverageDropdown';
 import { ResetDataButton } from './ResetDataButton';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -75,9 +75,9 @@ export function SettingsPanel({
               <LanguageSelector />
             </div>
 
-            {/* Problem Coverage Slider */}
+            {/* Problem Coverage Dropdown */}
             <div>
-              <ProblemCoverageSlider
+              <ProblemCoverageDropdown
                 value={problemCoverage}
                 onChange={onProblemCoverageChange}
               />

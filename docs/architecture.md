@@ -357,9 +357,9 @@
     - Moved from landing page into settings panel
     - Toggle button with flag icons (🇨🇳 for Chinese, 🇺🇸 for English)
     - Full keyboard accessibility with proper ARIA labels
-  - **ProblemCoverageSlider** (`components/ProblemCoverageSlider.tsx`):
-    - Simplified to show only percentage (30%, 50%, 80%, 100%)
-    - Removed problem count display (different problem sets have different totals)
+  - **ProblemCoverageDropdown** (`components/ProblemCoverageDropdown.tsx`):
+    - Dropdown select element for choosing coverage percentage (30%, 50%, 80%, 100%)
+    - Replaces slider UI with dropdown for more direct value selection
     - No longer requires `totalProblems` prop
 - **State Management**:
   - Local state `isSettingsOpen` in landing/pre-session views controls modal visibility
@@ -393,13 +393,13 @@
   - 17 tests for SettingsPanel component (updated for global settings)
   - 11 tests for LandingView component (including settings panel integration)
   - Updated AppContext tests for global reset and localStorage persistence
-  - Updated ProblemCoverageSlider tests (removed problem count assertions)
+  - Updated ProblemCoverageDropdown tests (dropdown UI replaces slider)
   - All 364 tests passing
 - **Components Modified**:
   - `components/SettingsIcon.tsx` (added min-h-[48px] for accessibility)
   - `components/SettingsPanel.tsx` (added LanguageSelector, removed totalProblems prop)
   - `components/LandingView.tsx` (added SettingsIcon and SettingsPanel)
-  - `components/ProblemCoverageSlider.tsx` (removed problem count display)
+  - `components/ProblemCoverageDropdown.tsx` (replaced slider with dropdown select)
   - `contexts/AppContext.tsx` (localStorage persistence, global reset)
   - `app/page.tsx` (removed totalProblems state)
   - `locales/en.json` (updated reset confirmation messages)
