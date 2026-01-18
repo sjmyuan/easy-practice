@@ -49,6 +49,9 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
     if (problem?.id !== prevProblemIdRef.current) {
       prevProblemIdRef.current = problem?.id;
 
+      // Reset showAnswer state when problem changes
+      setShowAnswer(false);
+
       // Stop any playing audio when problem changes
       if (problemAudioRef.current) {
         problemAudioRef.current.pause();
@@ -67,8 +70,6 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
       }
     }
   }, [problem]);
-
-  // Reset showAnswer state when problem changes (using key prop instead)
 
   const handleProblemAudioClick = () => {
     if (problemAudioRef.current) {

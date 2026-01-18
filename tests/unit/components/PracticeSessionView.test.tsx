@@ -50,8 +50,7 @@ describe('PracticeSessionView', () => {
     );
 
     // Progress indicator shows "5 / 20"
-    expect(screen.getByText('5', { exact: false })).toBeInTheDocument();
-    expect(screen.getByText('20', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(/5 \/ 20/)).toBeInTheDocument();
   });
 
   it('should render problem display', () => {

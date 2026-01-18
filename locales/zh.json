@@ -25,6 +25,7 @@
   "session": {
     "problem": "问题",
     "progress": "进度",
+    "of": "的",
     "timer": "计时器",
     "pass": "通过",
     "fail": "失败",

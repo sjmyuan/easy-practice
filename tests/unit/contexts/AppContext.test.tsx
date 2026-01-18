@@ -2039,7 +2039,7 @@ describe('AppContext', () => {
 
     describe('saveSession on session complete', () => {
       it('should save session when session completes successfully', async () => {
-        vi.mocked(databaseService.saveSession).mockResolvedValue('session-1');
+        vi.mocked(databaseService.saveSession).mockReturnValue('session-1');
 
         const mockProblemSet: ProblemSet = {
           id: '1',
@@ -2091,10 +2091,13 @@ describe('AppContext', () => {
           });
         }
 
-        // Verify session was saved
+        // Wait for session to complete
         await waitFor(() => {
-          expect(databaseService.saveSession).toHaveBeenCalled();
+          expect(result.current.state.isSessionActive).toBe(false);
         });
+
+        // Verify session was saved
+        expect(databaseService.saveSession).toHaveBeenCalled();
 
         const saveSessionCall = vi.mocked(databaseService.saveSession).mock
           .calls[0][0];
@@ -2110,7 +2113,7 @@ describe('AppContext', () => {
       });
 
       it('should not save session when ended early', async () => {
-        vi.mocked(databaseService.saveSession).mockResolvedValue('session-1');
+        vi.mocked(databaseService.saveSession).mockReturnValue('session-1');
 
         const mockProblemSet: ProblemSet = {
           id: '1',

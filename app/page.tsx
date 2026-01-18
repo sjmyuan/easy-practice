@@ -13,7 +13,7 @@ import { SettingsIcon } from '@/components/SettingsIcon';
 import { CloseSessionIcon } from '@/components/CloseSessionIcon';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { ChevronLeft } from 'lucide-react';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { LocalizedContent } from '@/types';
 
 /**
@@ -77,6 +77,16 @@ export default function Home() {
     [selectedProblemSet?.name, language]
   );
 
+  // Auto-dismiss error messages after 5 seconds
+  useEffect(() => {
+    if (state.errorMessage) {
+      const timer = setTimeout(() => {
+        actions.clearError();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.errorMessage, actions]);
+
   if (state.initializationError) {
     return (
       <ErrorView
@@ -122,6 +132,26 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">
+      {/* Error Notification Toast */}
+      {state.errorMessage && (
+        <div
+          className="fixed top-4 left-1/2 z-50 -translate-x-1/2 transform rounded-lg bg-red-500 px-6 py-3 text-white shadow-lg"
+          role="alert"
+          aria-live="assertive"
+        >
+          <div className="flex items-center gap-2">
+            <span>{state.errorMessage}</span>
+            <button
+              onClick={actions.clearError}
+              className="ml-2 rounded p-1 hover:bg-red-600"
+              aria-label="Dismiss error"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-2xl space-y-8 rounded-3xl bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
         <div className="space-y-4">
           {/* Navigation Row */}

@@ -27,6 +27,7 @@
   "session": {
     "problem": "Problem",
     "progress": "Progress",
+    "of": "of",
     "timer": "Timer",
     "pass": "Pass",
     "fail": "Fail",
