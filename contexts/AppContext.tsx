@@ -46,9 +46,6 @@ export interface AppState {
 
 export interface AppActions {
   // Problem Set Actions
-  importProblemSet: (file: File) => Promise<void>;
-  loadProblemSets: () => Promise<void>;
-  toggleProblemSet: (id: string, enabled: boolean) => Promise<void>;
   selectProblemSet: (problemSetId: string) => void;
 
   // Problem Actions
@@ -202,40 +199,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const loadProblemSets = useCallback(async () => {
-    const problemSets = problemService.getProblemSets();
-    setState((prev) => ({ ...prev, availableProblemSets: problemSets }));
-  }, []);
 
-  const importProblemSet = useCallback(
-    async (file: File) => {
-      try {
-        setLoading(true);
-        // Import from file is not supported in simplified version
-        throw new Error('Importing problem sets from files is not supported');
-      } catch (error) {
-        console.error('Failed to import problem set:', error);
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [setLoading, loadProblemSets]
-  );
-
-  const toggleProblemSet = useCallback(
-    async (id: string, enabled: boolean) => {
-      try {
-        // Toggle is not supported in in-memory version
-        // All problem sets are enabled by default
-        console.warn('Toggle problem set is not supported in this version');
-      } catch (error) {
-        console.error('Failed to toggle problem set:', error);
-        throw error;
-      }
-    },
-    [loadProblemSets]
-  );
 
   const loadNextProblem = useCallback(async () => {
     try {
@@ -286,8 +250,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const problemId = currentProblem?.id;
 
         if (!problemId) return;
-
-        // Note: Statistics tracking removed in simplified version
 
         // If session is active, handle session-based progression
         if (isSessionActive && sessionQueue.length > 0) {
@@ -505,7 +467,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const {
         isSessionActive,
         sessionStartTime,
-        sessionQueue,
         sessionPassCount,
         sessionFailCount,
         sessionCompletedCount,
@@ -603,7 +564,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [setLoading]);
+  }, [setLoading, loadSessionHistory]);
 
   const exportData = useCallback(async () => {
     try {
@@ -652,7 +613,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     },
-    [setLoading, initializeApp]
+    [setLoading, loadSessionHistory]
   );
 
   // Initialize app on mount
@@ -663,9 +624,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const actions = useMemo(
     () => ({
-      importProblemSet,
-      loadProblemSets,
-      toggleProblemSet,
       selectProblemSet,
       loadNextProblem,
       submitAnswer,
@@ -682,9 +640,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       initializeApp,
     }),
     [
-      importProblemSet,
-      loadProblemSets,
-      toggleProblemSet,
       selectProblemSet,
       loadNextProblem,
       submitAnswer,
