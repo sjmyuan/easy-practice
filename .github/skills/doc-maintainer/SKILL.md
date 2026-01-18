@@ -19,7 +19,7 @@ description: Update project documentation to reflect code changes (bug fixes, re
 <capabilities>
 
 <maintaining-docs>
-- Review the change: Identify what was modified (behavior, API, UX, dependencies, setup).
+- Review the change and chat history: Identify what was modified (behavior, API, UX, dependencies, setup).
 - Identify affected docs: Determine which documentation needs updates (requirements, architecture, README, examples, changelog).
 - Summarize updates: For each affected doc, briefly describe what changed, why, and the impact on developers or users.
 - Make focused edits: Limit changes to relevant sections; avoid broad rewrites unless necessary.

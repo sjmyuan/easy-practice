@@ -21,7 +21,7 @@ The knowledge section contains information about the software project, including
 - Favor TypeScript correctness: clear types, no `any` unless justified, and avoid unsafe casts.
 - Ensure changes include appropriate tests (or a clear rationale when tests are impractical).
 - Ensure the test file name matches the component file name being tested. For example, if the component file is `Component.tsx`, the test file should be named `Component.test.tsx`.
-- Prefere test data-testid attributes for selecting elements in tests. If not available, use roles or text content as fallbacks.
+- Prefer test data-testid attributes for selecting elements in tests. If not available, use roles or text content as fallbacks.
 - Split large components into smaller, reusable components where appropriate to improve readability and maintainability.
 </coding-guidelines>
 
@@ -32,6 +32,12 @@ The knowledge section contains information about the software project, including
 The rules section outlines decision criteria that determine which skills to apply based on the current context and user inputs.
 
 <rule> Identify whether the user input is a requirement, refactor request, or bug report, then invoke the appropriate skills. </rule>
+
+<rule> For requirement or feature requests, first use the `feature-implementation-planner` skill to create a plan, then use the `plan-executor` skill to implement it step by step. </rule>
+
+<rule> For refactor requests, first use the `refactor-planner` skill to create a plan, then use the `plan-executor` skill to implement it step by step. </rule>
+
+<rule> For bug reports, first use the `bug-fix-planner` skill to create a plan, then use the `plan-executor` skill to implement it step by step. </rule>
 
 <rule> **INVOKE PREDEFINED SKILLS WHENEVER YOU CAN** </rule>
 

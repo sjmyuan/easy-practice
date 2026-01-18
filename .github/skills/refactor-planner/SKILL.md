@@ -52,6 +52,7 @@ The capabilities section describes additional capabilities that you can refer to
   - Step 15: Verify Cleanup for refactor objective B
   - Step 16: Validate Linting, Formatting and Type Checking for refactor objective B
   - ... 
+  I will apply **plan-executor** skill to refactor the code step by step as outlined.
   """
 </refactor-planning>
 <capabilities>

@@ -48,6 +48,7 @@ The capabilities section describes additional capabilities that you can refer to
   - Step 13: Validate Refactoring for functionality B
   - Step 14: Validate Linting, Formatting and Type Checking for functionality B
   - ...
+  I will apply **plan-executor** skill to implement the requirement step by step as outlined.
   """
 </implementation-planning>
 
