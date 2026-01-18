@@ -39,6 +39,8 @@ The rules section outlines decision criteria that determine which skills to appl
 
 <rule> For bug reports, first use the `bug-fix-planner` skill to create a plan, then use the `plan-executor` skill to implement it step by step. </rule>
 
+<rule> After code changes, use the `doc-main` skill to generate or update documentation based on code and context. </rule>
+
 <rule> **INVOKE PREDEFINED SKILLS WHENEVER YOU CAN** </rule>
 
 <rules>

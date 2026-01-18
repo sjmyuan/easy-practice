@@ -12,7 +12,6 @@ import React, {
 } from 'react';
 import type { Problem, ProblemSet, Session } from '@/types';
 import { databaseService, problemService } from '@/services';
-import { db } from '@/lib/db';
 import { RECENT_PROBLEMS_LIMIT } from '@/lib/constants';
 
 export interface AppState {
@@ -92,6 +91,9 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 // Load problem coverage from localStorage
 function loadProblemCoverageFromStorage(): number {
+  if (typeof window === 'undefined') {
+    return 100; // Default for SSR
+  }
   try {
     const stored = localStorage.getItem(PROBLEM_COVERAGE_KEY);
     if (stored) {
@@ -108,6 +110,9 @@ function loadProblemCoverageFromStorage(): number {
 
 // Load session history limit from localStorage
 function loadSessionHistoryLimitFromStorage(): number {
+  if (typeof window === 'undefined') {
+    return 10; // Default for SSR
+  }
   try {
     const stored = localStorage.getItem(SESSION_HISTORY_LIMIT_KEY);
     if (stored) {
@@ -172,7 +177,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Always load default problem sets to ensure updates are applied
       await problemService.loadDefaultProblemSets();
 
-      const problemSets = await databaseService.getProblemSets();
+      const problemSets = problemService.getProblemSets();
 
       setState((prev) => ({
         ...prev,
@@ -198,7 +203,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loadProblemSets = useCallback(async () => {
-    const problemSets = await databaseService.getProblemSets();
+    const problemSets = problemService.getProblemSets();
     setState((prev) => ({ ...prev, availableProblemSets: problemSets }));
   }, []);
 
@@ -206,8 +211,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     async (file: File) => {
       try {
         setLoading(true);
-        await problemService.loadProblemSetFromFile(file);
-        await loadProblemSets();
+        // Import from file is not supported in simplified version
+        throw new Error('Importing problem sets from files is not supported');
       } catch (error) {
         console.error('Failed to import problem set:', error);
         throw error;
@@ -221,8 +226,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const toggleProblemSet = useCallback(
     async (id: string, enabled: boolean) => {
       try {
-        await databaseService.toggleProblemSet(id, enabled);
-        await loadProblemSets();
+        // Toggle is not supported in in-memory version
+        // All problem sets are enabled by default
+        console.warn('Toggle problem set is not supported in this version');
       } catch (error) {
         console.error('Failed to toggle problem set:', error);
         throw error;
@@ -281,8 +287,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
         if (!problemId) return;
 
-        // Record the attempt
-        await databaseService.recordAttempt(problemId, result);
+        // Note: Statistics tracking removed in simplified version
 
         // If session is active, handle session-based progression
         if (isSessionActive && sessionQueue.length > 0) {
@@ -332,7 +337,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           } else {
             // Load next problem from session queue
             const nextProblemId = sessionQueue[newCompletedCount];
-            const nextProblem = await db.problems.get(nextProblemId);
+            const nextProblem = problemService.getProblemById(nextProblemId);
 
             setState((prev) => ({
               ...prev,
@@ -445,9 +450,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         stateRef.current;
 
       // Generate session queue based on selected problem set key
-      const queue = await problemService.generateSessionQueue(
+      const queue = problemService.generateSessionQueue(
         selectedProblemSetKey,
-        false,
         problemCoverage
       );
 
@@ -469,7 +473,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Load first problem from queue
       const firstProblemId = queue[0];
-      const firstProblem = await db.problems.get(firstProblemId);
+      const firstProblem = problemService.getProblemById(firstProblemId);
 
       // Capture session start time
       const startTime = Date.now();
@@ -588,10 +592,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
 
-      // Reset statistics for ALL problem sets globally
-      await databaseService.resetStatistics();
+      // Clear all session history from localStorage
+      localStorage.removeItem('sessions');
 
-      // No state changes needed - all statistics are in database
+      // Reload session history
+      await loadSessionHistory();
     } catch (error) {
       console.error('Failed to reset data:', error);
       throw error;
@@ -602,12 +607,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const exportData = useCallback(async () => {
     try {
-      const jsonData = await databaseService.exportData();
+      // Export only session data from localStorage
+      const sessions = localStorage.getItem('sessions') || '[]';
+      const exportData = {
+        version: '2.0',
+        exportedAt: new Date().toISOString(),
+        sessions: JSON.parse(sessions),
+      };
+      
+      const jsonData = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonData], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `math-practice-export-${new Date().toISOString()}.json`;
+      link.download = `practice-sessions-${new Date().toISOString()}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -623,8 +636,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         setLoading(true);
         const text = await file.text();
-        await databaseService.importData(text);
-        await initializeApp();
+        const data = JSON.parse(text);
+        
+        // Import sessions data
+        if (data.sessions) {
+          localStorage.setItem('sessions', JSON.stringify(data.sessions));
+        }
+        
+        // Reload session history
+        await loadSessionHistory();
       } catch (error) {
         console.error('Failed to import data:', error);
         throw error;
