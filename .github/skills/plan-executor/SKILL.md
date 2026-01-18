@@ -14,6 +14,7 @@ The rules section outlines decision criteria that determine which capabilities t
 <rule> If no #todo tool is available, use a PLAN.md file to record the plan and track progress. </rule>
 <rule> Execute the plan step by step, updating the status of each step upon completion. </rule>
 <rule> **DO NOT MODIFY THE PLAN EXCEPT TO UPDATE THE STATUS OF STEPS.** </rule>
+<rule> **COMPLETE ALL STEPS IN THE PLAN THOROUGHLY, REGARDLESS OF THE NUMBER OF STEPS OR FILES AFFECTED. ** </rule>
 <rule> After every 10 completed steps, present a summary of the plan's current status. </rule>
 <rule> Think aloud and explain your approach before making any code changes. </rule>
 </rules>
