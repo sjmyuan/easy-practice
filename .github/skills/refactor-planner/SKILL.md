@@ -1,10 +1,12 @@
 ---
 name: refactor-planner
-description: Clarify the scope, objectives, and constraints of the refactor request first, then generate a refactoring plan for the refactor request. Use this skill when the user submits a refactor request to refactor existing functionality.
+description: Clarify the scope, objectives, and constraints of the refactor request first, then generate a refactoring plan for the refactor request. Use this skill when the user submits a refactor request to refactor existing functionality, code issue fix request or code improvement request.
 ---
 
 <when-to-use-this-skill>
 - User submits a refactor request to refactor existing functionalities
+- User submits a code issue fix request
+- User submits a code improvement request
 </when-to-use-this-skill>
 
 

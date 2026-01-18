@@ -81,8 +81,16 @@ export interface AppContextValue {
   actions: AppActions;
 }
 
-const PROBLEM_COVERAGE_KEY = 'problemCoverage';
-const SESSION_HISTORY_LIMIT_KEY = 'sessionHistoryLimit';
+import { 
+  STORAGE_KEYS,
+  DEFAULT_PROBLEM_COVERAGE,
+  DEFAULT_SESSION_HISTORY_LIMIT,
+  PROBLEM_COVERAGE_OPTIONS,
+  SESSION_HISTORY_LIMIT_OPTIONS,
+} from '@/lib/constants';
+
+const PROBLEM_COVERAGE_KEY = STORAGE_KEYS.PROBLEM_COVERAGE;
+const SESSION_HISTORY_LIMIT_KEY = STORAGE_KEYS.SESSION_HISTORY_LIMIT;
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
@@ -95,14 +103,14 @@ function loadProblemCoverageFromStorage(): number {
     const stored = localStorage.getItem(PROBLEM_COVERAGE_KEY);
     if (stored) {
       const parsed = parseInt(stored, 10);
-      if ([30, 50, 80, 100].includes(parsed)) {
+      if (PROBLEM_COVERAGE_OPTIONS.includes(parsed as typeof PROBLEM_COVERAGE_OPTIONS[number])) {
         return parsed;
       }
     }
   } catch (error) {
     console.error('Failed to load problem coverage from localStorage:', error);
   }
-  return 100; // Default
+  return DEFAULT_PROBLEM_COVERAGE;
 }
 
 // Load session history limit from localStorage
@@ -114,14 +122,14 @@ function loadSessionHistoryLimitFromStorage(): number {
     const stored = localStorage.getItem(SESSION_HISTORY_LIMIT_KEY);
     if (stored) {
       const parsed = parseInt(stored, 10);
-      if ([10, 20, 30, 40, 50].includes(parsed)) {
+      if (SESSION_HISTORY_LIMIT_OPTIONS.includes(parsed as typeof SESSION_HISTORY_LIMIT_OPTIONS[number])) {
         return parsed;
       }
     }
   } catch (error) {
     console.error('Failed to load session history limit from localStorage:', error);
   }
-  return 10; // Default
+  return DEFAULT_SESSION_HISTORY_LIMIT;
 }
 
 const initialState: AppState = {

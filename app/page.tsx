@@ -13,43 +13,69 @@ import { SettingsIcon } from '@/components/SettingsIcon';
 import { CloseSessionIcon } from '@/components/CloseSessionIcon';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { ChevronLeft } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { LocalizedContent } from '@/types';
 
 /**
  * Get localized text from a string or LocalizedContent object
+ * Memoized to avoid recreation on every render
  */
-function getLocalizedText(
+const getLocalizedText = (
   text: string | LocalizedContent | undefined,
   language: 'en' | 'zh'
-): string {
+): string => {
   if (!text) return '';
   if (typeof text === 'string') return text;
   return text[language] || text.en || text.zh || '';
-}
+};
 
 export default function Home() {
   const { state, actions } = useApp();
   const { language, t } = useLanguage();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const handleChangeProblemSet = () => {
-    // Clear session and return to landing
+  // Memoize callbacks to prevent unnecessary re-renders
+  const handleChangeProblemSet = useCallback(() => {
     actions.selectProblemSet('');
-  };
+  }, [actions]);
 
-  const handleViewSummary = () => {
+  const handleViewSummary = useCallback(() => {
     actions.loadSessionHistory();
     actions.toggleHistory();
-  };
+  }, [actions]);
 
-  const handleCloseSession = () => {
-    // Show confirmation dialog
+  const handleCloseSession = useCallback(() => {
     const confirmed = window.confirm(t('session.closeSessionConfirm'));
     if (confirmed) {
       actions.endSessionEarly();
     }
-  };
+  }, [actions, t]);
+
+  const handleSettingsOpen = useCallback(() => {
+    setIsSettingsOpen(true);
+  }, []);
+
+  const handleSettingsClose = useCallback(() => {
+    setIsSettingsOpen(false);
+  }, []);
+
+  // Memoize expensive computations
+  const isLandingView = useMemo(
+    () => !state.selectedProblemSetKey || state.selectedProblemSetKey === '',
+    [state.selectedProblemSetKey]
+  );
+
+  const selectedProblemSet = useMemo(
+    () => state.availableProblemSets.find(
+      (ps) => ps.problemSetKey === state.selectedProblemSetKey
+    ),
+    [state.availableProblemSets, state.selectedProblemSetKey]
+  );
+
+  const pageTitle = useMemo(
+    () => getLocalizedText(selectedProblemSet?.name, language) || 'Easy Practice',
+    [selectedProblemSet?.name, language]
+  );
 
   if (state.initializationError) {
     return (
@@ -64,8 +90,6 @@ export default function Home() {
   }
 
   // Landing view - when selectedProblemSetKey is empty
-  const isLandingView = !state.selectedProblemSetKey || state.selectedProblemSetKey === '';
-  
   if (isLandingView) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">
@@ -73,7 +97,7 @@ export default function Home() {
           <div className="space-y-4">
             {/* Settings Icon for Landing View */}
             <div className="flex items-center justify-end">
-              <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
+              <SettingsIcon onClick={handleSettingsOpen} />
             </div>
             <LandingView
               problemSets={state.availableProblemSets}
@@ -85,7 +109,7 @@ export default function Home() {
 
         <SettingsPanel
           isOpen={isSettingsOpen}
-          onClose={() => setIsSettingsOpen(false)}
+          onClose={handleSettingsClose}
           problemCoverage={state.problemCoverage}
           onProblemCoverageChange={actions.setProblemCoverage}
           onResetData={actions.resetAllData}
@@ -95,12 +119,6 @@ export default function Home() {
       </main>
     );
   }
-
-  // Get selected problem set name for display
-  const selectedProblemSet = state.availableProblemSets.find(
-    (ps) => ps.problemSetKey === state.selectedProblemSetKey
-  );
-  const pageTitle = getLocalizedText(selectedProblemSet?.name, language) || 'Easy Practice';
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-[#FF9AA2] via-[#FFDAC1] to-[#B5EAD7] p-8">
@@ -121,7 +139,7 @@ export default function Home() {
             {state.isSessionActive ? (
               <CloseSessionIcon onClick={handleCloseSession} />
             ) : (
-              <SettingsIcon onClick={() => setIsSettingsOpen(true)} />
+              <SettingsIcon onClick={handleSettingsOpen} />
             )}
           </div>
 
@@ -172,7 +190,7 @@ export default function Home() {
 
       <SettingsPanel
         isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        onClose={handleSettingsClose}
         problemCoverage={state.problemCoverage}
         onProblemCoverageChange={actions.setProblemCoverage}
         onResetData={actions.resetAllData}

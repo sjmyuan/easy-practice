@@ -4,8 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, Volume2 } from 'lucide-react';
 import type { Problem } from '@/types';
-
-const AUDIO_BASE_URL = 'https://images.shangjiaming.top';
+import { AUDIO_BASE_URL } from '@/lib/constants';
 
 interface ProblemDisplayProps {
   problem: Problem | null;

@@ -1,13 +1,10 @@
 // lib/storage.ts - localStorage wrapper for session data
 import type { Session } from '@/types';
-
-const STORAGE_KEYS = {
-  SESSIONS: 'sessions',
-} as const;
+import { STORAGE_KEYS } from '@/lib/constants';
 
 /**
  * localStorage wrapper for session data
- * Provides simple CRUD operations for sessions
+ * Provides simple CRUD operations for sessions with error handling
  */
 class SessionStorage {
   private getSessionsFromStorage(): Session[] {
@@ -17,6 +14,12 @@ class SessionStorage {
       return JSON.parse(data) as Session[];
     } catch (error) {
       console.error('Failed to read sessions from localStorage:', error);
+      // Check if it's a quota exceeded error or other storage issue
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        this.notifyStorageError('Storage quota exceeded. Some data may not be saved.');
+      } else {
+        this.notifyStorageError('Failed to load session data. Using temporary storage.');
+      }
       return [];
     }
   }
@@ -26,6 +29,28 @@ class SessionStorage {
       localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
     } catch (error) {
       console.error('Failed to save sessions to localStorage:', error);
+      // Check for quota exceeded
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        this.notifyStorageError('Storage quota exceeded. Cannot save new sessions. Consider clearing old data.');
+      } else if (error instanceof DOMException && error.name === 'SecurityError') {
+        this.notifyStorageError('Storage access denied. You may be in private browsing mode.');
+      } else {
+        this.notifyStorageError('Failed to save session data. Your progress may not be saved.');
+      }
+    }
+  }
+
+  /**
+   * Notify user of storage errors
+   * In production, this could be replaced with a toast notification system
+   */
+  private notifyStorageError(message: string): void {
+    // For now, use alert in browser
+    if (typeof window !== 'undefined') {
+      // Use setTimeout to avoid blocking the current execution
+      setTimeout(() => {
+        alert(`Storage Warning: ${message}`);
+      }, 100);
     }
   }
 
