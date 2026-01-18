@@ -21,9 +21,22 @@ The capabilities section describes additional capabilities that you can refer to
 - Present a structured summary of the refactor request to the user and request confirmation or refinements.
 </defining-refactor-request>
 
+<adapting-tdd-approach>
+- Recognize when the full TDD cycle may be adapted or streamlined based on the refactoring type:
+  - **Simple cleanups** (removing unused imports, fixing formatting): May skip test creation if existing tests provide adequate coverage
+  - **Type improvements** (adding/refining TypeScript types): Focus on type-checking validation rather than test-first approach
+  - **Documentation-only changes**: No test cycle needed, validate with linting only
+  - **Code organization** (file moves, renames): Existing tests should pass unchanged
+  - **Complex logic changes**: Always follow full TDD cycle for safety
+- When adapting the approach, always ensure existing tests pass before and after changes
+- Document the rationale for adapting the TDD approach in the plan
+</adapting-tdd-approach>
+
 <refactor-planning>
+- **Validate Baseline**: Run existing tests, linting, and type-checking to ensure the codebase is in a clean state before refactoring begins.
 - Break down the refactor request into specific, measurable objectives and clearly defined constraints.
 - Identify and map dependencies between objectives to establish an efficient and logical refactoring sequence.
+- **Consolidate Steps**: Group related objectives together when they share context or can be tested together, reducing the total step count while maintaining clarity.
 - Create a detailed step-by-step refactor plan following the TDD approach. For each objective, the steps should include:
   - **Write Focused Tests**: Create precise unit tests targeting the specific refactoring objective, ensuring comprehensive coverage of all scenarios, edge cases, and invalid inputs.
   - **Confirm Test Failure**: Execute the tests to verify they fail initially, validating that the tests correctly identify the current code behavior before refactoring begins.
@@ -37,32 +50,75 @@ The capabilities section describes additional capabilities that you can refer to
 - Summarize the complete plan to the user. For example:
   """
   To complete the refactoring request of [refactor request summary], the plan is as follows:
-  - Step 1: Write Focused Tests for refactor objective A
-  - Step 2: Confirm Test Failure for refactor objective A
-  - Step 3: Refactor Code for refactor objective A
-  - Step 4: Verify Refactor for refactor objective A
-  - Step 5: Clean Up Unused Code for refactor objective A
-  - Step 6: Clean Up Tests for refactor objective A
-  - Step 7: Verify Cleanup for refactor objective A
-  - Step 8: Validate Linting, Formatting and Type Checking for refactor objective A
-  - Step 9: Write Focused Tests for refactor objective B
-  - Step 10: Confirm Test Failure for refactor objective B
-  - Step 11: Refactor Code for refactor objective B
-  - Step 12: Verify Refactor for refactor objective B
-  - Step 13: Clean Up Unused Code for refactor objective B
-  - Step 14: Clean Up Tests for refactor objective B
-  - Step 15: Verify Cleanup for refactor objective B
-  - Step 16: Validate Linting, Formatting and Type Checking for refactor objective B
+  - Step 1: Validate Baseline (run existing tests, lint, type-check)
+  - Step 2: Write Focused Tests for refactor objective A
+  - Step 3: Confirm Test Failure for refactor objective A
+  - Step 4: Refactor Code for refactor objective A
+  - Step 5: Verify Refactor for refactor objective A
+  - Step 6: Clean Up Unused Code for refactor objective A
+  - Step 7: Clean Up Tests for refactor objective A
+  - Step 8: Verify Cleanup for refactor objective A
+  - Step 9: Validate Linting, Formatting and Type Checking for refactor objective A
+  - Step 10: Write Focused Tests for refactor objective B
+  - Step 11: Confirm Test Failure for refactor objective B
+  - Step 12: Refactor Code for refactor objective B
+  - Step 13: Verify Refactor for refactor objective B
+  - Step 14: Clean Up Unused Code for refactor objective B
+  - Step 15: Clean Up Tests for refactor objective B
+  - Step 16: Verify Cleanup for refactor objective B
+  - Step 17: Validate Linting, Formatting and Type Checking for refactor objective B
   - ... 
   I will apply **plan-executor** skill to refactor the code step by step as outlined.
   """
 </refactor-planning>
-<capabilities>
+
+<refactor-planning-examples>
+**Example 1: Component Splitting**
+```
+Objective: Split large PracticeSessionView component into smaller, focused components
+Steps:
+- Step 1: Validate Baseline (run tests, lint, type-check)
+- Step 2: Write Tests for SessionHeader subcomponent
+- Step 3: Confirm Test Failure
+- Step 4: Extract SessionHeader component
+- Step 5: Verify Tests Pass
+- Step 6: Clean Up unused code in PracticeSessionView
+- Step 7: Clean Up Tests
+- Step 8: Verify Cleanup
+- Step 9: Validate Quality (lint, format, type-check)
+[Repeat for SessionContent and SessionFooter subcomponents]
+```
+
+**Example 2: Type Improvements**
+```
+Objective: Add strict type annotations to utility functions
+Steps (Adapted TDD - Focus on type-checking):
+- Step 1: Validate Baseline
+- Step 2: Add type annotations to utils.ts functions
+- Step 3: Verify existing tests still pass
+- Step 4: Run type-checker and fix any issues
+- Step 5: Validate Quality
+```
+
+**Example 3: Hook Extraction**
+```
+Objective: Extract session management logic into useSession hook
+Steps:
+- Step 1: Validate Baseline
+- Step 2-9: Full TDD cycle for useSession hook creation
+- Step 10-17: Full TDD cycle for integrating hook into components
+- Step 18: Validate Quality
+```
+</refactor-planning-examples>
+
+</capabilities>
 
 <rules>
 
 The rules section outlines decision criteria that determine which capabilities to apply based on the current context and user inputs.
 
 <rule> If the user submits a refactoring request, apply the **defining-refactor-request** capability to clarify the scope, objectives, and constraints of the refactor request. </rule>
-<rule> After clarifying the scope, objectives and constraints of the refactor request, apply the **refactor-planning** capability to generate a refactor plan. </rule>
+<rule> After defining the refactor request, apply the **adapting-tdd-approach** capability to evaluate whether to adapt tdd approach based on the refactoring type and complexity. </rule>
+<rule> Apply the **refactor-planning** capability to generate a detailed refactor plan, incorporating baseline validation and step consolidation strategies. </rule>
+<rule> Always check lint and type check together when fixing lint or type check issue </rule>
 </rules>

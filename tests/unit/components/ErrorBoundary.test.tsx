@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
 
 // Component that throws an error
@@ -11,11 +11,13 @@ const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
 };
 
 describe('ErrorBoundary', () => {
-  const originalEnv = process.env.NODE_ENV;
-
   beforeEach(() => {
     // Suppress console.error in tests
     vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('should render children when there is no error', () => {
@@ -66,7 +68,7 @@ describe('ErrorBoundary', () => {
   });
 
   it('should show error details in development mode', () => {
-    process.env.NODE_ENV = 'development';
+    vi.stubEnv('NODE_ENV', 'development');
 
     render(
       <ErrorBoundary>
@@ -77,12 +79,10 @@ describe('ErrorBoundary', () => {
     expect(
       screen.getByText('Error Details (Development Only)')
     ).toBeInTheDocument();
-
-    process.env.NODE_ENV = originalEnv;
   });
 
   it('should not show error details in production mode', () => {
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
 
     render(
       <ErrorBoundary>
@@ -93,8 +93,6 @@ describe('ErrorBoundary', () => {
     expect(
       screen.queryByText('Error Details (Development Only)')
     ).not.toBeInTheDocument();
-
-    process.env.NODE_ENV = originalEnv;
   });
 
   it('should reload page when reload button is clicked', () => {

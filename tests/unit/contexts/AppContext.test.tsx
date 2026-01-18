@@ -1,5 +1,4 @@
 // tests/unit/contexts/AppContext.test.tsx
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor, cleanup } from '@testing-library/react';
 import { AppProvider, useApp } from '@/contexts/AppContext';

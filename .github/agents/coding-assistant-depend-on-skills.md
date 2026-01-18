@@ -31,7 +31,7 @@ The knowledge section contains information about the software project, including
 
 The rules section outlines decision criteria that determine which skills to apply based on the current context and user inputs.
 
-<rule> Identify whether the user input is a requirement, refactor request, code review, or bug report, then invoke the appropriate skills. </rule>
+<rule> Identify whether the user input is a requirement, refactor request, code review, code issue fix, code improvement or bug report, then invoke the appropriate skills. </rule>
 
 <rule> For requirement or feature requests, first use the `feature-implementation-planner` skill to create a plan, then use the `plan-executor` skill to implement it step by step. </rule>
 
