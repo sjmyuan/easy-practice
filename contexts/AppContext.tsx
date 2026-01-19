@@ -304,20 +304,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
           // Save session to database
           if (currentState.selectedProblemSetKey && currentState.sessionStartTime) {
-            try {
-              databaseService.saveSession({
-                problemSetKey: currentState.selectedProblemSetKey,
-                startTime: currentState.sessionStartTime,
-                endTime: endTime,
-                duration: duration,
-                passCount: newPassCount,
-                failCount: newFailCount,
-                totalProblems: currentState.sessionQueue.length,
-                accuracy: accuracy,
-              });
-            } catch (saveError) {
-              console.error('Failed to save session:', saveError);
-              setError('Session completed but failed to save. Progress may be lost.');
+            const saveResult = databaseService.saveSession({
+              problemSetKey: currentState.selectedProblemSetKey,
+              startTime: currentState.sessionStartTime,
+              endTime: endTime,
+              duration: duration,
+              passCount: newPassCount,
+              failCount: newFailCount,
+              totalProblems: currentState.sessionQueue.length,
+              accuracy: accuracy,
+            });
+            
+            if (!saveResult.success) {
+              console.error('Failed to save session:', saveResult.error);
+              setError(saveResult.error || 'Session completed but failed to save. Progress may be lost.');
             }
           }
         } else {
@@ -485,20 +485,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Save session to database (even if incomplete)
       if (selectedProblemSetKey && sessionStartTime && sessionCompletedCount > 0) {
-        try {
-          databaseService.saveSession({
-            problemSetKey: selectedProblemSetKey,
-            startTime: sessionStartTime,
-            endTime: endTime,
-            duration: duration,
-            passCount: sessionPassCount,
-            failCount: sessionFailCount,
-            totalProblems: sessionCompletedCount,
-            accuracy: accuracy,
-          });
-        } catch (saveError) {
-          console.error('Failed to save session:', saveError);
-          setError('Session ended but failed to save. Progress may be lost.');
+        const saveResult = databaseService.saveSession({
+          problemSetKey: selectedProblemSetKey,
+          startTime: sessionStartTime,
+          endTime: endTime,
+          duration: duration,
+          passCount: sessionPassCount,
+          failCount: sessionFailCount,
+          totalProblems: sessionCompletedCount,
+          accuracy: accuracy,
+        });
+        
+        if (!saveResult.success) {
+          console.error('Failed to save session:', saveResult.error);
+          setError(saveResult.error || 'Session ended but failed to save. Progress may be lost.');
         }
       }
 

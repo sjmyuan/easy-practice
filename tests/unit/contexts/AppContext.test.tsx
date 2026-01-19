@@ -1700,7 +1700,7 @@ describe('AppContext', () => {
 
       generateSessionQueueCall.mockReturnValue(['p1', 'p2', 'p3']);
       problemsGetCall.mockReturnValue(problem);
-      saveSessionCall.mockResolvedValue("session-123");
+      saveSessionCall.mockResolvedValue({ success: true, sessionId: "session-123" });
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -1777,7 +1777,7 @@ describe('AppContext', () => {
 
       generateSessionQueueCall.mockReturnValue(['p1', 'p2', 'p3']);
       problemsGetCall.mockReturnValue(problem);
-      saveSessionCall.mockResolvedValue("session-123");
+      saveSessionCall.mockResolvedValue({ success: true, sessionId: "session-123" });
 
       const { result } = renderHook(() => useApp(), { wrapper });
 
@@ -2039,7 +2039,7 @@ describe('AppContext', () => {
 
     describe('saveSession on session complete', () => {
       it('should save session when session completes successfully', async () => {
-        vi.mocked(databaseService.saveSession).mockReturnValue('session-1');
+        vi.mocked(databaseService.saveSession).mockReturnValue({ success: true, sessionId: 'session-1' });
 
         const mockProblemSet: ProblemSet = {
           id: '1',
@@ -2113,7 +2113,7 @@ describe('AppContext', () => {
       });
 
       it('should not save session when ended early', async () => {
-        vi.mocked(databaseService.saveSession).mockReturnValue('session-1');
+        vi.mocked(databaseService.saveSession).mockReturnValue({ success: true, sessionId: 'session-1' });
 
         const mockProblemSet: ProblemSet = {
           id: '1',

@@ -14,53 +14,33 @@ class SessionStorage {
       return JSON.parse(data) as Session[];
     } catch (error) {
       console.error('Failed to read sessions from localStorage:', error);
-      // Check if it's a quota exceeded error or other storage issue
-      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-        this.notifyStorageError('Storage quota exceeded. Some data may not be saved.');
-      } else {
-        this.notifyStorageError('Failed to load session data. Using temporary storage.');
-      }
+      // Return empty array as fallback - errors will be caught at save time
       return [];
-    }
-  }
-
-  private saveSessionsToStorage(sessions: Session[]): void {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
-    } catch (error) {
-      console.error('Failed to save sessions to localStorage:', error);
-      // Check for quota exceeded
-      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-        this.notifyStorageError('Storage quota exceeded. Cannot save new sessions. Consider clearing old data.');
-      } else if (error instanceof DOMException && error.name === 'SecurityError') {
-        this.notifyStorageError('Storage access denied. You may be in private browsing mode.');
-      } else {
-        this.notifyStorageError('Failed to save session data. Your progress may not be saved.');
-      }
-    }
-  }
-
-  /**
-   * Notify user of storage errors
-   * In production, this could be replaced with a toast notification system
-   */
-  private notifyStorageError(message: string): void {
-    // For now, use alert in browser
-    if (typeof window !== 'undefined') {
-      // Use setTimeout to avoid blocking the current execution
-      setTimeout(() => {
-        alert(`Storage Warning: ${message}`);
-      }, 100);
     }
   }
 
   /**
    * Save a session
+   * @returns Object with success status and optional error message
    */
-  save(session: Session): void {
-    const sessions = this.getSessionsFromStorage();
-    sessions.push(session);
-    this.saveSessionsToStorage(sessions);
+  save(session: Session): { success: boolean; error?: string } {
+    try {
+      const sessions = this.getSessionsFromStorage();
+      sessions.push(session);
+      
+      const data = JSON.stringify(sessions);
+      localStorage.setItem(STORAGE_KEYS.SESSIONS, data);
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to save session:', error);
+      
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        return { success: false, error: 'Storage quota exceeded. Cannot save new sessions.' };
+      } else if (error instanceof DOMException && error.name === 'SecurityError') {
+        return { success: false, error: 'Storage access denied. You may be in private browsing mode.' };
+      }
+      return { success: false, error: 'Failed to save session data.' };
+    }
   }
 
   /**

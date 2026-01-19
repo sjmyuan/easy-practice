@@ -77,13 +77,24 @@ export default function Home() {
     [selectedProblemSet?.name, language]
   );
 
-  // Auto-dismiss error messages after 5 seconds
+  // Auto-dismiss non-critical error messages after 5 seconds
+  // Don't auto-dismiss critical errors (initialization, storage) - require user acknowledgment
   useEffect(() => {
     if (state.errorMessage) {
-      const timer = setTimeout(() => {
-        actions.clearError();
-      }, 5000);
-      return () => clearTimeout(timer);
+      // Check if this is a critical error that should not be auto-dismissed
+      const isCriticalError = 
+        state.errorMessage.toLowerCase().includes('initialization') ||
+        state.errorMessage.toLowerCase().includes('initialize') ||
+        state.errorMessage.toLowerCase().includes('storage quota') ||
+        state.errorMessage.toLowerCase().includes('storage access') ||
+        state.errorMessage.toLowerCase().includes('private browsing');
+      
+      if (!isCriticalError) {
+        const timer = setTimeout(() => {
+          actions.clearError();
+        }, 5000);
+        return () => clearTimeout(timer);
+      }
     }
   }, [state.errorMessage, actions]);
 

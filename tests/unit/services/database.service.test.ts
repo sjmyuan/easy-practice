@@ -35,11 +35,12 @@ describe('DatabaseService', () => {
         accuracy: 0.8,
       };
 
-      const sessionId = service.saveSession(sessionData);
+      const result = service.saveSession(sessionData);
 
-      expect(sessionId).toBeDefined();
-      expect(typeof sessionId).toBe('string');
-      expect(sessionId.length).toBeGreaterThan(0);
+      expect(result.success).toBe(true);
+      expect(result.sessionId).toBeDefined();
+      expect(typeof result.sessionId).toBe('string');
+      expect(result.sessionId!.length).toBeGreaterThan(0);
     });
 
     it('should save multiple sessions', () => {
@@ -68,7 +69,9 @@ describe('DatabaseService', () => {
       const id1 = service.saveSession(sessionData1);
       const id2 = service.saveSession(sessionData2);
 
-      expect(id1).not.toBe(id2);
+      expect(id1.success).toBe(true);
+      expect(id2.success).toBe(true);
+      expect(id1.sessionId).not.toBe(id2.sessionId);
 
       const sessions = service.getSessionHistory('addition-within-20');
       expect(sessions.length).toBeGreaterThan(0);
