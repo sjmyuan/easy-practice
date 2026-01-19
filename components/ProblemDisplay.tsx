@@ -43,14 +43,18 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   const answerAudioRef = useRef<HTMLAudioElement>(null);
   const prevProblemIdRef = useRef<string | undefined>(undefined);
 
+  // Reset showAnswer state when problem changes
+  useEffect(() => {
+    if (problem?.id !== prevProblemIdRef.current) {
+      setShowAnswer(false);
+    }
+  }, [problem?.id]);
+
   // Auto-play and cleanup when problem changes
   useEffect(() => {
     // Check if problem actually changed
     if (problem?.id !== prevProblemIdRef.current) {
       prevProblemIdRef.current = problem?.id;
-
-      // Reset showAnswer state when problem changes
-      setShowAnswer(false);
 
       // Stop any playing audio when problem changes
       if (problemAudioRef.current) {
