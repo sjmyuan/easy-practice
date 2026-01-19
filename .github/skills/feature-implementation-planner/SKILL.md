@@ -77,50 +77,15 @@ The capabilities section describes additional capabilities that you can refer to
 
 
 <implementation-planning-examples>
-**Example 1: Adding a New Export Feature**
-```
-Requirement: Add ability to export practice history to CSV file
-Steps:
-- Step 1: Validate Baseline (run tests, lint, type-check)
-- Step 2: Write Tests for CSV generation utility function
-- Step 3: Confirm Test Failure
-- Step 4: Implement CSV generation utility
-- Step 5: Verify Tests Pass
-- Step 6: Refactor utility for clarity
-- Step 7: Validate Refactoring
-- Step 8: Write Tests for Export button component
-- Step 9: Confirm Test Failure
-- Step 10: Implement Export button UI
-- Step 11: Verify Tests Pass
-- Step 12: Integrate export functionality
-- Step 13: Clean Up unused imports/code
-- Step 14: Clean Up Tests
-- Step 15: Verify Cleanup
-- Step 16: Validate Quality (lint, format, type-check)
-```
 
-**Example 2: Simple UI Enhancement**
-```
-Requirement: Add a tooltip to the Reset Data button
-Steps (Adapted TDD - Streamlined for simple feature):
-- Step 1: Validate Baseline
-- Step 2: Write Tests for tooltip rendering and behavior
-- Step 3: Confirm Test Failure
-- Step 4: Add tooltip component with props
-- Step 5: Verify Tests Pass
-- Step 6: Validate Quality
-```
+When you need specific examples to understand how to apply the implementation planning approach, load the relevant example file from the examples folder:
 
-**Example 3: Complex Business Logic**
-```
-Requirement: Implement spaced repetition algorithm for problem scheduling
-Steps (Full TDD - Complex logic requires rigorous testing):
-- Step 1: Validate Baseline
-- Step 2-11: Full TDD cycle for algorithm core (calculate next review date)
-- Step 12-21: Full TDD cycle for integration with problem service
-- Step 22-31: Full TDD cycle for UI integration and state management
-- Step 32: Validate Quality
-```
+- **Adding a New Export Feature**: When implementing a new feature that involves both backend logic and UI components, read `examples/adding-new-export-feature.md`
+- **Simple UI Enhancement**: When implementing straightforward UI improvements without complex business logic, read `examples/simple-ui-enhancement.md`
+- **Complex Business Logic**: When implementing sophisticated algorithms or complex business rules requiring rigorous testing, read `examples/complex-business-logic.md`
+
+Only load example files when they are directly relevant to the current implementation task to minimize context size.
+
 </implementation-planning-examples>
 
 </capabilities>

@@ -73,42 +73,15 @@ The capabilities section describes additional capabilities that you can refer to
 </refactor-planning>
 
 <refactor-planning-examples>
-**Example 1: Component Splitting**
-```
-Objective: Split large PracticeSessionView component into smaller, focused components
-Steps:
-- Step 1: Validate Baseline (run tests, lint, type-check)
-- Step 2: Write Tests for SessionHeader subcomponent
-- Step 3: Confirm Test Failure
-- Step 4: Extract SessionHeader component
-- Step 5: Verify Tests Pass
-- Step 6: Clean Up unused code in PracticeSessionView
-- Step 7: Clean Up Tests
-- Step 8: Verify Cleanup
-- Step 9: Validate Quality (lint, format, type-check)
-[Repeat for SessionContent and SessionFooter subcomponents]
-```
 
-**Example 2: Type Improvements**
-```
-Objective: Add strict type annotations to utility functions
-Steps (Adapted TDD - Focus on type-checking):
-- Step 1: Validate Baseline
-- Step 2: Add type annotations to utils.ts functions
-- Step 3: Verify existing tests still pass
-- Step 4: Run type-checker and fix any issues
-- Step 5: Validate Quality
-```
+When you need specific examples to understand how to apply the refactoring planning approach, load the relevant example file from the examples folder:
 
-**Example 3: Hook Extraction**
-```
-Objective: Extract session management logic into useSession hook
-Steps:
-- Step 1: Validate Baseline
-- Step 2-9: Full TDD cycle for useSession hook creation
-- Step 10-17: Full TDD cycle for integrating hook into components
-- Step 18: Validate Quality
-```
+- **Component Splitting**: When refactoring involves breaking down large components into smaller, focused ones, read `examples/component-splitting.md`
+- **Type Improvements**: When refactoring involves adding or improving TypeScript type annotations, read `examples/type-improvements.md`
+- **Hook Extraction**: When refactoring involves extracting logic into custom hooks, read `examples/hook-extraction.md`
+
+Only load example files when they are directly relevant to the current refactoring task to minimize context size.
+
 </refactor-planning-examples>
 
 </capabilities>

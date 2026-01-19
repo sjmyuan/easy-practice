@@ -66,54 +66,17 @@ The capabilities section describes the key capabilities for executing plans effe
 
 <examples>
 
-This section provides concrete examples of plan execution in different scenarios.
+**Note**: Detailed execution examples are available in separate files to reduce context size. Load only the specific example you need.
 
-<example name="Single-Component Refactor">
-**Scenario**: Plan has 8 steps to refactor a single component
+**Available Examples**:
+- **Single-Component Refactor**: Simple 8-step refactor with progress updates
+  - Load: `examples/single-component-refactor.md`
+- **Multi-File Feature Implementation**: Complex 15-step implementation across multiple files
+  - Load: `examples/multi-file-implementation.md`
+- **Handling Failed Steps**: Error recovery and debugging during execution
+  - Load: `examples/handling-failed-steps.md`
 
-**Execution**:
-1. Initialize todo list with all 8 steps
-2. Mark Step 1 as in-progress, explain approach, execute, mark completed
-3. Mark Step 2 as in-progress, execute, mark completed
-4. Continue through Step 5, then provide progress update: "Completed 5/8 steps: baseline validated, tests written and passing, component refactored"
-5. Complete Steps 6-8, run final validation
-6. Mark all steps completed, provide final summary
-
-**Key Points**: Status updated immediately after each step; progress reported at the midpoint and end.
-</example>
-
-<example name="Multi-File Feature Implementation">
-**Scenario**: Plan has 15 steps across 4 files (database, service, component, tests)
-
-**Execution**:
-1. Initialize todo list with all 15 steps
-2. Execute Steps 1-4 (database changes), update statuses
-3. Provide update: "Completed database layer (4/15 steps)"
-4. Execute Steps 5-8 (service changes), update statuses
-5. Provide update: "Completed service layer (8/15 steps)"
-6. Execute Steps 9-12 (component changes), update statuses
-7. Provide update: "Completed component updates (12/15 steps)"
-8. Execute Steps 13-15 (integration tests and validation)
-9. Final summary with all changes documented
-
-**Key Points**: Progress reported at logical phase boundaries; status continuously updated.
-</example>
-
-<example name="Handling Failed Steps">
-**Scenario**: Step 4 (Verify Tests Pass) fails due to unexpected test failures
-
-**Execution**:
-1. Steps 1-3 completed successfully
-2. Mark Step 4 as in-progress, run tests
-3. Tests fail—document the error: "3 tests failing in utils.test.ts due to type mismatches"
-4. Analyze root cause: refactored code changed function signatures
-5. Fix the issues in the code and update tests accordingly
-6. Re-run tests until they pass
-7. Mark Step 4 as completed
-8. Continue with Step 5
-
-**Key Points**: Never skip failed validation; address issues immediately; document and resolve errors.
-</example>
+**When to load**: Load a specific example when you need concrete guidance for a similar scenario.
 
 </examples>
 

@@ -204,103 +204,13 @@ Adapt your writing style to the documentation type:
 
 <examples>
 
-<example name="Bug Fix: Correcting Timer Behavior">
-**Change**: Fixed SessionTimer component to pause when inactive
+When you need specific examples to understand how to document different types of code changes, load the relevant example file from the examples folder:
 
-**Documentation Updates**:
+- **Bug Fix Documentation**: When documenting bug fixes and issue resolutions, read `examples/bug-fix-documentation.md`
+- **New Feature Documentation**: When documenting new features and capabilities, read `examples/new-feature-documentation.md`
+- **Refactor Documentation**: When documenting code refactoring and restructuring, read `examples/refactor-documentation.md`
 
-1. **troubleshooting.md** (if it exists):
-   ```markdown
-   ## Timer continues during inactivity
-   
-   **Fixed in v2.1.0**: Timer now correctly pauses when the tab is inactive.
-   Update to the latest version to resolve this issue.
-   ```
-
-2. **changelog.md**:
-   ```markdown
-   ## [2.1.0] - 2026-01-18
-   
-   ### Fixed
-   - SessionTimer now pauses when browser tab is inactive (#42)
-   ```
-
-3. **components/SessionTimer.tsx** (inline docs):
-   Added JSDoc comment explaining the visibility API usage
-</example>
-
-<example name="New Feature: Multi-Language Support">
-**Change**: Added i18n support with LanguageContext and locale files
-
-**Documentation Updates**:
-
-1. **requirements.md**:
-   Added section: "The application must support multiple languages (English, Chinese) with runtime language switching."
-
-2. **architecture.md**:
-   ```markdown
-   ### Internationalization
-   
-   **Pattern**: React Context + JSON locale files
-   **Components**: LanguageContext provides `t()` translation function
-   **Locale Files**: `/locales/{lang}.json` contain translations
-   **Language Detection**: Reads browser preference, falls back to English
-   ```
-
-3. **README.md**:
-   ```markdown
-   ## Adding New Languages
-   
-   1. Create `/locales/{lang-code}.json` with translations
-   2. Add language option to LanguageSelector component
-   3. Import locale file in `/locales/index.ts`
-   ```
-
-4. **Usage Example** (in README or separate guide):
-   ```typescript
-   import { useLanguage } from '@/contexts';
-   
-   function MyComponent() {
-     const { t } = useLanguage();
-     return <h1>{t('welcome_message')}</h1>;
-   }
-   ```
-</example>
-
-<example name="Refactor: Extracting Custom Hook">
-**Change**: Extracted session state management into `useSession` hook
-
-**Documentation Updates**:
-
-1. **architecture.md**:
-   ```markdown
-   ### State Management Hooks
-   
-   **useSession**: Manages practice session lifecycle
-   - Location: `/hooks/useSession.ts`
-   - Responsibilities: session creation, problem tracking, completion
-   - Used by: PracticeSessionView, SessionCompleteView
-   ```
-
-2. **Developer Guide** (if exists):
-   ```markdown
-   ## Working with Sessions
-   
-   Instead of managing session state directly, use the `useSession` hook:
-   
-   ```typescript
-   const { session, startSession, endSession, nextProblem } = useSession();
-   ```
-   
-   This hook handles:
-   - Database persistence
-   - Problem selection logic
-   - Session timer coordination
-   ```
-
-3. **Inline Documentation**:
-   Added comprehensive JSDoc to `useSession.ts` explaining all exported functions and return values
-</example>
+Only load example files when they are directly relevant to the type of code change being documented to minimize context size.
 
 </examples>
 

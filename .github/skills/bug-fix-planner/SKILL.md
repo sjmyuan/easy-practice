@@ -71,45 +71,15 @@ The capabilities section describes additional capabilities that you can refer to
 </bug-fixing-planning>
 
 <bug-fixing-planning-examples>
-**Example 1: Simple Logic Bug**
-```
-Bug: Timer shows incorrect time after pause/resume
-Root Cause: Timestamp not updated on resume
-Steps:
-- Step 1: Validate Baseline (run tests, lint, type-check)
-- Step 2: Write Tests for pause/resume timing behavior
-- Step 3: Confirm Test Failure
-- Step 4: Fix timestamp update logic in SessionTimer
-- Step 5: Verify Tests Pass
-- Step 6: Clean Up Unused Code
-- Step 7: Clean Up Tests
-- Step 8: Verify Cleanup
-- Step 9: Validate Quality (lint, format, type-check)
-```
 
-**Example 2: Type-Related Bug**
-```
-Bug: Type error when problem has no audio field
-Root Cause: Optional audio field not properly typed
-Steps (Adapted TDD - Focus on type-checking):
-- Step 1: Validate Baseline
-- Step 2: Add optional audio field to Problem type
-- Step 3: Update components handling audio to check for existence
-- Step 4: Verify existing tests still pass
-- Step 5: Run type-checker and fix any issues
-- Step 6: Validate Quality
-```
+When you need specific examples to understand how to apply the bug-fixing planning approach, load the relevant example file from the examples folder:
 
-**Example 3: Data Persistence Bug**
-```
-Bug: Session progress lost on browser refresh
-Root Cause: IndexedDB transactions not properly awaited
-Steps:
-- Step 1: Validate Baseline
-- Step 2-9: Full TDD cycle for fixing storage.ts async handling
-- Step 10-17: Full TDD cycle for updating database.service.ts
-- Step 18: Validate Quality
-```
+- **Simple Logic Bugs**: When fixing bugs related to incorrect logic, timing, or calculation errors, read `examples/simple-logic-bug.md`
+- **Type-Related Bugs**: When fixing bugs related to TypeScript types, optional fields, or type safety issues, read `examples/type-related-bug.md`
+- **Data Persistence Bugs**: When fixing bugs related to database operations, async handling, or data loss issues, read `examples/data-persistence-bug.md`
+
+Only load example files when they are directly relevant to the current bug being fixed to minimize context size.
+
 </bug-fixing-planning-examples>
 </capabilities>
 

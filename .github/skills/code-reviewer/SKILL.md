@@ -204,104 +204,12 @@ description: Review submitted files, folders, diffs, or commits and provide clea
 
 <review-output-examples>
 
-**Example 1: Single File Review (Feature Addition)**
+When you need specific examples to understand how to structure and format code review output, load the relevant example file from the examples folder:
 
-```markdown
-## Code Review Summary
-**Scope**: New `LanguageSelector.tsx` component
-**Focus**: Correctness, accessibility, maintainability
-**Overall Assessment**: Ready to merge after fixing 1 major issue
+- **Single File Reviews**: When reviewing a single new or modified file (component, module, etc.), read `examples/single-file-review.md`
+- **Diff/Commit Reviews**: When reviewing diffs, commits, or bug fixes with focused changes, read `examples/diff-commit-review.md`
 
----
-
-## Findings
-
-### 🔴 Major Issues
-
-#### Missing Keyboard Navigation
-- **File**: [LanguageSelector.tsx](LanguageSelector.tsx#L15-L20)
-- **Issue**: Dropdown not keyboard accessible (no onKeyDown handler, no aria-expanded)
-- **Impact**: Users relying on keyboard navigation cannot change language
-- **Recommendation**: Add keyboard handlers and ARIA attributes:
-```tsx
-<button
-  onClick={toggleDropdown}
-  onKeyDown={(e) => e.key === 'Enter' && toggleDropdown()}
-  aria-expanded={isOpen}
-  aria-haspopup="true"
->
-```
-
-### 🟡 Minor Issues
-
-#### Hardcoded Language Options
-- **File**: [LanguageSelector.tsx](LanguageSelector.tsx#L8-L12)
-- **Issue**: Language list hardcoded in component rather than from config/constants
-- **Impact**: Adding languages requires component changes
-- **Recommendation**: Move to `lib/constants.ts` as `SUPPORTED_LANGUAGES`
-
----
-
-## Positive Highlights
-- Clear prop types with TypeScript
-- Good separation of concerns (UI vs. logic)
-- Clean styling with Tailwind
-
----
-
-## Recommended Next Steps
-1. Fix keyboard accessibility (blocker for a11y compliance)
-2. Consider extracting language options to constants
-```
-
-**Example 2: Diff/Commit Review (Bug Fix)**
-
-```markdown
-## Code Review Summary
-**Scope**: Fix for issue #123 - session timer not resetting
-**Focus**: Correctness, regression prevention
-**Overall Assessment**: Requires test coverage before merge
-
----
-
-## Findings
-
-### 🔴 Major Issues
-
-#### Missing Test for Bug Fix
-- **File**: Tests missing for [SessionTimer.tsx](SessionTimer.tsx#L45-L48)
-- **Issue**: No test verifying timer resets when session restarts
-- **Impact**: Risk of regression in future refactors
-- **Recommendation**: Add test case:
-```tsx
-it('resets timer when session restarts', () => {
-  const { rerender } = render(<SessionTimer sessionId="1" />);
-  // advance timer
-  rerender(<SessionTimer sessionId="2" />);
-  expect(screen.getByText(/00:00/)).toBeInTheDocument();
-});
-```
-
-### 🟢 Nits / Suggestions
-
-#### useEffect Dependency Could Be More Specific
-- **File**: [SessionTimer.tsx](SessionTimer.tsx#L45)
-- **Issue**: Resets on any prop change, not just `sessionId`
-- **Impact**: None currently, but could cause unexpected resets if props added
-- **Recommendation**: Use `sessionId` in dependency array instead of recreating effect
-
----
-
-## Positive Highlights
-- Root cause correctly identified and fixed
-- Clean, minimal change
-
----
-
-## Recommended Next Steps
-1. Add regression test (required)
-2. Consider dependency array refinement (optional)
-```
+Only load example files when you need guidance on structuring review output for the specific review type to minimize context size.
 
 </review-output-examples>
 
