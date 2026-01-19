@@ -1,9 +1,10 @@
 // components/HistoryView.tsx
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { Session } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { formatDuration } from '@/lib/utils';
 
 interface HistoryViewProps {
   sessions: Session[];
@@ -13,22 +14,59 @@ interface HistoryViewProps {
 export function HistoryView({ sessions, onClose }: HistoryViewProps) {
   const { t } = useLanguage();
 
-  const formatDuration = (milliseconds: number): string => {
-    const seconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
 
-    if (hours > 0) {
-      const remainingMinutes = minutes % 60;
-      const remainingSeconds = seconds % 60;
-      return `${hours}h ${remainingMinutes}m ${remainingSeconds}s`;
-    } else if (minutes > 0) {
-      const remainingSeconds = seconds % 60;
-      return `${minutes}m ${remainingSeconds}s`;
-    } else {
-      return `${seconds}s`;
-    }
-  };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
+  // Focus trap and initial focus
+  useEffect(() => {
+    const modal = document.querySelector('[role="region"][aria-label="Session history"]');
+    if (!modal) return;
+
+    const focusableElements = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0] as HTMLElement;
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+    // Focus first element (close button) when modal opens
+    firstElement?.focus();
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (focusableElements.length === 1) {
+        // Only one focusable element, prevent tabbing away
+        e.preventDefault();
+        return;
+      }
+
+      if (e.shiftKey) {
+        // Shift + Tab: move backwards
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        // Tab: move forwards
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [sessions]);
 
   const formatDate = (timestamp: number): string => {
     const date = new Date(timestamp);

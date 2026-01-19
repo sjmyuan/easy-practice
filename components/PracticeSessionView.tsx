@@ -4,6 +4,7 @@ import { ProblemDisplay } from '@/components/ProblemDisplay';
 import { AnswerButtons } from '@/components/AnswerButtons';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { SessionTimer } from '@/components/SessionTimer';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Problem } from '@/types';
 
 interface PracticeSessionViewProps {
@@ -27,8 +28,15 @@ export function PracticeSessionView({
   onFail,
   isLoading,
 }: PracticeSessionViewProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex flex-col h-full min-h-0 w-full">
+      {/* Screen reader announcements for progress */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {t('session.progress')}: {sessionCompletedCount} {t('session.of')} {sessionQueueLength}
+      </div>
+
       {/* Header: Session Timer & Progress Indicator */}
       <div className="flex flex-col items-center gap-1 py-2 px-2 bg-transparent text-xs opacity-70 select-none">
         {isSessionActive && (

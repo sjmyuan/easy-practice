@@ -1,6 +1,7 @@
 // components/SettingsPanel.tsx
 'use client';
 
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { ProblemCoverageDropdown } from './ProblemCoverageDropdown';
 import { ResetDataButton } from './ResetDataButton';
@@ -29,6 +30,58 @@ export function SettingsPanel({
   onSessionHistoryLimitChange,
 }: SettingsPanelProps) {
   const { t } = useLanguage();
+  
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  // Focus trap: keep focus within modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const modal = document.querySelector('[role="dialog"]');
+    if (!modal) return;
+
+    const focusableElements = modal.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0] as HTMLElement;
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+    // Focus first element when modal opens
+    firstElement?.focus();
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        // Shift + Tab: move backwards
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        // Tab: move forwards
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [isOpen]);
   
   if (!isOpen) return null;
 

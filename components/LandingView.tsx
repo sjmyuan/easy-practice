@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { ProblemSetSelector } from '@/components/ProblemSetSelector';
 import type { ProblemSet } from '@/types';
 

@@ -4,8 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, Volume2 } from 'lucide-react';
 import type { Problem } from '@/types';
-
-const AUDIO_BASE_URL = 'https://images.shangjiaming.top';
+import { AUDIO_BASE_URL } from '@/lib/constants';
 
 interface ProblemDisplayProps {
   problem: Problem | null;
@@ -44,6 +43,13 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   const answerAudioRef = useRef<HTMLAudioElement>(null);
   const prevProblemIdRef = useRef<string | undefined>(undefined);
 
+  // Reset showAnswer state when problem changes
+  useEffect(() => {
+    if (problem?.id !== prevProblemIdRef.current) {
+      setShowAnswer(false);
+    }
+  }, [problem?.id]);
+
   // Auto-play and cleanup when problem changes
   useEffect(() => {
     // Check if problem actually changed
@@ -68,8 +74,6 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
       }
     }
   }, [problem]);
-
-  // Reset showAnswer state when problem changes (using key prop instead)
 
   const handleProblemAudioClick = () => {
     if (problemAudioRef.current) {

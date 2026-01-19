@@ -12,7 +12,6 @@ import React, {
 } from 'react';
 import type { Problem, ProblemSet, Session } from '@/types';
 import { databaseService, problemService } from '@/services';
-import { db } from '@/lib/db';
 import { RECENT_PROBLEMS_LIMIT } from '@/lib/constants';
 
 export interface AppState {
@@ -43,13 +42,13 @@ export interface AppState {
   // Initialization
   isInitialized: boolean;
   initializationError: string | null;
+
+  // Error Notifications
+  errorMessage: string | null;
 }
 
 export interface AppActions {
   // Problem Set Actions
-  importProblemSet: (file: File) => Promise<void>;
-  loadProblemSets: () => Promise<void>;
-  toggleProblemSet: (id: string, enabled: boolean) => Promise<void>;
   selectProblemSet: (problemSetId: string) => void;
 
   // Problem Actions
@@ -78,6 +77,9 @@ export interface AppActions {
 
   // Initialization
   initializeApp: () => Promise<void>;
+
+  // Error Handling
+  clearError: () => void;
 }
 
 export interface AppContextValue {
@@ -85,41 +87,55 @@ export interface AppContextValue {
   actions: AppActions;
 }
 
-const PROBLEM_COVERAGE_KEY = 'problemCoverage';
-const SESSION_HISTORY_LIMIT_KEY = 'sessionHistoryLimit';
+import { 
+  STORAGE_KEYS,
+  DEFAULT_PROBLEM_COVERAGE,
+  DEFAULT_SESSION_HISTORY_LIMIT,
+  PROBLEM_COVERAGE_OPTIONS,
+  SESSION_HISTORY_LIMIT_OPTIONS,
+} from '@/lib/constants';
+
+const PROBLEM_COVERAGE_KEY = STORAGE_KEYS.PROBLEM_COVERAGE;
+const SESSION_HISTORY_LIMIT_KEY = STORAGE_KEYS.SESSION_HISTORY_LIMIT;
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 // Load problem coverage from localStorage
 function loadProblemCoverageFromStorage(): number {
+  if (typeof window === 'undefined') {
+    return 100; // Default for SSR
+  }
   try {
     const stored = localStorage.getItem(PROBLEM_COVERAGE_KEY);
     if (stored) {
       const parsed = parseInt(stored, 10);
-      if ([30, 50, 80, 100].includes(parsed)) {
+      if (PROBLEM_COVERAGE_OPTIONS.includes(parsed as typeof PROBLEM_COVERAGE_OPTIONS[number])) {
         return parsed;
       }
     }
   } catch (error) {
     console.error('Failed to load problem coverage from localStorage:', error);
   }
-  return 100; // Default
+  return DEFAULT_PROBLEM_COVERAGE;
 }
 
 // Load session history limit from localStorage
 function loadSessionHistoryLimitFromStorage(): number {
+  if (typeof window === 'undefined') {
+    return 10; // Default for SSR
+  }
   try {
     const stored = localStorage.getItem(SESSION_HISTORY_LIMIT_KEY);
     if (stored) {
       const parsed = parseInt(stored, 10);
-      if ([10, 20, 30, 40, 50].includes(parsed)) {
+      if (SESSION_HISTORY_LIMIT_OPTIONS.includes(parsed as typeof SESSION_HISTORY_LIMIT_OPTIONS[number])) {
         return parsed;
       }
     }
   } catch (error) {
     console.error('Failed to load session history limit from localStorage:', error);
   }
-  return 10; // Default
+  return DEFAULT_SESSION_HISTORY_LIMIT;
 }
 
 const initialState: AppState = {
@@ -141,15 +157,12 @@ const initialState: AppState = {
   initializationError: null,
   problemCoverage: 100, // Default, will be overridden in AppProvider
   sessionHistoryLimit: 10, // Default, will be overridden in AppProvider
+  errorMessage: null,
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  // Initialize state with localStorage value
-  const [state, setState] = useState<AppState>(() => ({
-    ...initialState,
-    problemCoverage: loadProblemCoverageFromStorage(),
-    sessionHistoryLimit: loadSessionHistoryLimitFromStorage(),
-  }));
+  // Initialize state without localStorage (SSR-safe)
+  const [state, setState] = useState<AppState>(initialState);
   const stateRef = useRef<AppState>(state);
 
   // Keep ref in sync with state
@@ -160,6 +173,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const setLoading = useCallback((isLoading: boolean) => {
     setState((prev) => ({ ...prev, isLoading }));
   }, []);
+
+  const setError = useCallback((message: string) => {
+    setState((prev) => ({ ...prev, errorMessage: message }));
+  }, []);
+
+  const clearError = useCallback(() => {
+    setState((prev) => ({ ...prev, errorMessage: null }));
+  }, []);
+
+  // Helper function to get reset session state
+  const getResetSessionState = () => ({
+    isSessionActive: false,
+    sessionQueue: [],
+    sessionCompletedCount: 0,
+    sessionStartTime: null,
+    sessionDuration: null,
+    sessionPassCount: 0,
+    sessionFailCount: 0,
+  });
 
   const initializeApp = useCallback(async () => {
     try {
@@ -172,7 +204,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Always load default problem sets to ensure updates are applied
       await problemService.loadDefaultProblemSets();
 
-      const problemSets = await databaseService.getProblemSets();
+      const problemSets = problemService.getProblemSets();
 
       setState((prev) => ({
         ...prev,
@@ -197,39 +229,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const loadProblemSets = useCallback(async () => {
-    const problemSets = await databaseService.getProblemSets();
-    setState((prev) => ({ ...prev, availableProblemSets: problemSets }));
-  }, []);
 
-  const importProblemSet = useCallback(
-    async (file: File) => {
-      try {
-        setLoading(true);
-        await problemService.loadProblemSetFromFile(file);
-        await loadProblemSets();
-      } catch (error) {
-        console.error('Failed to import problem set:', error);
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [setLoading, loadProblemSets]
-  );
-
-  const toggleProblemSet = useCallback(
-    async (id: string, enabled: boolean) => {
-      try {
-        await databaseService.toggleProblemSet(id, enabled);
-        await loadProblemSets();
-      } catch (error) {
-        console.error('Failed to toggle problem set:', error);
-        throw error;
-      }
-    },
-    [loadProblemSets]
-  );
 
   const loadNextProblem = useCallback(async () => {
     try {
@@ -265,93 +265,82 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const submitAnswer = useCallback(
     async (result: 'pass' | 'fail') => {
+      // Prevent double submission  
+      if (stateRef.current.isLoading) return;
+
       try {
-        // Get current state from ref
-        const {
-          currentProblem,
-          isSessionActive,
-          sessionQueue,
-          sessionCompletedCount,
-          sessionStartTime,
-          sessionPassCount,
-          sessionFailCount,
-          selectedProblemSetKey,
-        } = stateRef.current;
-        const problemId = currentProblem?.id;
+        setLoading(true);
 
-        if (!problemId) return;
+        // Capture current state values before setState
+        const currentState = stateRef.current;
+        const problemId = currentState.currentProblem?.id;
+        
+        if (!problemId || !currentState.isSessionActive || currentState.sessionQueue.length === 0) {
+          return;
+        }
 
-        // Record the attempt
-        await databaseService.recordAttempt(problemId, result);
+        const newCompletedCount = currentState.sessionCompletedCount + 1;
+        const newPassCount = result === 'pass' ? currentState.sessionPassCount + 1 : currentState.sessionPassCount;
+        const newFailCount = result === 'fail' ? currentState.sessionFailCount + 1 : currentState.sessionFailCount;
 
-        // If session is active, handle session-based progression
-        if (isSessionActive && sessionQueue.length > 0) {
-          const newCompletedCount = sessionCompletedCount + 1;
+        // Check if session is complete
+        if (newCompletedCount >= currentState.sessionQueue.length) {
+          const duration = currentState.sessionStartTime ? Date.now() - currentState.sessionStartTime : 0;
+          const endTime = Date.now();
+          const accuracy = currentState.sessionQueue.length > 0
+            ? Math.round((newPassCount / currentState.sessionQueue.length) * 100)
+            : 0;
 
-          // Update pass/fail counts
-          const newPassCount =
-            result === 'pass' ? sessionPassCount + 1 : sessionPassCount;
-          const newFailCount =
-            result === 'fail' ? sessionFailCount + 1 : sessionFailCount;
+          // Update state
+          setState((prev) => ({
+            ...prev,
+            sessionCompletedCount: newCompletedCount,
+            isSessionActive: false,
+            currentProblem: null,
+            sessionDuration: duration,
+            sessionPassCount: newPassCount,
+            sessionFailCount: newFailCount,
+          }));
 
-          // Check if session is complete
-          if (newCompletedCount >= sessionQueue.length) {
-            // Calculate session duration
-            const duration = sessionStartTime
-              ? Date.now() - sessionStartTime
-              : 0;
-            const endTime = Date.now();
-            const accuracy = sessionQueue.length > 0
-              ? Math.round((newPassCount / sessionQueue.length) * 100)
-              : 0;
-
-            // Save session to database
-            if (selectedProblemSetKey && sessionStartTime) {
-              await databaseService.saveSession({
-                problemSetKey: selectedProblemSetKey,
-                startTime: sessionStartTime,
-                endTime: endTime,
-                duration: duration,
-                passCount: newPassCount,
-                failCount: newFailCount,
-                totalProblems: sessionQueue.length,
-                accuracy: accuracy,
-              });
+          // Save session to database
+          if (currentState.selectedProblemSetKey && currentState.sessionStartTime) {
+            const saveResult = databaseService.saveSession({
+              problemSetKey: currentState.selectedProblemSetKey,
+              startTime: currentState.sessionStartTime,
+              endTime: endTime,
+              duration: duration,
+              passCount: newPassCount,
+              failCount: newFailCount,
+              totalProblems: currentState.sessionQueue.length,
+              accuracy: accuracy,
+            });
+            
+            if (!saveResult.success) {
+              console.error('Failed to save session:', saveResult.error);
+              setError(saveResult.error || 'Session completed but failed to save. Progress may be lost.');
             }
-
-            // Session complete
-            setState((prev) => ({
-              ...prev,
-              sessionCompletedCount: newCompletedCount,
-              isSessionActive: false,
-              currentProblem: null,
-              sessionDuration: duration,
-              sessionPassCount: newPassCount,
-              sessionFailCount: newFailCount,
-            }));
-          } else {
-            // Load next problem from session queue
-            const nextProblemId = sessionQueue[newCompletedCount];
-            const nextProblem = await db.problems.get(nextProblemId);
-
-            setState((prev) => ({
-              ...prev,
-              sessionCompletedCount: newCompletedCount,
-              currentProblem: nextProblem || null,
-              sessionPassCount: newPassCount,
-              sessionFailCount: newFailCount,
-            }));
           }
         } else {
-          // No active session, use old behavior
-          await loadNextProblem();
+          // Load next problem from session queue
+          const nextProblemId = currentState.sessionQueue[newCompletedCount];
+          const nextProblem = problemService.getProblemById(nextProblemId);
+
+          setState((prev) => ({
+            ...prev,
+            sessionCompletedCount: newCompletedCount,
+            currentProblem: nextProblem || null,
+            sessionPassCount: newPassCount,
+            sessionFailCount: newFailCount,
+          }));
         }
       } catch (error) {
         console.error('Failed to submit answer:', error);
-        throw error;
+        setError('Failed to submit answer. Please try again.');
+      } finally {
+        setLoading(false);
       }
     },
-    [loadNextProblem]
+    [setLoading, setError]
   );
 
   const setProblemSetKey = useCallback((problemSetKey: string) => {
@@ -361,15 +350,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         selectedProblemSetKey: problemSetKey,
         recentProblemIds: [],
         currentProblem: null,
-        // Reset session when switching problem set keys
-        isSessionActive: false,
-        sessionQueue: [],
-        sessionCompletedCount: 0,
-        sessionStartTime: null,
-        sessionDuration: null,
-        sessionPassCount: 0,
-        sessionFailCount: 0,
-        // Clear session history when switching problem set keys
+        ...getResetSessionState(),
       };
       // Update stateRef synchronously within setState updater
       stateRef.current = newState;
@@ -396,14 +377,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           selectedProblemSetKey: '',
           recentProblemIds: [],
           currentProblem: null,
-          // Reset session when clearing problem set
-          isSessionActive: false,
-          sessionQueue: [],
-          sessionCompletedCount: 0,
-          sessionStartTime: null,
-          sessionDuration: null,
-          sessionPassCount: 0,
-          sessionFailCount: 0,
+          ...getResetSessionState(),
         };
         stateRef.current = newState;
         return newState;
@@ -418,17 +392,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const newState = {
         ...prev,
-        selectedProblemSetKey: problemSetKey, // Update problemSetKey to match selected set
+        selectedProblemSetKey: problemSetKey,
         recentProblemIds: [],
         currentProblem: null,
-        // Reset session when selecting problem set
-        isSessionActive: false,
-        sessionQueue: [],
-        sessionCompletedCount: 0,
-        sessionStartTime: null,
-        sessionDuration: null,
-        sessionPassCount: 0,
-        sessionFailCount: 0,
+        ...getResetSessionState(),
       };
       // Update stateRef synchronously within setState updater
       stateRef.current = newState;
@@ -445,9 +412,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         stateRef.current;
 
       // Generate session queue based on selected problem set key
-      const queue = await problemService.generateSessionQueue(
+      const queue = problemService.generateSessionQueue(
         selectedProblemSetKey,
-        false,
         problemCoverage
       );
 
@@ -455,21 +421,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (queue.length === 0) {
         setState((prev) => ({
           ...prev,
-          isSessionActive: false,
-          sessionQueue: [],
-          sessionCompletedCount: 0,
+          ...getResetSessionState(),
           currentProblem: null,
-          sessionStartTime: null,
-          sessionDuration: null,
-          sessionPassCount: 0,
-          sessionFailCount: 0,
         }));
+        setError('No problems available for this problem set.');
         return;
       }
 
       // Load first problem from queue
       const firstProblemId = queue[0];
-      const firstProblem = await db.problems.get(firstProblemId);
+      const firstProblem = problemService.getProblemById(firstProblemId);
 
       // Capture session start time
       const startTime = Date.now();
@@ -483,25 +444,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         currentProblem: firstProblem || null,
         recentProblemIds: firstProblem?.id ? [firstProblem.id] : [],
         sessionStartTime: startTime,
-        sessionDuration: null, // Reset duration for new session
-        sessionPassCount: 0, // Reset counts for new session
+        sessionDuration: null,
+        sessionPassCount: 0,
         sessionFailCount: 0,
       }));
     } catch (error) {
       console.error('Failed to start new session:', error);
-      throw error;
+      setError('Failed to start session. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [setLoading]);
+  }, [setLoading, setError]);
 
   const endSessionEarly = useCallback(async () => {
     try {
+      setLoading(true);
+
       // Get current state from ref
       const {
         isSessionActive,
         sessionStartTime,
-        sessionQueue,
         sessionPassCount,
         sessionFailCount,
         sessionCompletedCount,
@@ -523,7 +485,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Save session to database (even if incomplete)
       if (selectedProblemSetKey && sessionStartTime && sessionCompletedCount > 0) {
-        await databaseService.saveSession({
+        const saveResult = databaseService.saveSession({
           problemSetKey: selectedProblemSetKey,
           startTime: sessionStartTime,
           endTime: endTime,
@@ -533,6 +495,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           totalProblems: sessionCompletedCount,
           accuracy: accuracy,
         });
+        
+        if (!saveResult.success) {
+          console.error('Failed to save session:', saveResult.error);
+          setError(saveResult.error || 'Session ended but failed to save. Progress may be lost.');
+        }
       }
 
       // End session and preserve statistics
@@ -544,9 +511,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }));
     } catch (error) {
       console.error('Failed to end session early:', error);
-      throw error;
+      setError('Failed to end session. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [setLoading, setError]);
 
   const loadSessionHistory = useCallback(async () => {
     try {
@@ -588,26 +557,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
 
-      // Reset statistics for ALL problem sets globally
-      await databaseService.resetStatistics();
+      // Clear all session history from localStorage
+      localStorage.removeItem('sessions');
 
-      // No state changes needed - all statistics are in database
+      // Reload session history
+      await loadSessionHistory();
     } catch (error) {
       console.error('Failed to reset data:', error);
       throw error;
     } finally {
       setLoading(false);
     }
-  }, [setLoading]);
+  }, [setLoading, loadSessionHistory]);
 
   const exportData = useCallback(async () => {
     try {
-      const jsonData = await databaseService.exportData();
+      // Export only session data from localStorage
+      const sessions = localStorage.getItem('sessions') || '[]';
+      const exportData = {
+        version: '2.0',
+        exportedAt: new Date().toISOString(),
+        sessions: JSON.parse(sessions),
+      };
+      
+      const jsonData = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonData], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `math-practice-export-${new Date().toISOString()}.json`;
+      link.download = `practice-sessions-${new Date().toISOString()}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -623,8 +601,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         setLoading(true);
         const text = await file.text();
-        await databaseService.importData(text);
-        await initializeApp();
+        const data = JSON.parse(text);
+        
+        // Import sessions data
+        if (data.sessions) {
+          localStorage.setItem('sessions', JSON.stringify(data.sessions));
+        }
+        
+        // Reload session history
+        await loadSessionHistory();
       } catch (error) {
         console.error('Failed to import data:', error);
         throw error;
@@ -632,20 +617,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     },
-    [setLoading, initializeApp]
+    [setLoading, loadSessionHistory]
   );
 
   // Initialize app on mount
   useEffect(() => {
+    // Load localStorage values on mount (client-side only)
+    setState((prev) => ({
+      ...prev,
+      problemCoverage: loadProblemCoverageFromStorage(),
+      sessionHistoryLimit: loadSessionHistoryLimitFromStorage(),
+    }));
+
     initializeApp();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const actions = useMemo(
     () => ({
-      importProblemSet,
-      loadProblemSets,
-      toggleProblemSet,
       selectProblemSet,
       loadNextProblem,
       submitAnswer,
@@ -660,11 +649,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       exportData,
       importData,
       initializeApp,
+      clearError,
     }),
     [
-      importProblemSet,
-      loadProblemSets,
-      toggleProblemSet,
       selectProblemSet,
       loadNextProblem,
       submitAnswer,
@@ -679,6 +666,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       exportData,
       importData,
       initializeApp,
+      clearError,
     ]
   );
 

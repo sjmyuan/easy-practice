@@ -30,15 +30,13 @@ vi.mock('next/navigation', () => ({
 // Mock services
 vi.mock('@/services', () => ({
   databaseService: {
-    getProblemSets: vi.fn(),
-    getProblemById: vi.fn(),
-    getStatistics: vi.fn(),
-    recordAttempt: vi.fn(),
-    resetStatisticsByType: vi.fn(),
+    saveSession: vi.fn(),
+    getSessionHistory: vi.fn(),
   },
   problemService: {
     hasProblems: vi.fn(),
     loadDefaultProblemSets: vi.fn(),
+    getProblemSets: vi.fn(),
   },
 }));
 
@@ -64,10 +62,12 @@ describe('Landing Page (app/page.tsx)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(services.problemService.hasProblems).mockResolvedValue(true);
-    vi.mocked(services.databaseService.getProblemSets).mockResolvedValue(
+    vi.mocked(services.problemService.hasProblems).mockReturnValue(true);
+    vi.mocked(services.problemService.getProblemSets).mockReturnValue(
       mockProblemSets
     );
+    vi.mocked(services.problemService.loadDefaultProblemSets).mockResolvedValue();
+    vi.mocked(services.databaseService.getSessionHistory).mockReturnValue([]);
   });
 
   describe('Initialization', () => {
@@ -110,8 +110,8 @@ describe('Landing Page (app/page.tsx)', () => {
     });
 
     it('should display error state when initialization fails', async () => {
-      vi.mocked(services.databaseService.getProblemSets).mockRejectedValue(
-        new Error('Database error')
+      vi.mocked(services.problemService.loadDefaultProblemSets).mockRejectedValue(
+        new Error('Load error')
       );
       await act(async () => {
         render(
@@ -122,7 +122,7 @@ describe('Landing Page (app/page.tsx)', () => {
       });
       await waitFor(() => {
         expect(screen.getByTestId('error-view')).toBeInTheDocument();
-        expect(screen.getByTestId('error-message')).toHaveTextContent('Database error');
+        expect(screen.getByTestId('error-message')).toHaveTextContent('Load error');
       });
     });
   });
@@ -234,7 +234,7 @@ describe('Landing Page (app/page.tsx)', () => {
 
   describe('Empty State', () => {
     it('should display message when no problem sets are available', async () => {
-      vi.mocked(services.databaseService.getProblemSets).mockResolvedValue([]);
+      vi.mocked(services.problemService.getProblemSets).mockReturnValue([]);
       render(
         <Wrapper>
           <Home />
@@ -246,7 +246,7 @@ describe('Landing Page (app/page.tsx)', () => {
     });
 
     it('should not show navigation options when no problem sets', async () => {
-      vi.mocked(services.databaseService.getProblemSets).mockResolvedValue([]);
+      vi.mocked(services.problemService.getProblemSets).mockReturnValue([]);
       render(
         <Wrapper>
           <Home />
