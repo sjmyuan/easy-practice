@@ -41,39 +41,26 @@ export function ProblemDisplay({ problem }: ProblemDisplayProps) {
   const [isAnswerAudioPlaying, setIsAnswerAudioPlaying] = useState(false);
   const problemAudioRef = useRef<HTMLAudioElement>(null);
   const answerAudioRef = useRef<HTMLAudioElement>(null);
-  const prevProblemIdRef = useRef<string | undefined>(undefined);
-
-  // Reset showAnswer state when problem changes
-  useEffect(() => {
-    if (problem?.id !== prevProblemIdRef.current) {
-      setShowAnswer(false);
-    }
-  }, [problem?.id]);
 
   // Auto-play and cleanup when problem changes
   useEffect(() => {
-    // Check if problem actually changed
-    if (problem?.id !== prevProblemIdRef.current) {
-      prevProblemIdRef.current = problem?.id;
-
-      // Stop any playing audio when problem changes
-      if (problemAudioRef.current) {
-        problemAudioRef.current.pause();
-        problemAudioRef.current.currentTime = 0;
-      }
-      if (answerAudioRef.current) {
-        answerAudioRef.current.pause();
-        answerAudioRef.current.currentTime = 0;
-      }
-
-      // Auto-play problem audio if available
-      if (problem?.problemAudio && problemAudioRef.current) {
-        problemAudioRef.current.play().catch((error) => {
-          console.error('Failed to auto-play problem audio:', error);
-        });
-      }
+    // Stop any playing audio when problem changes
+    if (problemAudioRef.current) {
+      problemAudioRef.current.pause();
+      problemAudioRef.current.currentTime = 0;
     }
-  }, [problem]);
+    if (answerAudioRef.current) {
+      answerAudioRef.current.pause();
+      answerAudioRef.current.currentTime = 0;
+    }
+
+    // Auto-play problem audio if available
+    if (problem?.problemAudio && problemAudioRef.current) {
+      problemAudioRef.current.play().catch((error) => {
+        console.error('Failed to auto-play problem audio:', error);
+      });
+    }
+  }, [problem?.id, problem?.problemAudio]);
 
   const handleProblemAudioClick = () => {
     if (problemAudioRef.current) {

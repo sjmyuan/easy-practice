@@ -244,8 +244,8 @@ describe('HistoryView', () => {
 
       render(<HistoryView sessions={[session]} onClose={mockOnClose} />);
 
-      // Should show seconds for < 1 minute
-      expect(screen.getByText(/45/)).toBeInTheDocument();
+      // Should show duration in HH:MM:SS format
+      expect(screen.getByText('00:00:45')).toBeInTheDocument();
     });
 
     it('should display duration in minutes and seconds for medium sessions', () => {
@@ -265,7 +265,7 @@ describe('HistoryView', () => {
       render(<HistoryView sessions={[session]} onClose={mockOnClose} />);
 
       // Should show HH:MM:SS format
-      expect(screen.getByText(/00:02:05/)).toBeInTheDocument();
+      expect(screen.getByText('00:02:05')).toBeInTheDocument();
     });
 
     it('should display duration in hours, minutes, seconds for long sessions', () => {
@@ -285,7 +285,7 @@ describe('HistoryView', () => {
       render(<HistoryView sessions={[session]} onClose={mockOnClose} />);
 
       // Should show HH:MM:SS format
-      expect(screen.getByText(/01:02:05/)).toBeInTheDocument();
+      expect(screen.getByText('01:02:05')).toBeInTheDocument();
     });
   });
 
